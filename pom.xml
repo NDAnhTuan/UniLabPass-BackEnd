@@ -9,10 +9,10 @@
 		<relativePath/> <!-- lookup parent from repository -->
 	</parent>
 	<groupId>com.example</groupId>
-	<artifactId>PetProject</artifactId>
+	<artifactId>UniLabPass</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
-	<name>PetProject</name>
-	<description>Pet project for Spring Boot</description>
+	<name>UniLabPass</name>
+	<description>UniLabPass for Spring Boot</description>
 	<url/>
 	<licenses>
 		<license/>
