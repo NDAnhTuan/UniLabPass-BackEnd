@@ -9,7 +9,7 @@ import org.mapstruct.Mapping;
 
 @Mapper(componentModel = "spring")
 public interface RoleMapper {
-    @Mapping(target = "permissions", ignore = true)
+//    @Mapping(target = "permissions", ignore = true)
     // Bỏ qua permissions (vì req là string ,entity là obj)
     Role toRole(RoleRequest request);
     RoleResponse toRoleResponse(Role role);

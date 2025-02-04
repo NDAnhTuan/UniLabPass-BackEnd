@@ -3,6 +3,7 @@ package com.example.UniLabPass.controller;
 import com.example.UniLabPass.dto.request.AuthenticationRequest;
 import com.example.UniLabPass.dto.request.IntrospectRequest;
 import com.example.UniLabPass.dto.request.LogoutRequest;
+import com.example.UniLabPass.dto.request.RefreshTokenRequest;
 import com.example.UniLabPass.dto.response.ApiResponse;
 import com.example.UniLabPass.dto.response.AuthenticationResponse;
 import com.example.UniLabPass.dto.response.IntrospectResponse;
@@ -41,6 +42,15 @@ public class AuthenticationController {
                 .result(result)
                 .build();
 
+    }
+
+    @PostMapping("/refresh")
+    ApiResponse<AuthenticationResponse> refreshToken(@RequestBody RefreshTokenRequest request)
+            throws ParseException, JOSEException {
+        var result = authenticationService.refreshToken(request);
+        return ApiResponse.<AuthenticationResponse>builder()
+                .result(result)
+                .build();
     }
 
     @PostMapping("/logout")

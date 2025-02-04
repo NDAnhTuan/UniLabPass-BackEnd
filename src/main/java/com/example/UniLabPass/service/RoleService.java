@@ -3,7 +3,7 @@ package com.example.UniLabPass.service;
 import com.example.UniLabPass.dto.request.RoleRequest;
 import com.example.UniLabPass.dto.response.RoleResponse;
 import com.example.UniLabPass.mapper.RoleMapper;
-import com.example.UniLabPass.repository.PermissionRepository;
+//import com.example.UniLabPass.repository.PermissionRepository;
 import com.example.UniLabPass.repository.RoleRepository;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
@@ -21,13 +21,13 @@ import java.util.List;
 public class RoleService {
     RoleRepository roleRepository;
     RoleMapper roleMapper;
-    PermissionRepository permissionRepository;
+//    PermissionRepository permissionRepository;
 
     public RoleResponse create(RoleRequest request) {
         var role = roleMapper.toRole(request);
-        var permissions = permissionRepository.findAllById(request.getPermissions());
+//        var permissions = permissionRepository.findAllById(request.getPermissions());
         // ??? sao dùng HashSet
-        role.setPermissions(new HashSet<>(permissions));
+//        role.setPermissions(new HashSet<>(permissions));
 
         roleRepository.save(role);
         return roleMapper.toRoleResponse(role);
