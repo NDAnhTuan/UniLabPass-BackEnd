@@ -1,0 +1,13 @@
+package com.example.UniLabPass.dto.response;
+
+import lombok.*;
+import lombok.experimental.FieldDefaults;
+
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
+@FieldDefaults(level = AccessLevel.PRIVATE)
+public class VerificationCodeResponse {
+    boolean verifiedEmail;
+}

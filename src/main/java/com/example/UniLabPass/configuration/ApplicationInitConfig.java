@@ -12,6 +12,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
+import java.util.Date;
 import java.util.HashSet;
 
 @Configuration
@@ -32,6 +33,9 @@ public class ApplicationInitConfig {
                 MyUser myUser = MyUser.builder()
                         .email("admin")
                         .password(passwordEncoder.encode("admin"))
+                        .expiryVerificationCode(new Date())
+                        .verificationCode("")
+                        .isVerified(true)
                         //.roles(roles)
                         .build();
                 myUserRepository.save(myUser);

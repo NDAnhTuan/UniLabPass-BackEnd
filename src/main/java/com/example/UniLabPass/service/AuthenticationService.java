@@ -2,6 +2,7 @@ package com.example.UniLabPass.service;
 
 import com.example.UniLabPass.dto.request.LogoutRequest;
 import com.example.UniLabPass.dto.request.RefreshTokenRequest;
+import com.example.UniLabPass.dto.response.VerificationCodeResponse;
 import com.example.UniLabPass.entity.InvalidatedToken;
 import com.example.UniLabPass.entity.MyUser;
 import com.example.UniLabPass.repository.InvalidatedTokenRepository;
@@ -24,6 +25,7 @@ import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.experimental.NonFinal;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -62,6 +64,9 @@ public class AuthenticationService {
         boolean authenticated = passwordEncoder.matches(request.getPassword(), myUser.getPassword());
         if (!authenticated) {
             throw new AppException(ErrorCode.UNAUTHENTICATED);
+        }
+        if (!myUser.isVerified()) {
+            throw new AppException(ErrorCode.UNVERIFY_EMAIL);
         }
         var token = generateToken(myUser);
 
@@ -186,6 +191,8 @@ public class AuthenticationService {
         return signedJWT;
 
     }
+
+
 
     // Hàm xây dựng thuộc tính scope và claim permisstion trong jwt
     private String buildScope(MyUser myUser) {

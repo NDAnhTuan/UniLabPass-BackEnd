@@ -20,7 +20,8 @@ import org.springframework.security.web.SecurityFilterChain;
 public class SecurityConfig {
 
     private final String[] PUBLIC_ENDPOINTS = {"/users",
-            "/auth/token", "/auth/introspect", "/auth/logout", "/auth/refresh"
+            "/auth/token", "/auth/introspect", "/auth/logout", "/auth/refresh",
+            "/email/verify",
     };
 
     @Autowired
@@ -31,8 +32,10 @@ public class SecurityConfig {
         // Cấu hình cho các request không cần jwt
         httpSecurity.authorizeHttpRequests(request ->
                 request.requestMatchers(HttpMethod.POST, PUBLIC_ENDPOINTS).permitAll()
+                        .requestMatchers("/swagger-ui/**", "/v3/api-docs/**").permitAll()
                         .anyRequest()
                         .authenticated());
+
         // Cấu hình cho xác thực bằng jwt
         httpSecurity.oauth2ResourceServer(
                 oauth2 -> oauth2.jwt(jwtConfigurer ->

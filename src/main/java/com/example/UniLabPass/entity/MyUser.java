@@ -5,6 +5,7 @@ import lombok.*;
 import lombok.experimental.FieldDefaults;
 
 import java.time.LocalDate;
+import java.util.Date;
 import java.util.Set;
 
 @Data
@@ -25,6 +26,13 @@ public class MyUser {
     String firstName;
     String lastName;
     LocalDate dob;
+
+    @Column(nullable = false)
+    String verificationCode;
+    @Column(nullable = false)
+    Date expiryVerificationCode;
+    @Column(nullable = false)
+    boolean isVerified = false;
 
     @ManyToMany
     // Tự động tạo bảng user_role và tự động

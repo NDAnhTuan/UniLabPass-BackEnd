@@ -13,6 +13,7 @@ import com.example.UniLabPass.repository.RoleRepository;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
+import lombok.experimental.NonFinal;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.security.access.prepost.PostAuthorize;
@@ -21,6 +22,10 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.security.SecureRandom;
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
+import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 
@@ -35,10 +40,22 @@ public class MyUserService {
     MyUserMapper myUserMapper;
     PasswordEncoder passwordEncoder;
 
+    EmailService emailService;
+    @NonFinal
+    static final String CHARACTERS = "1234567890";
+    @NonFinal
+    static final int CODE_LENGTH = 6;
+    @NonFinal
+    static final SecureRandom random = new SecureRandom();
+
 
     public MyUserResponse createMyUser(MyUserCreationRequest request) {
         MyUser myUser = myUserMapper.toMyUser(request);
         myUser.setPassword(passwordEncoder.encode(request.getPassword()));
+        myUser.setVerificationCode(generateVerificationCode());
+        myUser.setExpiryVerificationCode(new Date(
+                Instant.now().plus(5, ChronoUnit.MINUTES).toEpochMilli()
+        ));
 
         HashSet<String> roles = new HashSet<>();
         roles.add(Role.USER.name());
@@ -50,6 +67,9 @@ public class MyUserService {
         catch (DataIntegrityViolationException exception) {
             throw new AppException(ErrorCode.USER_EXISTED);
         }
+
+        emailService.sendVerificationEmail(myUser.getEmail(), myUser.getVerificationCode());
+
         return myUserMapper.toMyUserResponse(myUser);
     }
 
@@ -91,5 +111,13 @@ public class MyUserService {
         return myUserMapper.toMyUserResponse(
                 myUserRepository.findById(id).orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED))
         );
+    }
+
+    private  String generateVerificationCode() {
+        StringBuilder code = new StringBuilder(CODE_LENGTH);
+        for (int i = 0; i < CODE_LENGTH; i++) {
+            code.append(CHARACTERS.charAt(random.nextInt(CHARACTERS.length())));
+        }
+        return code.toString();
     }
 }
