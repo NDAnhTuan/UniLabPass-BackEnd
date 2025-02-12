@@ -2,7 +2,6 @@ package com.example.UniLabPass.service;
 
 import com.example.UniLabPass.dto.request.LogoutRequest;
 import com.example.UniLabPass.dto.request.RefreshTokenRequest;
-import com.example.UniLabPass.dto.response.VerificationCodeResponse;
 import com.example.UniLabPass.entity.InvalidatedToken;
 import com.example.UniLabPass.entity.MyUser;
 import com.example.UniLabPass.repository.InvalidatedTokenRepository;
@@ -25,7 +24,6 @@ import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.experimental.NonFinal;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -66,7 +64,7 @@ public class AuthenticationService {
             throw new AppException(ErrorCode.UNAUTHENTICATED);
         }
         if (!myUser.isVerified()) {
-            throw new AppException(ErrorCode.UNVERIFY_EMAIL);
+            throw new AppException(ErrorCode.UNVERIFIED_EMAIL);
         }
         var token = generateToken(myUser);
 

@@ -3,10 +3,13 @@ package com.example.UniLabPass.controller;
 import com.example.UniLabPass.dto.request.MyUserCreationRequest;
 import com.example.UniLabPass.dto.request.MyUserUpdateRequest;
 import com.example.UniLabPass.dto.response.CustomApiResponse;
+import com.example.UniLabPass.dto.response.ErrorApiResponse;
 import com.example.UniLabPass.dto.response.MyUserResponse;
 import com.example.UniLabPass.service.MyUserService;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.ExampleObject;
+import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
@@ -28,6 +31,10 @@ import java.util.List;
 public class MyUserController {
     MyUserService myUserService;
     @Operation(summary = "Register a new user", security = {@SecurityRequirement(name = "")})
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "The user was created successfully"),
+            @ApiResponse(responseCode = "404", description = "INVALID_PASSWORD, USERNAME_INVALID, USER_EXISTED, INVALID_DOB ", content = @Content(schema = @Schema(implementation = ErrorApiResponse.class)))
+    })
     @PostMapping
     CustomApiResponse<MyUserResponse> createMyUser(@RequestBody @Valid MyUserCreationRequest request) {
         CustomApiResponse customApiResponse = new CustomApiResponse<MyUserResponse>();
@@ -37,12 +44,11 @@ public class MyUserController {
                 .build();
     }
     @GetMapping
-    @Operation(summary = "Get List User", security = {@SecurityRequirement(name = "Bearer Authentication")})
+    @Operation(summary = "Get List Users", security = {@SecurityRequirement(name = "Bearer Authentication")})
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Successfully retrieved list"),
-            @ApiResponse(responseCode = "401", description = "You are not authorized to view the resource"),
-            @ApiResponse(responseCode = "403", description = "Accessing the resource you were trying to reach is forbidden"),
-            @ApiResponse(responseCode = "404", description = "The resource you were trying to reach is not found")
+            @ApiResponse(responseCode = "401", description = "You are not authorized to view the resource", content = @Content(schema = @Schema(implementation = ErrorApiResponse.class))),
+            @ApiResponse(responseCode = "403", description = "Accessing the resource you were trying to reach is forbidden" , content = @Content(schema = @Schema(implementation = ErrorApiResponse.class))),
     })
 
     CustomApiResponse<List<MyUserResponse>> getMyUsers() {
@@ -57,6 +63,7 @@ public class MyUserController {
                 .build();
     }
     @GetMapping("/{userId}")
+    @Operation(summary = "Get User", security = {@SecurityRequirement(name = "Bearer Authentication")})
     CustomApiResponse<MyUserResponse> getMyUser(@PathVariable("userId") String userId) {
         return CustomApiResponse.<MyUserResponse>builder()
                 .result(myUserService.getMyUser(userId))
@@ -64,6 +71,7 @@ public class MyUserController {
     }
 
     @GetMapping("/myInfo")
+    @Operation(summary = "Get My Info", security = {@SecurityRequirement(name = "Bearer Authentication")})
     CustomApiResponse<MyUserResponse> getMyInfo() {
         return CustomApiResponse.<MyUserResponse>builder()
                 .result(myUserService.getMyInfo())
@@ -71,6 +79,7 @@ public class MyUserController {
     }
 
     @DeleteMapping("/{userId}")
+    @Operation(summary = "Delete User", security = {@SecurityRequirement(name = "Bearer Authentication")})
     CustomApiResponse<String> deleteMyUser(@PathVariable String userId) {
         myUserService.deleteMyUser(userId);
         return CustomApiResponse.<String>builder()
@@ -78,6 +87,7 @@ public class MyUserController {
                 .build();
     }
     @PutMapping("/{userId}")
+    @Operation(summary = "Update User", security = {@SecurityRequirement(name = "Bearer Authentication")})
     CustomApiResponse<MyUserResponse> updateMyUser(@PathVariable String userId, @RequestBody MyUserUpdateRequest request) {
         return CustomApiResponse.<MyUserResponse>builder()
                 .result(myUserService.updateMyUser(userId, request))

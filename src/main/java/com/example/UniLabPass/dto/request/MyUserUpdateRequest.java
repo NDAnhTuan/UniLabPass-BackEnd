@@ -1,6 +1,8 @@
 package com.example.UniLabPass.dto.request;
 
 import com.example.UniLabPass.validator.DobConstraint;
+import io.swagger.v3.oas.annotations.media.ArraySchema;
+import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.Size;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
@@ -15,12 +17,18 @@ import java.util.List;
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class MyUserUpdateRequest {
     @Size(min = 6, message = "INVALID_PASSWORD")
+    @Schema(example = "12345678")
     String password;
 
+    @Schema(example = "Tuan")
     String firstName;
+    @Schema(example = "Nguyen Duc")
     String lastName;
 
     @DobConstraint(min = 16, message = "INVALID_DOB")
+    @Schema(example = "2003-11-30")
     LocalDate dob;
+    @Schema(type = "array", example = "[\"ADMIN\", \"USER\"]")
+
     List<String> roles;
 }
