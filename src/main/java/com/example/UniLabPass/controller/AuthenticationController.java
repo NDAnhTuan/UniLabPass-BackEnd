@@ -4,7 +4,7 @@ import com.example.UniLabPass.dto.request.AuthenticationRequest;
 import com.example.UniLabPass.dto.request.IntrospectRequest;
 import com.example.UniLabPass.dto.request.LogoutRequest;
 import com.example.UniLabPass.dto.request.RefreshTokenRequest;
-import com.example.UniLabPass.dto.response.ApiResponse;
+import com.example.UniLabPass.dto.response.CustomApiResponse;
 import com.example.UniLabPass.dto.response.AuthenticationResponse;
 import com.example.UniLabPass.dto.response.IntrospectResponse;
 import com.example.UniLabPass.service.AuthenticationService;
@@ -26,37 +26,37 @@ import java.text.ParseException;
 public class AuthenticationController {
     AuthenticationService authenticationService;
     @PostMapping("/token")
-    ApiResponse<AuthenticationResponse> authenticate(@RequestBody AuthenticationRequest request) {
+    CustomApiResponse<AuthenticationResponse> authenticate(@RequestBody AuthenticationRequest request) {
         var result = authenticationService.authenticate(request);
-        return ApiResponse.<AuthenticationResponse>builder()
+        return CustomApiResponse.<AuthenticationResponse>builder()
                 .result(result)
                 .build();
 
     }
 
     @PostMapping("/introspect")
-    ApiResponse<IntrospectResponse> introspect(@RequestBody IntrospectRequest request)
+    CustomApiResponse<IntrospectResponse> introspect(@RequestBody IntrospectRequest request)
             throws ParseException, JOSEException {
         var result = authenticationService.introspect(request);
-        return ApiResponse.<IntrospectResponse>builder()
+        return CustomApiResponse.<IntrospectResponse>builder()
                 .result(result)
                 .build();
 
     }
 
     @PostMapping("/refresh")
-    ApiResponse<AuthenticationResponse> refreshToken(@RequestBody RefreshTokenRequest request)
+    CustomApiResponse<AuthenticationResponse> refreshToken(@RequestBody RefreshTokenRequest request)
             throws ParseException, JOSEException {
         var result = authenticationService.refreshToken(request);
-        return ApiResponse.<AuthenticationResponse>builder()
+        return CustomApiResponse.<AuthenticationResponse>builder()
                 .result(result)
                 .build();
     }
 
     @PostMapping("/logout")
-    ApiResponse<Void> logout(@RequestBody LogoutRequest request) throws ParseException, JOSEException {
+    CustomApiResponse<Void> logout(@RequestBody LogoutRequest request) throws ParseException, JOSEException {
         authenticationService.logout(request);
-        return ApiResponse.<Void>builder()
+        return CustomApiResponse.<Void>builder()
                 .build();
     }
 }

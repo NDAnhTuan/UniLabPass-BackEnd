@@ -1,7 +1,7 @@
 package com.example.UniLabPass.controller;
 
 import com.example.UniLabPass.dto.request.RoleRequest;
-import com.example.UniLabPass.dto.response.ApiResponse;
+import com.example.UniLabPass.dto.response.CustomApiResponse;
 import com.example.UniLabPass.dto.response.RoleResponse;
 import com.example.UniLabPass.service.RoleService;
 import lombok.AccessLevel;
@@ -21,22 +21,22 @@ public class RoleController {
     RoleService roleService;
 
     @PostMapping
-    ApiResponse<RoleResponse> create(@RequestBody RoleRequest request) {
-        return ApiResponse.<RoleResponse>builder()
+    CustomApiResponse<RoleResponse> create(@RequestBody RoleRequest request) {
+        return CustomApiResponse.<RoleResponse>builder()
                 .result(roleService.create(request))
                 .build();
     }
 
     @GetMapping
-    ApiResponse<List<RoleResponse>> getAll() {
-        return ApiResponse.<List<RoleResponse>>builder()
+    CustomApiResponse<List<RoleResponse>> getAll() {
+        return CustomApiResponse.<List<RoleResponse>>builder()
                 .result(roleService.getAll())
                 .build();
     }
 
     @DeleteMapping("/{role}")
-    ApiResponse<Void> delete(@PathVariable String role) {
+    CustomApiResponse<Void> delete(@PathVariable String role) {
         roleService.delete(role);
-        return ApiResponse.<Void>builder().build();
+        return CustomApiResponse.<Void>builder().build();
     }
 }

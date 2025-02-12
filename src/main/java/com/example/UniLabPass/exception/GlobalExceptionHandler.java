@@ -1,6 +1,6 @@
 package com.example.UniLabPass.exception;
 
-import com.example.UniLabPass.dto.response.ApiResponse;
+import com.example.UniLabPass.dto.response.CustomApiResponse;
 import jakarta.validation.ConstraintViolation;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
@@ -18,39 +18,39 @@ public class GlobalExceptionHandler {
 
     private static final String MIN_ATTRIBUTE = "min";
     @ExceptionHandler(value = Exception.class)
-    ResponseEntity<ApiResponse> handlingRuntimeException(RuntimeException exception) {
+    ResponseEntity<CustomApiResponse> handlingRuntimeException(RuntimeException exception) {
         log.error("Exception: ", exception);
-        ApiResponse apiResponse = new ApiResponse();
+        CustomApiResponse customApiResponse = new CustomApiResponse();
 
-        apiResponse.setCode(ErrorCode.UNCATEGORIZED_EXCEPTION.getCode());
-        apiResponse.setMessage(ErrorCode.UNCATEGORIZED_EXCEPTION.getMessage());
+        customApiResponse.setCode(ErrorCode.UNCATEGORIZED_EXCEPTION.getCode());
+        customApiResponse.setMessage(ErrorCode.UNCATEGORIZED_EXCEPTION.getMessage());
 
-        return ResponseEntity.badRequest().body(apiResponse);
+        return ResponseEntity.badRequest().body(customApiResponse);
     }
     @ExceptionHandler(value = AppException.class)
-    ResponseEntity<ApiResponse> handlingAppException(AppException exception) {
+    ResponseEntity<CustomApiResponse> handlingAppException(AppException exception) {
         ErrorCode errorCode = exception.getErrorCode();
-        ApiResponse apiResponse = new ApiResponse();
-        apiResponse.setCode(errorCode.getCode());
-        apiResponse.setMessage(errorCode.getMessage());
+        CustomApiResponse customApiResponse = new CustomApiResponse();
+        customApiResponse.setCode(errorCode.getCode());
+        customApiResponse.setMessage(errorCode.getMessage());
         return ResponseEntity
                 .status(errorCode.getStatusCode())
-                .body(apiResponse);
+                .body(customApiResponse);
     }
 
     @ExceptionHandler(value = AuthorizationDeniedException.class)
-    ResponseEntity<ApiResponse> handlingAuthorizationDeniedException(AuthorizationDeniedException exception) {
+    ResponseEntity<CustomApiResponse> handlingAuthorizationDeniedException(AuthorizationDeniedException exception) {
         ErrorCode errorCode = ErrorCode.UNAUTHORIZED;
-        ApiResponse apiResponse = new ApiResponse();
-        apiResponse.setCode(errorCode.getCode());
-        apiResponse.setMessage(errorCode.getMessage());
+        CustomApiResponse customApiResponse = new CustomApiResponse();
+        customApiResponse.setCode(errorCode.getCode());
+        customApiResponse.setMessage(errorCode.getMessage());
         return ResponseEntity
                 .status(errorCode.getStatusCode())
-                .body(apiResponse);
+                .body(customApiResponse);
     }
 
     @ExceptionHandler(value = MethodArgumentNotValidException.class)
-    ResponseEntity<ApiResponse> handlingValidation(MethodArgumentNotValidException exception) {
+    ResponseEntity<CustomApiResponse> handlingValidation(MethodArgumentNotValidException exception) {
         String enumKey = exception.getFieldError().getDefaultMessage();
 
         ErrorCode errorCode = ErrorCode.INVALID_KEY;
@@ -66,14 +66,14 @@ public class GlobalExceptionHandler {
             log.info(attributes.toString());
         } catch (IllegalArgumentException e) {}
 
-        ApiResponse apiResponse = new ApiResponse();
+        CustomApiResponse customApiResponse = new CustomApiResponse();
 
-        apiResponse.setCode(errorCode.getCode());
-        apiResponse.setMessage(Objects.nonNull(attributes) ?
+        customApiResponse.setCode(errorCode.getCode());
+        customApiResponse.setMessage(Objects.nonNull(attributes) ?
                 mapAttribute(errorCode.getMessage(), attributes) :
                 errorCode.getMessage()
         );
-        return ResponseEntity.badRequest().body(apiResponse);
+        return ResponseEntity.badRequest().body(customApiResponse);
     }
 
     private String mapAttribute(String message, Map<String, Object> attributes) {

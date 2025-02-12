@@ -1,13 +1,9 @@
 package com.example.UniLabPass.controller;
 
 import com.example.UniLabPass.dto.request.*;
-import com.example.UniLabPass.dto.response.ApiResponse;
-import com.example.UniLabPass.dto.response.AuthenticationResponse;
-import com.example.UniLabPass.dto.response.IntrospectResponse;
+import com.example.UniLabPass.dto.response.CustomApiResponse;
 import com.example.UniLabPass.dto.response.VerificationCodeResponse;
-import com.example.UniLabPass.service.AuthenticationService;
 import com.example.UniLabPass.service.EmailService;
-import com.nimbusds.jose.JOSEException;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
@@ -16,8 +12,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.text.ParseException;
-
 @RestController
 @RequestMapping("/email")
 @RequiredArgsConstructor
@@ -25,8 +19,8 @@ import java.text.ParseException;
 public class EmailController {
     EmailService emailService;
     @PostMapping("/verify")
-    ApiResponse<VerificationCodeResponse> authenticate(@RequestBody VerificationCodeRequest request) {
-         return ApiResponse.<VerificationCodeResponse>builder()
+    CustomApiResponse<VerificationCodeResponse> authenticate(@RequestBody VerificationCodeRequest request) {
+         return CustomApiResponse.<VerificationCodeResponse>builder()
                  .result(emailService.verifyCode(request))
                  .build();
 

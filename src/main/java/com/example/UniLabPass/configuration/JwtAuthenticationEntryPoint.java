@@ -1,6 +1,6 @@
 package com.example.UniLabPass.configuration;
 
-import com.example.UniLabPass.dto.response.ApiResponse;
+import com.example.UniLabPass.dto.response.CustomApiResponse;
 import com.example.UniLabPass.exception.ErrorCode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.ServletException;
@@ -20,13 +20,13 @@ public class JwtAuthenticationEntryPoint implements AuthenticationEntryPoint {
         response.setStatus(errorCode.getStatusCode().value());
         response.setContentType(MediaType.APPLICATION_JSON_VALUE);
 
-        ApiResponse<?> apiResponse = ApiResponse.builder()
+        CustomApiResponse<?> customApiResponse = CustomApiResponse.builder()
                 .code(errorCode.getCode())
                 .message(errorCode.getMessage())
                 .build();
         ObjectMapper objectMapper = new ObjectMapper();
         //Chuyển đổi apiResponse về dạng String của json
-        response.getWriter().write(objectMapper.writeValueAsString(apiResponse));
+        response.getWriter().write(objectMapper.writeValueAsString(customApiResponse));
         //Đẩy response về server để server trả kết quả
         response.flushBuffer();
     }

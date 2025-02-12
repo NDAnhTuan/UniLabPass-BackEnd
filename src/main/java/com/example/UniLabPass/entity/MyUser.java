@@ -1,5 +1,6 @@
 package com.example.UniLabPass.entity;
 
+import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
@@ -14,19 +15,17 @@ import java.util.Set;
 @AllArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
 @Entity
+@Schema
 public class MyUser {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     String id;
-
-    @Column(name = "email", unique = true, columnDefinition = "VARCHAR(255)")
+    @Column(unique = true, nullable = false, columnDefinition = "VARCHAR(255)")
     String email;
-
     String password;
     String firstName;
     String lastName;
     LocalDate dob;
-
     @Column(nullable = false)
     String verificationCode;
     @Column(nullable = false)
