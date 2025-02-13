@@ -64,6 +64,12 @@ public class MyUserController {
     }
     @GetMapping("/{userId}")
     @Operation(summary = "Get User", security = {@SecurityRequirement(name = "Bearer Authentication")})
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Successfully retrieved user"),
+            @ApiResponse(responseCode = "401", description = "You are not authorized to view the resource", content = @Content(schema = @Schema(implementation = ErrorApiResponse.class))),
+            @ApiResponse(responseCode = "403", description = "Accessing the resource you were trying to reach is forbidden" , content = @Content(schema = @Schema(implementation = ErrorApiResponse.class))),
+            @ApiResponse(responseCode = "404", description = "USER_NOT_EXISTED", content = @Content(schema = @Schema(implementation = ErrorApiResponse.class)))
+    })
     CustomApiResponse<MyUserResponse> getMyUser(@PathVariable("userId") String userId) {
         return CustomApiResponse.<MyUserResponse>builder()
                 .result(myUserService.getMyUser(userId))
@@ -72,6 +78,12 @@ public class MyUserController {
 
     @GetMapping("/myInfo")
     @Operation(summary = "Get My Info", security = {@SecurityRequirement(name = "Bearer Authentication")})
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Successfully retrieved your info"),
+            @ApiResponse(responseCode = "401", description = "You are not authorized to view the resource", content = @Content(schema = @Schema(implementation = ErrorApiResponse.class))),
+            @ApiResponse(responseCode = "403", description = "Accessing the resource you were trying to reach is forbidden" , content = @Content(schema = @Schema(implementation = ErrorApiResponse.class))),
+            @ApiResponse(responseCode = "404", description = "USER_NOT_EXISTED", content = @Content(schema = @Schema(implementation = ErrorApiResponse.class)))
+    })
     CustomApiResponse<MyUserResponse> getMyInfo() {
         return CustomApiResponse.<MyUserResponse>builder()
                 .result(myUserService.getMyInfo())
@@ -80,6 +92,11 @@ public class MyUserController {
 
     @DeleteMapping("/{userId}")
     @Operation(summary = "Delete User", security = {@SecurityRequirement(name = "Bearer Authentication")})
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Successfully deleted user"),
+            @ApiResponse(responseCode = "401", description = "You are not authorized to modify the resource", content = @Content(schema = @Schema(implementation = ErrorApiResponse.class))),
+            @ApiResponse(responseCode = "403", description = "Accessing to the resource you are trying to modify is forbidden" , content = @Content(schema = @Schema(implementation = ErrorApiResponse.class))),
+    })
     CustomApiResponse<String> deleteMyUser(@PathVariable String userId) {
         myUserService.deleteMyUser(userId);
         return CustomApiResponse.<String>builder()
@@ -88,6 +105,12 @@ public class MyUserController {
     }
     @PutMapping("/{userId}")
     @Operation(summary = "Update User", security = {@SecurityRequirement(name = "Bearer Authentication")})
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Successfully updated your info"),
+            @ApiResponse(responseCode = "401", description = "You are not authorized to view the resource", content = @Content(schema = @Schema(implementation = ErrorApiResponse.class))),
+            @ApiResponse(responseCode = "403", description = "Accessing the resource you were trying to reach is forbidden" , content = @Content(schema = @Schema(implementation = ErrorApiResponse.class))),
+            @ApiResponse(responseCode = "404", description = "INVALID_PASSWORD, USERNAME_INVALID, INVALID_DOB, USER_NOT_EXISTED", content = @Content(schema = @Schema(implementation = ErrorApiResponse.class)))
+    })
     CustomApiResponse<MyUserResponse> updateMyUser(@PathVariable String userId, @RequestBody MyUserUpdateRequest request) {
         return CustomApiResponse.<MyUserResponse>builder()
                 .result(myUserService.updateMyUser(userId, request))
