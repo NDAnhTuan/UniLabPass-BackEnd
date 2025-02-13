@@ -11,9 +11,9 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class ErrorApiResponse {
-    @Schema(description = "Response code", example = "1001")
+    @Schema(description = "Response code", example = "1005")
     private int code;
 
-    @Schema(description = "Error message", example = "User not found")
+    @Schema(description = "Error message", example = "User not existed")
     private String message;
 }

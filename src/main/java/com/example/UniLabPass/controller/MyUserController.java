@@ -33,7 +33,8 @@ public class MyUserController {
     @Operation(summary = "Register a new user", security = {@SecurityRequirement(name = "")})
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "The user was created successfully"),
-            @ApiResponse(responseCode = "404", description = "INVALID_PASSWORD, USERNAME_INVALID, USER_EXISTED, INVALID_DOB ", content = @Content(schema = @Schema(implementation = ErrorApiResponse.class)))
+            @ApiResponse(responseCode = "404", description = "INVALID_PASSWORD 1004, USERNAME_INVALID 1003, " +
+                    "USER_EXISTED 1002, INVALID_DOB 1009", content = @Content(schema = @Schema(implementation = ErrorApiResponse.class)))
     })
     @PostMapping
     CustomApiResponse<MyUserResponse> createMyUser(@RequestBody @Valid MyUserCreationRequest request) {
@@ -68,7 +69,7 @@ public class MyUserController {
             @ApiResponse(responseCode = "200", description = "Successfully retrieved user"),
             @ApiResponse(responseCode = "401", description = "You are not authorized to view the resource", content = @Content(schema = @Schema(implementation = ErrorApiResponse.class))),
             @ApiResponse(responseCode = "403", description = "Accessing the resource you were trying to reach is forbidden" , content = @Content(schema = @Schema(implementation = ErrorApiResponse.class))),
-            @ApiResponse(responseCode = "404", description = "USER_NOT_EXISTED", content = @Content(schema = @Schema(implementation = ErrorApiResponse.class)))
+            @ApiResponse(responseCode = "404", description = "USER_NOT_EXISTED 1005", content = @Content(schema = @Schema(implementation = ErrorApiResponse.class)))
     })
     CustomApiResponse<MyUserResponse> getMyUser(@PathVariable("userId") String userId) {
         return CustomApiResponse.<MyUserResponse>builder()
@@ -82,7 +83,7 @@ public class MyUserController {
             @ApiResponse(responseCode = "200", description = "Successfully retrieved your info"),
             @ApiResponse(responseCode = "401", description = "You are not authorized to view the resource", content = @Content(schema = @Schema(implementation = ErrorApiResponse.class))),
             @ApiResponse(responseCode = "403", description = "Accessing the resource you were trying to reach is forbidden" , content = @Content(schema = @Schema(implementation = ErrorApiResponse.class))),
-            @ApiResponse(responseCode = "404", description = "USER_NOT_EXISTED", content = @Content(schema = @Schema(implementation = ErrorApiResponse.class)))
+            @ApiResponse(responseCode = "404", description = "USER_NOT_EXISTED 1005", content = @Content(schema = @Schema(implementation = ErrorApiResponse.class)))
     })
     CustomApiResponse<MyUserResponse> getMyInfo() {
         return CustomApiResponse.<MyUserResponse>builder()
@@ -109,7 +110,8 @@ public class MyUserController {
             @ApiResponse(responseCode = "200", description = "Successfully updated your info"),
             @ApiResponse(responseCode = "401", description = "You are not authorized to view the resource", content = @Content(schema = @Schema(implementation = ErrorApiResponse.class))),
             @ApiResponse(responseCode = "403", description = "Accessing the resource you were trying to reach is forbidden" , content = @Content(schema = @Schema(implementation = ErrorApiResponse.class))),
-            @ApiResponse(responseCode = "404", description = "INVALID_PASSWORD, USERNAME_INVALID, INVALID_DOB, USER_NOT_EXISTED", content = @Content(schema = @Schema(implementation = ErrorApiResponse.class)))
+            @ApiResponse(responseCode = "404", description = "INVALID_PASSWORD 1004, USERNAME_INVALID 1003, " +
+                    "INVALID_DOB 1009, USER_NOT_EXISTED 1005", content = @Content(schema = @Schema(implementation = ErrorApiResponse.class)))
     })
     CustomApiResponse<MyUserResponse> updateMyUser(@PathVariable String userId, @RequestBody MyUserUpdateRequest request) {
         return CustomApiResponse.<MyUserResponse>builder()
