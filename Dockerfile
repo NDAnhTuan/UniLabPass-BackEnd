@@ -1,6 +1,11 @@
-FROM openjdk:17.0.1-jdk-slim
-WORKDIR /app
-COPY ./target/UniLabPass-0.0.1-SNAPSHOT.jar /app
-EXPOSE 8080
+FROM eclipse-temurin:17-jdk-focal
 
-CMD  ["java","-jar","/UniLabPass-0.0.1-SNAPSHOT.jar"]
+WORKDIR /app
+
+COPY .mvn/ .mvn
+COPY mvnw pom.xml ./
+RUN ./mvnw dependency:go-offline
+
+COPY src ./src
+
+CMD ["./mvnw", "spring-boot:run"]
