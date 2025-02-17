@@ -1,7 +1,7 @@
 package com.example.UniLabPass.configuration;
 
 import com.example.UniLabPass.entity.MyUser;
-import com.example.UniLabPass.enums.Role;
+import com.example.UniLabPass.entity.Role;
 import com.example.UniLabPass.repository.MyUserRepository;
 import com.example.UniLabPass.repository.RoleRepository;
 import lombok.AccessLevel;
@@ -29,6 +29,15 @@ public class ApplicationInitConfig {
     // Can run while app run
     ApplicationRunner applicationRunner(MyUserRepository myUserRepository, RoleRepository roleRepository) {
         return args -> {
+            if (roleRepository.count() == 0) {
+                roleRepository.save(new Role("USER", "User is the role that can log into the account"));
+                roleRepository.save(new Role("ADMIN", ""));
+                roleRepository.save(new Role("GUEST", "Guests do not need to check their faces when checking in or checking out"));
+                roleRepository.save(new Role("MANAGER", "The Manager has the right to control access to the laboratory"));
+                roleRepository.save(new Role("MEMBER", "When checking in and checking out, members need to check their faces"));
+                log.warn("Role Table has been create");
+            }
+
             if (myUserRepository.findByEmail("admin").isEmpty()) {
                 var roles = roleRepository.findById("ADMIN").map(List::of)  // Nếu có giá trị, chuyển thành List
                                                             .orElseGet(List::of); // Nếu rỗng, trả về List rỗng;
