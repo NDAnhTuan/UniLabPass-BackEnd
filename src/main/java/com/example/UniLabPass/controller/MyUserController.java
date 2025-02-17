@@ -36,7 +36,7 @@ public class MyUserController {
             @ApiResponse(responseCode = "404", description = "INVALID_PASSWORD 1004, USERNAME_INVALID 1003, " +
                     "USER_EXISTED 1002, INVALID_DOB 1009", content = @Content(schema = @Schema(implementation = ErrorApiResponse.class)))
     })
-    @PostMapping
+    @PostMapping("/signup")
     CustomApiResponse<MyUserResponse> createMyUser(@RequestBody @Valid MyUserCreationRequest request) {
         CustomApiResponse customApiResponse = new CustomApiResponse<MyUserResponse>();
         customApiResponse.setCode(100);
