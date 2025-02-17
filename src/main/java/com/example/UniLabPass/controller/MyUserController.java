@@ -39,7 +39,7 @@ public class MyUserController {
     @PostMapping("/signup")
     CustomApiResponse<MyUserResponse> createMyUser(@RequestBody @Valid MyUserCreationRequest request) {
         CustomApiResponse customApiResponse = new CustomApiResponse<MyUserResponse>();
-        customApiResponse.setCode(100);
+        customApiResponse.setCode(1000);
         return CustomApiResponse.<MyUserResponse>builder()
                 .result(myUserService.createMyUser(request))
                 .build();

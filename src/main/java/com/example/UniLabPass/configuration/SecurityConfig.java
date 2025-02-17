@@ -19,9 +19,8 @@ import org.springframework.security.web.SecurityFilterChain;
 @EnableMethodSecurity
 public class SecurityConfig {
 
-    private final String[] PUBLIC_ENDPOINTS = {"/users",
-            "/auth/token", "/auth/introspect", "/auth/logout", "/auth/refresh",
-            "/email/verify",
+    private final String[] PUBLIC_ENDPOINTS = {"/users", "/users/signup",
+            "/auth/login", "/auth/introspect", "/auth/logout", "/auth/refresh",  "/auth/verify",
     };
 
     @Autowired
