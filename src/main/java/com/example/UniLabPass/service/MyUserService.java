@@ -56,10 +56,9 @@ public class MyUserService {
         myUser.setExpiryVerificationCode(new Date(
                 Instant.now().plus(5, ChronoUnit.MINUTES).toEpochMilli()
         ));
-
-        HashSet<String> roles = new HashSet<>();
-        roles.add(Role.USER.name());
-        //myUser.setRoles(roles);
+        var roles = roleRepository.findById("USER").map(List::of)  // Nếu có giá trị, chuyển thành List
+                                                    .orElseGet(List::of); // Nếu rỗng, trả về List rỗng;
+        myUser.setRoles(new HashSet<>(roles));
 
         try {
             myUser = myUserRepository.save(myUser);
@@ -72,7 +71,7 @@ public class MyUserService {
 
         return myUserMapper.toMyUserResponse(myUser);
     }
-
+    @PreAuthorize("hasAuthority('ROLE_USER')")
     public MyUserResponse getMyInfo() {
         var context = SecurityContextHolder.getContext();
         String name = context.getAuthentication().getName();
@@ -84,6 +83,7 @@ public class MyUserService {
         return myUserMapper.toMyUserResponse(myUser);
 
     }
+    @PreAuthorize("hasAuthority('ROLE_ADMIN')")
     public MyUserResponse updateMyUser(String userId,MyUserUpdateRequest request) {
         MyUser myUser = myUserRepository.findById(userId).orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
         myUserMapper.updateMyUser(myUser, request);
@@ -94,6 +94,7 @@ public class MyUserService {
 
         return myUserMapper.toMyUserResponse(myUserRepository.save(myUser));
     }
+    @PreAuthorize("hasAuthority('ROLE_ADMIN')")
     public void deleteMyUser(String userId) {
         myUserRepository.deleteById(userId);
     }
@@ -105,8 +106,9 @@ public class MyUserService {
     public List<MyUserResponse> getMyUsers() {
         return myUserRepository.findAll().stream().map(myUserMapper::toMyUserResponse).toList();
     }
-    @PostAuthorize("returnObject.username == authentication.name")
+//    @PostAuthorize("returnObject.username == authentication.name")
     // Cho thuc thi nhung khong tra ve ket qua (return)
+    @PreAuthorize("hasAuthority('ROLE_ADMIN')")
     public MyUserResponse getMyUser(String id) {
         return myUserMapper.toMyUserResponse(
                 myUserRepository.findById(id).orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED))

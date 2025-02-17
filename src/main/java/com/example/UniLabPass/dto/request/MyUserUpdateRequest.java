@@ -28,7 +28,7 @@ public class MyUserUpdateRequest {
     @DobConstraint(min = 16, message = "INVALID_DOB")
     @Schema(example = "2003-11-30")
     LocalDate dob;
-    @Schema(type = "array", example = "[\"ADMIN\", \"USER\"]")
+    @Schema(type = "array", example = "[\"MANAGER\", \"USER\"]")
 
     List<String> roles;
 }
