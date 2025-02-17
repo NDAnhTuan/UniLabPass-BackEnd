@@ -5,6 +5,7 @@ import com.example.UniLabPass.dto.request.RefreshTokenRequest;
 import com.example.UniLabPass.entity.InvalidatedToken;
 import com.example.UniLabPass.entity.MyUser;
 import com.example.UniLabPass.repository.InvalidatedTokenRepository;
+import com.example.UniLabPass.repository.RoleRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 
@@ -33,6 +34,7 @@ import java.text.ParseException;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.StringJoiner;
 import java.util.UUID;
 
@@ -41,6 +43,7 @@ import java.util.UUID;
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 @Slf4j
 public class AuthenticationService {
+    RoleRepository roleRepository;
     MyUserRepository myUserRepository;
     InvalidatedTokenRepository invalidatedTokenRepository;
 
@@ -59,8 +62,13 @@ public class AuthenticationService {
         var myUser = myUserRepository.findByEmail(request.getEmail())
                 .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
         PasswordEncoder passwordEncoder = new BCryptPasswordEncoder(10);
+
+        var roleAdmin = roleRepository.findById("ADMIN");
+        var roleUser = roleRepository.findById("USER");
         boolean authenticated = passwordEncoder.matches(request.getPassword(), myUser.getPassword());
-        if (!authenticated) {
+        if (!authenticated ||
+                !(myUser.getRoles().contains(roleAdmin) || myUser.getRoles().contains(roleUser))
+        ) {
             throw new AppException(ErrorCode.UNAUTHENTICATED);
         }
         if (!myUser.isVerified()) {
