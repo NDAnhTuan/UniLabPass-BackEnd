@@ -21,21 +21,21 @@ import java.util.List;
 @Slf4j
 public class RoleController {
     RoleService roleService;
-    @Operation(summary = "Create Role", security = {@SecurityRequirement(name = "Bearer Authentication")})
+    @Operation(summary = "Create Role", security = {@SecurityRequirement(name = "BearerAuthentication")})
     @PostMapping
     CustomApiResponse<RoleResponse> create(@RequestBody RoleRequest request) {
         return CustomApiResponse.<RoleResponse>builder()
                 .result(roleService.create(request))
                 .build();
     }
-    @Operation(summary = "Get List Roles", security = {@SecurityRequirement(name = "Bearer Authentication")})
+    @Operation(summary = "Get List Roles", security = {@SecurityRequirement(name = "BearerAuthentication")})
     @GetMapping
     CustomApiResponse<List<RoleResponse>> getAll() {
         return CustomApiResponse.<List<RoleResponse>>builder()
                 .result(roleService.getAll())
                 .build();
     }
-    @Operation(summary = "Delete Role", security = {@SecurityRequirement(name = "Bearer Authentication")})
+    @Operation(summary = "Delete Role", security = {@SecurityRequirement(name = "BearerAuthentication")})
     @DeleteMapping("/{role}")
     CustomApiResponse<Void> delete(@PathVariable String role) {
         roleService.delete(role);

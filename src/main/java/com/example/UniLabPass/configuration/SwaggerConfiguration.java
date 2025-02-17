@@ -22,7 +22,7 @@ public class SwaggerConfiguration {
     public OpenAPI openAPI() {
         return new OpenAPI()
 //                .addSecurityItem(new SecurityRequirement().addList("Bearer Authentication"))
-                .components(new Components().addSecuritySchemes("Bearer Authentication", createAPIKeyScheme()))
+                .components(new Components().addSecuritySchemes("BearerAuthentication", createAPIKeyScheme()))
                 .info(new Info().title("My REST API")
                         .description("Some custom description of API.")
                         .version("1.0")

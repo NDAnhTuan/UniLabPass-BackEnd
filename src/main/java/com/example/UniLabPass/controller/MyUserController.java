@@ -45,7 +45,7 @@ public class MyUserController {
                 .build();
     }
     @GetMapping
-    @Operation(summary = "Get List Users", security = {@SecurityRequirement(name = "Bearer Authentication")})
+    @Operation(summary = "Get List Users", security = {@SecurityRequirement(name = "BearerAuthentication")})
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Successfully retrieved list"),
             @ApiResponse(responseCode = "401", description = "You are not authorized to view the resource", content = @Content(schema = @Schema(implementation = ErrorApiResponse.class))),
@@ -64,7 +64,7 @@ public class MyUserController {
                 .build();
     }
     @GetMapping("/{userId}")
-    @Operation(summary = "Get User", security = {@SecurityRequirement(name = "Bearer Authentication")})
+    @Operation(summary = "Get User", security = {@SecurityRequirement(name = "BearerAuthentication")})
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Successfully retrieved user"),
             @ApiResponse(responseCode = "401", description = "You are not authorized to view the resource", content = @Content(schema = @Schema(implementation = ErrorApiResponse.class))),
@@ -78,7 +78,7 @@ public class MyUserController {
     }
 
     @GetMapping("/myInfo")
-    @Operation(summary = "Get My Info", security = {@SecurityRequirement(name = "Bearer Authentication")})
+    @Operation(summary = "Get My Info", security = {@SecurityRequirement(name = "BearerAuthentication")})
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Successfully retrieved your info"),
             @ApiResponse(responseCode = "401", description = "You are not authorized to view the resource", content = @Content(schema = @Schema(implementation = ErrorApiResponse.class))),
@@ -92,7 +92,7 @@ public class MyUserController {
     }
 
     @DeleteMapping("/{userId}")
-    @Operation(summary = "Delete User", security = {@SecurityRequirement(name = "Bearer Authentication")})
+    @Operation(summary = "Delete User", security = {@SecurityRequirement(name = "BearerAuthentication")})
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Successfully deleted user"),
             @ApiResponse(responseCode = "401", description = "You are not authorized to modify the resource", content = @Content(schema = @Schema(implementation = ErrorApiResponse.class))),
@@ -105,7 +105,7 @@ public class MyUserController {
                 .build();
     }
     @PutMapping("/{userId}")
-    @Operation(summary = "Update User", security = {@SecurityRequirement(name = "Bearer Authentication")})
+    @Operation(summary = "Update User", security = {@SecurityRequirement(name = "BearerAuthentication")})
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Successfully updated your info"),
             @ApiResponse(responseCode = "401", description = "You are not authorized to view the resource", content = @Content(schema = @Schema(implementation = ErrorApiResponse.class))),
