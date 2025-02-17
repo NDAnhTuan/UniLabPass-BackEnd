@@ -31,7 +31,7 @@ public class AuthenticationController {
     @Operation(summary = "Verify email with verification code", security = {@SecurityRequirement(name = "")})
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Email verified successfully"),
-            @ApiResponse(responseCode = "404", description = "User not Existed", content = @Content(schema = @Schema(implementation = ErrorApiResponse.class)))
+            @ApiResponse(responseCode = "400", description = "User not Existed", content = @Content(schema = @Schema(implementation = ErrorApiResponse.class)))
     })
     @PostMapping("/verify-email")
     CustomApiResponse<VerificationCodeResponse> verifyCode(@RequestBody VerificationCodeRequest request) {
@@ -46,8 +46,8 @@ public class AuthenticationController {
             @ApiResponse(responseCode = "200", description = "Successfully retrieved list"),
             @ApiResponse(responseCode = "401", description = "You are not authorized to view the resource", content = @Content(schema = @Schema(implementation = ErrorApiResponse.class))),
             @ApiResponse(responseCode = "403", description = "Accessing the resource you were trying to reach is forbidden" , content = @Content(schema = @Schema(implementation = ErrorApiResponse.class))),
-            @ApiResponse(responseCode = "404", description = "USER_NOT_EXISTED 1005, UNVERIFIED_EMAIL 1008", content = @Content(schema = @Schema(implementation = ErrorApiResponse.class)))
-
+            @ApiResponse(responseCode = "404", description = "USER_NOT_EXISTED 1005, UNVERIFIED_EMAIL 1008", content = @Content(schema = @Schema(implementation = ErrorApiResponse.class))),
+            @ApiResponse(responseCode = "400", description = "USER_NOT_EXISTED 1005", content = @Content(schema = @Schema(implementation = ErrorApiResponse.class)))
     })
     @PostMapping("/login")
     CustomApiResponse<AuthenticationResponse> authenticate(@RequestBody AuthenticationRequest request) {

@@ -69,7 +69,7 @@ public class MyUserController {
             @ApiResponse(responseCode = "200", description = "Successfully retrieved user"),
             @ApiResponse(responseCode = "401", description = "You are not authorized to view the resource", content = @Content(schema = @Schema(implementation = ErrorApiResponse.class))),
             @ApiResponse(responseCode = "403", description = "Accessing the resource you were trying to reach is forbidden" , content = @Content(schema = @Schema(implementation = ErrorApiResponse.class))),
-            @ApiResponse(responseCode = "404", description = "USER_NOT_EXISTED 1005", content = @Content(schema = @Schema(implementation = ErrorApiResponse.class)))
+            @ApiResponse(responseCode = "400", description = "USER_NOT_EXISTED 1005", content = @Content(schema = @Schema(implementation = ErrorApiResponse.class)))
     })
     CustomApiResponse<MyUserResponse> getMyUser(@PathVariable("userId") String userId) {
         return CustomApiResponse.<MyUserResponse>builder()
@@ -83,7 +83,7 @@ public class MyUserController {
             @ApiResponse(responseCode = "200", description = "Successfully retrieved your info"),
             @ApiResponse(responseCode = "401", description = "You are not authorized to view the resource", content = @Content(schema = @Schema(implementation = ErrorApiResponse.class))),
             @ApiResponse(responseCode = "403", description = "Accessing the resource you were trying to reach is forbidden" , content = @Content(schema = @Schema(implementation = ErrorApiResponse.class))),
-            @ApiResponse(responseCode = "404", description = "USER_NOT_EXISTED 1005", content = @Content(schema = @Schema(implementation = ErrorApiResponse.class)))
+            @ApiResponse(responseCode = "400", description = "USER_NOT_EXISTED 1005", content = @Content(schema = @Schema(implementation = ErrorApiResponse.class)))
     })
     CustomApiResponse<MyUserResponse> getMyInfo() {
         return CustomApiResponse.<MyUserResponse>builder()
