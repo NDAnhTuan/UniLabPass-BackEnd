@@ -67,7 +67,7 @@ public class AuthenticationService {
         var roleUser = roleRepository.findById("USER");
         boolean authenticated = passwordEncoder.matches(request.getPassword(), myUser.getPassword());
         if (!authenticated ||
-                !(myUser.getRoles().contains(roleAdmin) || myUser.getRoles().contains(roleUser))
+                !(myUser.getRoles().contains(roleAdmin) && myUser.getRoles().contains(roleUser))
         ) {
             throw new AppException(ErrorCode.UNAUTHENTICATED);
         }

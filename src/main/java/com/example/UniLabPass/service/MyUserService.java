@@ -44,7 +44,7 @@ public class MyUserService {
     @NonFinal
     static final String CHARACTERS = "1234567890";
     @NonFinal
-    static final int CODE_LENGTH = 6;
+    static final int CODE_LENGTH = 4;
     @NonFinal
     static final SecureRandom random = new SecureRandom();
 
