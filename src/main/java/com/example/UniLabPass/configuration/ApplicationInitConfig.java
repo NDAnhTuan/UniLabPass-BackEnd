@@ -42,15 +42,15 @@ public class ApplicationInitConfig {
                 var roles = roleRepository.findById("ADMIN").map(List::of)  // Nếu có giá trị, chuyển thành List
                                                             .orElseGet(List::of); // Nếu rỗng, trả về List rỗng;
                 MyUser myUser = MyUser.builder()
-                        .email("admin")
-                        .password(passwordEncoder.encode("admin"))
+                        .email("admin@email.com")
+                        .password(passwordEncoder.encode("admin123"))
                         .expiryVerificationCode(new Date())
                         .verificationCode("")
                         .isVerified(true)
                         .roles(new HashSet<>(roles))
                         .build();
                 myUserRepository.save(myUser);
-                log.warn("admin user has been created with default password: admin, please change it");
+                log.warn("admin@email.com user has been created with default password: admin123, please change it");
             }
         };
     }
