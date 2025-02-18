@@ -38,7 +38,7 @@ public class ApplicationInitConfig {
                 log.warn("Role Table has been create");
             }
 
-            if (myUserRepository.findByEmail("admin").isEmpty()) {
+            if (myUserRepository.findByEmail("admin@email.com").isEmpty()) {
                 var roles = roleRepository.findById("ADMIN").map(List::of)  // Nếu có giá trị, chuyển thành List
                                                             .orElseGet(List::of); // Nếu rỗng, trả về List rỗng;
                 MyUser myUser = MyUser.builder()
