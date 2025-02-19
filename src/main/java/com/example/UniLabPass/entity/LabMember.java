@@ -17,7 +17,6 @@ public class LabMember {
     LabMemberKey labMemberId;
 
     @ManyToOne
-
     @JoinColumn(name = "my_user_id")
     @MapsId("myUserId")
     MyUser myUser;
@@ -32,6 +31,6 @@ public class LabMember {
     Role role;
 
     @Column(nullable = false)
-    MemberStatus memberStatus;
+    MemberStatus memberStatus = MemberStatus.ACTIVE;
 
 }

@@ -14,7 +14,10 @@ import java.time.LocalDate;
 @Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class MyUserCreationRequest {
-    @Schema(example = "nguyenducanhtuan0602@gmail.com", required = true)
+    @Schema(example = "2115177", required = true)
+    String id;
+
+    @Schema(example = "nguyenducanhtuan0602@gmail.com")
     @Size(min = 4, message = "USERNAME_INVALID")
     String email;
 

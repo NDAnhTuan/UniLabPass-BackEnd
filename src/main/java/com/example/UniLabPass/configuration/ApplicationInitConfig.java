@@ -44,8 +44,6 @@ public class ApplicationInitConfig {
                 MyUser myUser = MyUser.builder()
                         .email("admin@email.com")
                         .password(passwordEncoder.encode("admin123"))
-                        .expiryVerificationCode(new Date())
-                        .verificationCode("")
                         .isVerified(true)
                         .roles(new HashSet<>(roles))
                         .build();

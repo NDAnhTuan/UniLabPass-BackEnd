@@ -19,16 +19,16 @@ public class MyUser {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     String id;
-    @Column(unique = true, nullable = false, columnDefinition = "VARCHAR(255)")
+    @Column(unique = true, nullable = true, columnDefinition = "VARCHAR(255)")
     String email;
     String password;
     String firstName;
     String lastName;
     LocalDate dob;
     @Column(nullable = false)
-    String verificationCode;
+    String verificationCode = "";
     @Column(nullable = false)
-    Date expiryVerificationCode;
+    Date expiryVerificationCode = new Date();
     @Column(nullable = false)
     boolean isVerified = false;
 

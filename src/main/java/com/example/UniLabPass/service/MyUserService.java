@@ -1,5 +1,6 @@
 package com.example.UniLabPass.service;
 
+import com.example.UniLabPass.dto.request.LabMemberCreationRequest;
 import com.example.UniLabPass.dto.request.MyUserCreationRequest;
 import com.example.UniLabPass.dto.request.MyUserUpdateRequest;
 import com.example.UniLabPass.dto.response.MyUserResponse;
@@ -49,25 +50,41 @@ public class MyUserService {
     static final SecureRandom random = new SecureRandom();
 
 
-    public MyUserResponse createMyUser(MyUserCreationRequest request) {
-        MyUser myUser = myUserMapper.toMyUser(request);
-        myUser.setPassword(passwordEncoder.encode(request.getPassword()));
-        myUser.setVerificationCode(generateVerificationCode());
-        myUser.setExpiryVerificationCode(new Date(
-                Instant.now().plus(5, ChronoUnit.MINUTES).toEpochMilli()
-        ));
-        var roles = roleRepository.findById("USER").map(List::of)  // Nếu có giá trị, chuyển thành List
-                                                    .orElseGet(List::of); // Nếu rỗng, trả về List rỗng;
-        myUser.setRoles(new HashSet<>(roles));
-
-        try {
-            myUser = myUserRepository.save(myUser);
+    public MyUserResponse createMyUser(MyUserCreationRequest request, Role role) {
+        MyUser myUser;
+        if (role.equals(Role.USER)) {
+            myUser = myUserMapper.toMyUser(request);
+            myUser.setPassword(passwordEncoder.encode(request.getPassword()));
+            myUser.setVerificationCode(generateVerificationCode());
+            myUser.setExpiryVerificationCode(new Date(
+                    Instant.now().plus(5, ChronoUnit.MINUTES).toEpochMilli()
+            ));
+            var roles = roleRepository.findById(role.name()).map(List::of)  // Nếu có giá trị, chuyển thành List
+                    .orElseGet(List::of); // Nếu rỗng, trả về List rỗng;
+            myUser.setRoles(new HashSet<>(roles));
+            try {
+                myUser = myUserRepository.save(myUser);
+            }
+            catch (DataIntegrityViolationException exception) {
+                throw new AppException(ErrorCode.USER_EXISTED);
+            }
+            emailService.sendVerificationEmail(myUser.getEmail(), myUser.getVerificationCode());
         }
-        catch (DataIntegrityViolationException exception) {
-            throw new AppException(ErrorCode.USER_EXISTED);
+        // Trường hợp không phải tạo tài khoản
+        else {
+            myUser = new MyUser();
+            myUser.setId(request.getId());
+            myUser.setFirstName(request.getFirstName());
+            myUser.setLastName(request.getLastName());
+            log.info(myUser + "");
+            try{
+                myUser = myUserRepository.save(myUser);
+            }
+            catch (Exception e) {
+            }
+
         }
 
-        emailService.sendVerificationEmail(myUser.getEmail(), myUser.getVerificationCode());
 
         return myUserMapper.toMyUserResponse(myUser);
     }

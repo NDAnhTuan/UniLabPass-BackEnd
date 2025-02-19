@@ -5,6 +5,7 @@ import com.example.UniLabPass.dto.request.MyUserUpdateRequest;
 import com.example.UniLabPass.dto.response.CustomApiResponse;
 import com.example.UniLabPass.dto.response.ErrorApiResponse;
 import com.example.UniLabPass.dto.response.MyUserResponse;
+import com.example.UniLabPass.enums.Role;
 import com.example.UniLabPass.service.MyUserService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -41,7 +42,7 @@ public class MyUserController {
         CustomApiResponse customApiResponse = new CustomApiResponse<MyUserResponse>();
         customApiResponse.setCode(1000);
         return CustomApiResponse.<MyUserResponse>builder()
-                .result(myUserService.createMyUser(request))
+                .result(myUserService.createMyUser(request, Role.USER))
                 .build();
     }
     @GetMapping
