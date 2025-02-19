@@ -9,9 +9,13 @@ import lombok.experimental.FieldDefaults;
 @AllArgsConstructor
 @Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class AuthenticationRequest {
-    @Schema(example = "admin@email.com", required = true)
-    String email;
-    @Schema(example = "admin123", required = true)
-    String password;
+public class LabUpdateRequest {
+    @Schema(example = "abc-123-abc")
+    String labId;
+
+    @Schema(example = "Another Lab Name")
+    String name;
+
+    @Schema(example = "New Location on Thu Duc")
+    String location;
 }

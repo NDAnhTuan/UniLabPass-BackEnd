@@ -1,15 +1,19 @@
 package com.example.UniLabPass.service;
 
+import com.example.UniLabPass.dto.request.LabMemberDeleteRequest;
 import com.example.UniLabPass.dto.request.MyUserCreationRequest;
 import com.example.UniLabPass.dto.request.MyUserUpdateRequest;
 import com.example.UniLabPass.dto.response.MyUserResponse;
+import com.example.UniLabPass.entity.LabMember;
 import com.example.UniLabPass.entity.MyUser;
 import com.example.UniLabPass.enums.Role;
 import com.example.UniLabPass.exception.AppException;
 import com.example.UniLabPass.exception.ErrorCode;
 import com.example.UniLabPass.mapper.MyUserMapper;
+import com.example.UniLabPass.repository.LabMemberRepository;
 import com.example.UniLabPass.repository.MyUserRepository;
 import com.example.UniLabPass.repository.RoleRepository;
+import jakarta.transaction.Transactional;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
@@ -37,10 +41,12 @@ import java.util.List;
 public class MyUserService {
     MyUserRepository myUserRepository;
     RoleRepository roleRepository;
+    LabMemberRepository labMemberRepository;
     MyUserMapper myUserMapper;
     PasswordEncoder passwordEncoder;
-
+    LabMemberService labMemberService;
     EmailService emailService;
+
     @NonFinal
     static final String CHARACTERS = "1234567890";
     @NonFinal
@@ -71,7 +77,9 @@ public class MyUserService {
 
         return myUserMapper.toMyUserResponse(myUser);
     }
-    @PreAuthorize("hasAuthority('ROLE_USER')")
+
+    // Every user is able to get their own info
+    @PreAuthorize("hasAnyAuthority('ROLE_USER', 'ROLE_ADMIN')")
     public MyUserResponse getMyInfo() {
         var context = SecurityContextHolder.getContext();
         String name = context.getAuthentication().getName();
@@ -79,10 +87,9 @@ public class MyUserService {
         MyUser myUser = myUserRepository.findByEmail(name).orElseThrow(
                 () -> new AppException(ErrorCode.USER_NOT_EXISTED)
         );
-
         return myUserMapper.toMyUserResponse(myUser);
-
     }
+
     @PreAuthorize("hasAuthority('ROLE_ADMIN')")
     public MyUserResponse updateMyUser(String userId,MyUserUpdateRequest request) {
         MyUser myUser = myUserRepository.findById(userId).orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
@@ -94,8 +101,18 @@ public class MyUserService {
 
         return myUserMapper.toMyUserResponse(myUserRepository.save(myUser));
     }
+
+    @Transactional
     @PreAuthorize("hasAuthority('ROLE_ADMIN')")
     public void deleteMyUser(String userId) {
+        // Delete all LabMember associated with this user & reduce capacity of the lab has this user
+        List<LabMember> labMembers = labMemberRepository.findByLabMemberId_MyUserId(userId);
+        for (LabMember labMember : labMembers) {
+            LabMemberDeleteRequest deleteRequest = new LabMemberDeleteRequest(labMember.getLabMemberId());
+            labMemberService.deleteLabMember(deleteRequest);
+        }
+
+        // Delete this user
         myUserRepository.deleteById(userId);
     }
     //Protect Method before access

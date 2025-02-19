@@ -1,5 +1,6 @@
 package com.example.UniLabPass.dto.request;
 
+import com.example.UniLabPass.compositekey.LabMemberKey;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
@@ -9,9 +10,6 @@ import lombok.experimental.FieldDefaults;
 @AllArgsConstructor
 @Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class AuthenticationRequest {
-    @Schema(example = "admin@email.com", required = true)
-    String email;
-    @Schema(example = "admin123", required = true)
-    String password;
+public class LabMemberDeleteRequest {
+    LabMemberKey labMemberKey;
 }
