@@ -5,10 +5,12 @@ import com.example.UniLabPass.dto.response.CustomApiResponse;
 import com.example.UniLabPass.dto.response.ErrorApiResponse;
 import com.example.UniLabPass.dto.response.LabMemberResponse;
 import com.example.UniLabPass.service.LabMemberService;
+import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
@@ -26,6 +28,7 @@ public class LabMemberController {
     LabMemberService labMemberService;
 
     @PostMapping
+    @Operation(summary = "", security = {@SecurityRequirement(name = "BearerAuthentication")})
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Successfully retrieved user"),
             @ApiResponse(responseCode = "401", description = "You are not authorized to view the resource", content = @Content(schema = @Schema(implementation = ErrorApiResponse.class))),
