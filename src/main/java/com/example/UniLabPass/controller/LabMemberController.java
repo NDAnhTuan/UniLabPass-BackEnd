@@ -15,9 +15,9 @@ import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/lab-member")
@@ -38,6 +38,20 @@ public class LabMemberController {
     CustomApiResponse<LabMemberResponse> addLabMember(LabMemberCreationRequest request) {
         return CustomApiResponse.<LabMemberResponse>builder()
                 .result(labMemberService.addLabMember(request))
+                .build();
+    }
+
+    @GetMapping("/labs/{labId}")
+    @Operation(summary = "", security = {@SecurityRequirement(name = "BearerAuthentication")})
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Successfully retrieved user"),
+            @ApiResponse(responseCode = "401", description = "You are not authorized to view the resource", content = @Content(schema = @Schema(implementation = ErrorApiResponse.class))),
+            @ApiResponse(responseCode = "403", description = "Accessing the resource you were trying to reach is forbidden" , content = @Content(schema = @Schema(implementation = ErrorApiResponse.class))),
+//            @ApiResponse(responseCode = "400", description = "USER_NOT_EXISTED 1005", content = @Content(schema = @Schema(implementation = ErrorApiResponse.class)))
+    })
+    CustomApiResponse<List<LabMemberResponse>> getLabMembers(@PathVariable("labId") String labId) {
+        return CustomApiResponse.<List<LabMemberResponse>>builder()
+                .result(labMemberService.getLabMembers(labId))
                 .build();
     }
 }

@@ -4,12 +4,14 @@ import com.example.UniLabPass.compositekey.LabMemberKey;
 import com.example.UniLabPass.dto.request.LabMemberCreationRequest;
 import com.example.UniLabPass.dto.request.MyUserCreationRequest;
 import com.example.UniLabPass.dto.response.LabMemberResponse;
+import com.example.UniLabPass.dto.response.MyUserResponse;
 import com.example.UniLabPass.entity.Lab;
 import com.example.UniLabPass.entity.LabMember;
 import com.example.UniLabPass.entity.MyUser;
 import com.example.UniLabPass.enums.Role;
 import com.example.UniLabPass.exception.AppException;
 import com.example.UniLabPass.exception.ErrorCode;
+import com.example.UniLabPass.mapper.LabMemberMapper;
 import com.example.UniLabPass.mapper.MyUserMapper;
 import com.example.UniLabPass.repository.LabMemberRepository;
 import com.example.UniLabPass.repository.LabRepository;
@@ -20,6 +22,9 @@ import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -32,6 +37,8 @@ public class LabMemberService {
     LabRepository labRepository;
     RoleRepository roleRepository;
     MyUserMapper myUserMapper;
+    LabMemberMapper labMemberMapper;
+
 
     public LabMemberResponse addLabMember(LabMemberCreationRequest request) {
         if (myUserRepository.findById(request.getUserId()).isEmpty()) {
@@ -62,5 +69,20 @@ public class LabMemberService {
                 .role(labMember.getRole().getName())
                 .memberStatus(labMember.getMemberStatus())
                 .build();
+    }
+    public List<LabMemberResponse> getLabMembers(String labId) {
+            List<LabMember> labMemberList =  labMemberRepository.findById_LabId(labId).stream().toList();
+            List<LabMemberResponse> labMemberResponses = new ArrayList<LabMemberResponse>();
+            for (LabMember labMember : labMemberList) {
+                labMemberResponses.add(
+                        LabMemberResponse.builder()
+                        .labId(labMember.getLabMemberId().getLabId())
+                        .myUserResponse(myUserMapper.toMyUserResponse(labMember.getMyUser()))
+                        .role(labMember.getRole().getName())
+                        .memberStatus(labMember.getMemberStatus())
+                        .build()
+                );
+            }
+            return labMemberResponses;
     }
 }
