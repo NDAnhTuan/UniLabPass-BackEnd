@@ -110,7 +110,7 @@ public class LaboratoryService {
         MyUser labAdmin = myUserRepository.findById(admin.getId()).orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
 
         LabMemberKey labMemberKey = new LabMemberKey(savedLab.getId(), labAdmin.getId());
-        Role role = roleRepository.findById("ADMIN").orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
+        Role role = roleRepository.findById("MANAGER").orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
         LabMember labMember = LabMember.builder()
                 .labMemberId(labMemberKey)
                 .myUser(labAdmin)
