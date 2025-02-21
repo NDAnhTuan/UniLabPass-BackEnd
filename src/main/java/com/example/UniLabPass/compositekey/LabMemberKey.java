@@ -1,5 +1,6 @@
 package com.example.UniLabPass.compositekey;
 
+import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.persistence.Embeddable;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
@@ -14,7 +15,9 @@ import java.util.Objects;
 @FieldDefaults(level = AccessLevel.PRIVATE)
 @Embeddable
 public class LabMemberKey implements Serializable {
+    @Schema(example = "123ab123")
     String labId;
+    @Schema(example = "2115177")
     String myUserId;
     @Override
     public boolean equals(Object o) {

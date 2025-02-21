@@ -1,0 +1,116 @@
+package com.example.UniLabPass.service;
+
+import com.example.UniLabPass.compositekey.LabMemberKey;
+import com.example.UniLabPass.dto.request.LabCreationRequest;
+import com.example.UniLabPass.dto.request.LabUpdateRequest;
+import com.example.UniLabPass.dto.response.LabMemberResponse;
+import com.example.UniLabPass.dto.response.LabResponse;
+import com.example.UniLabPass.entity.Lab;
+import com.example.UniLabPass.entity.LabMember;
+import com.example.UniLabPass.entity.MyUser;
+import com.example.UniLabPass.entity.Role;
+import com.example.UniLabPass.enums.MemberStatus;
+import com.example.UniLabPass.exception.AppException;
+import com.example.UniLabPass.exception.ErrorCode;
+import com.example.UniLabPass.mapper.LabMapper;
+import com.example.UniLabPass.mapper.LabMemberMapper;
+import com.example.UniLabPass.mapper.MyUserMapper;
+import com.example.UniLabPass.repository.LabMemberRepository;
+import com.example.UniLabPass.repository.LabRepository;
+import com.example.UniLabPass.repository.MyUserRepository;
+import com.example.UniLabPass.repository.RoleRepository;
+import lombok.AccessLevel;
+import lombok.RequiredArgsConstructor;
+import lombok.experimental.FieldDefaults;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.stereotype.Service;
+
+import java.util.ArrayList;
+import java.util.List;
+
+@Service
+@RequiredArgsConstructor
+@FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
+@Slf4j
+public class LaboratoryService {
+    MyUserRepository myUserRepository;
+    LabRepository labRepository;
+    LabMemberRepository labMemberRepository;
+    RoleRepository roleRepository;
+    LabMapper labMapper;
+    MyUserMapper myUserMapper;
+    LabMemberMapper labMemberMapper;
+    LabMemberService labMemberService;
+
+    public LabResponse createLaboratory(LabCreationRequest request) {
+        Lab lab = labMapper.toLab(request);
+        try {
+            lab = labRepository.save(lab);
+        }
+        catch (DataIntegrityViolationException exception) {
+            throw new AppException(ErrorCode.LAB_NAME_INVALID);
+        }
+
+        var context = SecurityContextHolder.getContext();
+        String name = context.getAuthentication().getName();
+        MyUser myUser = myUserRepository.findByEmail(name).orElseThrow(
+                () -> new AppException(ErrorCode.USER_NOT_EXISTED)
+        );
+        MyUser labAdmin = myUserRepository.findById(myUser.getId()).orElseThrow(
+                () -> new AppException(ErrorCode.USER_NOT_EXISTED)
+        );
+        LabMemberKey labMemberKey = new LabMemberKey(lab.getId(), labAdmin.getId());
+        Role role = roleRepository.findById("MANAGER").orElseThrow(() -> new AppException(ErrorCode.ROLE_NOT_EXISTED));
+        LabMember labMember = LabMember.builder()
+                .labMemberId(labMemberKey)
+                .myUser(labAdmin)
+                .lab(lab)
+                .role(role)
+                .memberStatus(MemberStatus.ACTIVE)
+                .build();
+        labMemberRepository.save(labMember);
+        // Return lab's info
+        return labMapper.toLabResponse(lab);
+    }
+
+    public LabResponse updateLaboratory(String labId, LabUpdateRequest request) {
+        labMemberService.checkAuthorizeManager(labId);
+        Lab lab = labRepository.findById(labId).orElseThrow(() -> new AppException(ErrorCode.LAB_NOT_EXISTED));
+        labMapper.updateLab(lab, request);
+        return labMapper.toLabResponse(labRepository.save(lab));
+    }
+    // Delete laboratory
+    public void deleteLaboratory(String labId) {
+        // Check if user is MANAGER of lab
+        labMemberService.checkAuthorizeManager(labId);
+
+        // Delete all LabMember coexisted with this lab
+        labMemberRepository.deleteByLabMemberId_LabId(labId);
+
+        // Delete lab
+        Lab lab = labRepository.findById(labId).orElseThrow(() -> new AppException(ErrorCode.LAB_NOT_EXISTED));
+        labRepository.deleteById(labId);
+    }
+
+    // View all labs
+    public List<LabMemberResponse> getAllLabs() {
+        var context = SecurityContextHolder.getContext();
+        String name = context.getAuthentication().getName();
+        MyUser admin = myUserRepository.findByEmail(name).orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
+        List<LabMemberResponse> labMemberResponses = new ArrayList<LabMemberResponse>();
+        for (LabMember labMember
+                :
+                labMemberRepository.findByLabMemberId_MyUserId(admin.getId()).stream().toList()
+        ) {
+            LabMemberResponse labMemberResponse = labMemberMapper.toLabMemberResponse(labMember);
+            labMemberResponse.setMyUserResponse(myUserMapper.toMyUserResponse(labMember.getMyUser()));
+
+            labMemberResponses.add(labMemberResponse);
+        }
+
+        return labMemberResponses;
+    }
+
+}

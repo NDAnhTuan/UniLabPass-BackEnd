@@ -19,9 +19,11 @@ public enum ErrorCode {
     UNAUTHENTICATED(1006, "Unauthenticated", HttpStatus.UNAUTHORIZED),
     UNAUTHORIZED(1007,"You do not have permission", HttpStatus.FORBIDDEN),
     UNVERIFIED_EMAIL(1008, "Email is not verified\n", HttpStatus.BAD_REQUEST),
-
-
-    INVALID_DOB(1009, "Your age must be at least {min}", HttpStatus.BAD_REQUEST);
+    INVALID_DOB(1009, "Your age must be at least {min}", HttpStatus.BAD_REQUEST),
+    LAB_NAME_INVALID(1010, "Please enter the name of laboratory", HttpStatus.BAD_REQUEST),
+    LAB_NOT_EXISTED(1011, "Laboratory not exist", HttpStatus.NOT_FOUND),
+    NO_RELATION(1011, "This user is not existed on this lab", HttpStatus.NOT_FOUND),
+    ROLE_NOT_EXISTED(1012, "Role not existed", HttpStatus.NOT_FOUND);
     int code;
     String message;
     HttpStatus statusCode;

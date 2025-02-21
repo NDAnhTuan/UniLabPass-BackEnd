@@ -1,5 +1,6 @@
 package com.example.UniLabPass.dto.response;
 
+import com.example.UniLabPass.entity.Lab;
 import com.example.UniLabPass.entity.Role;
 import com.example.UniLabPass.enums.MemberStatus;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -12,12 +13,12 @@ import lombok.experimental.FieldDefaults;
 @AllArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class LabMemberResponse {
-    @Schema(example = "123asd123", required = true)
-    String labId;
     @Schema(implementation = MyUserResponse.class)
     MyUserResponse myUserResponse;
     @Schema(example = "MEMBER")
-    String role;
+    Role role;
     @Schema(example = "ACTIVE")
     MemberStatus memberStatus;
+    @Schema()
+    Lab lab;
 }

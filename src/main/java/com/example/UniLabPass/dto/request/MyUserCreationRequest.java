@@ -22,7 +22,7 @@ public class MyUserCreationRequest {
     String email;
 
     @Schema(example = "12345678", required = true)
-    @Size(min = 6, message = "INVALID_PASSWORD")
+    @Size(min = 8, message = "INVALID_PASSWORD")
     String password;
 
     @Schema(example = "Tuan")

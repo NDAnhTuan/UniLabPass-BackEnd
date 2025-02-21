@@ -11,6 +11,11 @@ import java.util.List;
 import java.util.Optional;
 
 public interface LabMemberRepository extends JpaRepository<LabMember, LabMemberKey> {
-    @Query("SELECT a FROM LabMember a WHERE a.labMemberId.labId = :labId")
-    Optional<LabMember> findById_LabId(@Param("labId")String labId);
+    Optional<LabMember> findByLabMemberId_LabId(String labId);
+
+    Optional<LabMember> findByLabMemberId_MyUserId(String userId);
+
+    void deleteByLabMemberId_LabId(String labId);
+
+    void deleteByLabMemberId_MyUserId(String userId);
 }

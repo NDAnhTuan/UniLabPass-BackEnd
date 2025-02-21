@@ -2,6 +2,7 @@ package com.example.UniLabPass.service;
 
 import com.example.UniLabPass.compositekey.LabMemberKey;
 import com.example.UniLabPass.dto.request.LabMemberCreationRequest;
+import com.example.UniLabPass.dto.request.LabMemberUpdateRequest;
 import com.example.UniLabPass.dto.request.MyUserCreationRequest;
 import com.example.UniLabPass.dto.response.LabMemberResponse;
 import com.example.UniLabPass.dto.response.MyUserResponse;
@@ -21,6 +22,7 @@ import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -41,11 +43,14 @@ public class LabMemberService {
 
 
     public LabMemberResponse addLabMember(LabMemberCreationRequest request) {
+        checkAuthorizeManager(request.getLabId());
         if (myUserRepository.findById(request.getUserId()).isEmpty()) {
             MyUserCreationRequest myUserCreationRequest = MyUserCreationRequest.builder()
                     .id(request.getUserId())
                     .firstName(request.getFirstName())
                     .lastName(request.getLastName())
+                    .email(request.getEmail())
+                    .dob(request.getDob())
                     .build();
             myUserService.createMyUser(myUserCreationRequest, Role.MEMBER);
 
@@ -53,36 +58,61 @@ public class LabMemberService {
         MyUser myUser = myUserRepository.findById(request.getUserId()).orElseThrow(
                 () -> new AppException(ErrorCode.USER_NOT_EXISTED)
         );
-        com.example.UniLabPass.entity.Role role = roleRepository.findById(request.getRole()).orElse( new com.example.UniLabPass.entity.Role());
+        // Increase lab capacity by 1
         Lab lab = labRepository.findById(request.getLabId()).orElse(new Lab());
+        lab.setCapacity(lab.getCapacity() + 1);
+        labRepository.save(lab);
 
         LabMember labMember = new LabMember();
         labMember.setLabMemberId(new LabMemberKey(lab.getId(), myUser.getId()));
-        labMember.setRole(role);
+        labMember.setRole(roleRepository.findById(request.getRole()).orElseThrow());
         labMember.setLab(lab);
         labMember.setMyUser(myUser);
         labMember = labMemberRepository.save(labMember);
 
-        return LabMemberResponse.builder()
-                .labId(labMember.getLabMemberId().getLabId())
-                .myUserResponse(myUserMapper.toMyUserResponse(labMember.getMyUser()))
-                .role(labMember.getRole().getName())
-                .memberStatus(labMember.getMemberStatus())
-                .build();
+        LabMemberResponse labMemberResponse = labMemberMapper.toLabMemberResponse(labMember);
+        labMemberResponse.setMyUserResponse(myUserMapper.toMyUserResponse(labMember.getMyUser()));
+        return labMemberResponse;
     }
     public List<LabMemberResponse> getLabMembers(String labId) {
-            List<LabMember> labMemberList =  labMemberRepository.findById_LabId(labId).stream().toList();
-            List<LabMemberResponse> labMemberResponses = new ArrayList<LabMemberResponse>();
-            for (LabMember labMember : labMemberList) {
-                labMemberResponses.add(
-                        LabMemberResponse.builder()
-                        .labId(labMember.getLabMemberId().getLabId())
-                        .myUserResponse(myUserMapper.toMyUserResponse(labMember.getMyUser()))
-                        .role(labMember.getRole().getName())
-                        .memberStatus(labMember.getMemberStatus())
-                        .build()
-                );
-            }
-            return labMemberResponses;
+        checkAuthorizeManager(labId);
+        List<LabMember> labMemberList =  labMemberRepository.findByLabMemberId_LabId(labId).stream().toList();
+        List<LabMemberResponse> labMemberResponses = new ArrayList<LabMemberResponse>();
+        for (LabMember labMember : labMemberList) {
+            LabMemberResponse labMemberResponse = labMemberMapper.toLabMemberResponse(labMember);
+            labMemberResponse.setMyUserResponse(myUserMapper.toMyUserResponse(labMember.getMyUser()));
+
+            labMemberResponses.add(labMemberResponse);
+        }
+        return labMemberResponses;
     }
+    public void deleteLabMember(String labId, String userId) {
+        checkAuthorizeManager(labId);
+        LabMemberKey labMemberKey = new LabMemberKey(labId, userId);
+        if (!labMemberRepository.existsById(labMemberKey)) {throw new AppException(ErrorCode.NO_RELATION);}
+        labMemberRepository.deleteById(labMemberKey);
+
+        // Decrease lab capacity by 1
+        Lab lab = labRepository.findById(labId).orElseThrow(() -> new AppException(ErrorCode.LAB_NOT_EXISTED));
+        lab.setCapacity(lab.getCapacity() - 1);
+        labRepository.save(lab);
+    }
+
+    public LabMemberResponse updateLabMember(LabMemberUpdateRequest request) {
+        checkAuthorizeManager(request.getLabMemberKey().getLabId());
+        LabMember labMember = labMemberRepository.findById(request.getLabMemberKey()).orElseThrow(() -> new AppException(ErrorCode.LAB_NOT_EXISTED));
+        labMemberMapper.updateLabMember(labMember, request);
+        return labMemberMapper.toLabMemberResponse(labMemberRepository.save(labMember));
+    }
+
+    public void checkAuthorizeManager(String labId) {
+        var context = SecurityContextHolder.getContext();
+        String name = context.getAuthentication().getName();
+        MyUser manager = myUserRepository.findByEmail(name).orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
+        LabMember managerUser = labMemberRepository.findById(new LabMemberKey(labId,manager.getId())).orElseThrow();
+        if (managerUser.getRole().getName().equals("MANAGER")) {
+            throw new AppException(ErrorCode.UNAUTHORIZED);
+        }
+    }
+
 }

@@ -15,15 +15,19 @@ import java.util.Date;
 public class LabMemberCreationRequest   {
     @Schema(example = "123asd123", required = true)
     String labId;
-    @Schema(example = "MEMBER", required = true)
-    String role;
-    @Schema(example = "Tuan")
-    String firstName;
-
-    @Schema(example = "Nguyen Duc Anh")
-    String lastName;
     @Schema(example = "2115177", required = true)
     String userId;
+    @Schema(example = "Tuan")
+    String firstName;
+    @Schema(example = "Nguyen Duc Anh")
+    String lastName;
+    @Schema(example = "ban.bui114@hcmut.edu.vn")
+    String email;
+    @Schema(example = "2003-04-11")
+    LocalDate dob;
+    @Schema(example = "MEMBER", required = true)
+    String role;
+
 
 
 }
