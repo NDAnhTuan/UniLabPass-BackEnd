@@ -27,16 +27,16 @@ import lombok.experimental.NonFinal;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
 import org.springframework.stereotype.Service;
 
 import java.security.SecureRandom;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashSet;
-import java.util.List;
+import java.util.*;
 
 @Service
 @RequiredArgsConstructor
@@ -52,6 +52,8 @@ public class LaboratoryService {
     PasswordEncoder passwordEncoder;
 
     EmailService emailService;
+    AdminService adminService;
+
     @NonFinal
     static final String CHARACTERS = "1234567890";
     @NonFinal
@@ -98,7 +100,15 @@ public class LaboratoryService {
         }
 
         // Add new relationship for LabMember
-        MyUser labAdmin = myUserRepository.findById(request.getAdminId()).orElse(null);
+        // - Find AdminID through token
+        var context = SecurityContextHolder.getContext();
+        String name = context.getAuthentication().getName();
+        MyUser admin = myUserRepository.findByEmail(name).orElseThrow(
+                () -> new AppException(ErrorCode.USER_NOT_EXISTED)
+        );
+
+        MyUser labAdmin = myUserRepository.findById(admin.getId()).orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
+
         LabMemberKey labMemberKey = new LabMemberKey(savedLab.getId(), labAdmin.getId());
         Role role = roleRepository.findById("ADMIN").orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
         LabMember labMember = LabMember.builder()
@@ -116,10 +126,17 @@ public class LaboratoryService {
 
     // Update laboratory
     @PreAuthorize("hasAuthority('ROLE_ADMIN')")
-    public LabResponse updateLaboratory(String adminId, LabUpdateRequest request) {
-        Lab lab = labRepository.findById(request.getLabId()).orElseThrow(() -> new AppException(ErrorCode.LAB_NOT_EXISTED));
-        labMapper.updateLab(lab, request);
+    public LabResponse updateLaboratory(String labId, LabUpdateRequest request) {
+        // Check if user is MANAGER of lab
+        var context = SecurityContextHolder.getContext();
+        String name = context.getAuthentication().getName();
+        MyUser admin = myUserRepository.findByEmail(name).orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
+        if (adminService.checkAdmin(labId, admin.getId(), Arrays.asList("MANAGER"))) {
+            throw new AppException(ErrorCode.UNAUTHORIZED);
+        }
 
+        Lab lab = labRepository.findById(labId).orElseThrow(() -> new AppException(ErrorCode.LAB_NOT_EXISTED));
+        labMapper.updateLab(lab, request);
         return labMapper.toLabResponse(labRepository.save(lab));
     };
 
@@ -127,6 +144,14 @@ public class LaboratoryService {
     @Transactional
     @PreAuthorize("hasAuthority('ROLE_ADMIN')")
     public void deleteLaboratory(String labId) {
+        // Check if user is MANAGER of lab
+        var context = SecurityContextHolder.getContext();
+        String name = context.getAuthentication().getName();
+        MyUser admin = myUserRepository.findByEmail(name).orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
+        if (!adminService.checkAdmin(labId, admin.getId(), Arrays.asList("MANAGER"))) {
+            throw new AppException(ErrorCode.UNAUTHORIZED);
+        }
+
         // Delete all LabMember coexisted with this lab
         labMemberRepository.deleteByLabMemberId_LabId(labId);
 
@@ -137,8 +162,12 @@ public class LaboratoryService {
 
     // View all labs
     @PreAuthorize("hasAuthority('ROLE_ADMIN')")
-    public List<LabMember> getAllLabs(String adminId) {
-        return labMemberRepository.findByLabMemberId_MyUserId(adminId);
+    public List<LabMember> getAllLabs() {
+        var context = SecurityContextHolder.getContext();
+        String name = context.getAuthentication().getName();
+        MyUser admin = myUserRepository.findByEmail(name).orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
+
+        return labMemberRepository.findByLabMemberId_MyUserId(admin.getId());
     }
 
     private String generateVerificationCode() {

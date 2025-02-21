@@ -10,9 +10,6 @@ import lombok.experimental.FieldDefaults;
 @Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class LabUpdateRequest {
-    @Schema(example = "abc-123-abc")
-    String labId;
-
     @Schema(example = "Another Lab Name")
     String name;
 

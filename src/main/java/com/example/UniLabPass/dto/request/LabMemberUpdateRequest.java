@@ -12,6 +12,6 @@ import lombok.experimental.FieldDefaults;
 @Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class LabMemberUpdateRequest {
-    LabMemberKey labMemberId;
+    LabMemberKey labMemberKey;
     MemberStatus memberStatus;
 }

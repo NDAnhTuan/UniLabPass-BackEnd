@@ -73,12 +73,12 @@ public class LaboratoryController {
             @ApiResponse(responseCode = "401", description = "You are not authorized to view the resource", content = @Content(schema = @Schema(implementation = ErrorApiResponse.class))),
             @ApiResponse(responseCode = "403", description = "Accessing the resource you were trying to reach is forbidden" , content = @Content(schema = @Schema(implementation = ErrorApiResponse.class))),
     })
-    @PutMapping("/update/{labId}")
-    CustomApiResponse<LabResponse> updateLab(@PathVariable("adminId") String adminId, @RequestBody @Valid LabUpdateRequest request) {
+    @PutMapping("/{labId}")
+    CustomApiResponse<LabResponse> updateLab(@PathVariable("labId") String labId, @RequestBody @Valid LabUpdateRequest request) {
         CustomApiResponse customApiResponse = new CustomApiResponse<LabResponse>();
         customApiResponse.setCode(1000);
         return CustomApiResponse.<LabResponse>builder()
-                .result(laboratoryService.updateLaboratory(adminId, request))
+                .result(laboratoryService.updateLaboratory(labId, request))
                 .build();
     }
 
@@ -104,12 +104,12 @@ public class LaboratoryController {
             @ApiResponse(responseCode = "401", description = "You are not authorized", content = @Content(schema = @Schema(implementation = ErrorApiResponse.class))),
             @ApiResponse(responseCode = "403", description = "Accessing the resource you were trying to reach is forbidden" , content = @Content(schema = @Schema(implementation = ErrorApiResponse.class))),
     })
-    @GetMapping("/all/{adminId}")
-    CustomApiResponse<List<LabMember>> getAllLabs(@PathVariable("adminId") String adminId) {
+    @GetMapping("/all")
+    CustomApiResponse<List<LabMember>> getAllLabs() {
         CustomApiResponse customApiResponse = new CustomApiResponse<LabResponse>();
         customApiResponse.setCode(1000);
         return CustomApiResponse.<List<LabMember>>builder()
-                .result(laboratoryService.getAllLabs(adminId))
+                .result(laboratoryService.getAllLabs())
                 .build();
     }
 }

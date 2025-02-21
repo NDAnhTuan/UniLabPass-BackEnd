@@ -81,7 +81,7 @@ public class LabMemberController {
             @ApiResponse(responseCode = "401", description = "You are not authorized to modify the resource", content = @Content(schema = @Schema(implementation = ErrorApiResponse.class))),
     })
     @PutMapping("/update")
-    CustomApiResponse<LabMemberResponse> addNewMember(@RequestBody @Valid LabMemberUpdateRequest request) {
+    CustomApiResponse<LabMemberResponse> updateLabMemberStatus(@RequestBody @Valid LabMemberUpdateRequest request) {
         CustomApiResponse customApiResponse = new CustomApiResponse<LabMemberResponse>();
         customApiResponse.setCode(1000);
         return CustomApiResponse.<LabMemberResponse>builder()

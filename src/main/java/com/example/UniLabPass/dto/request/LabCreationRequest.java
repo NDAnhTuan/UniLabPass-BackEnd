@@ -14,9 +14,6 @@ import java.time.LocalDate;
 @Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class LabCreationRequest {
-    @Schema(example = "e179a1de-7f19-438b-a666-fe75adc08243", required = true)
-    String adminId;
-
     @Schema(example = "New UniLab Name", required = true)
     String name;
 
