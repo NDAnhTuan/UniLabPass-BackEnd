@@ -16,6 +16,7 @@ public interface LabMemberRepository extends JpaRepository<LabMember, LabMemberK
 
     List<LabMember> findByLabMemberId_MyUserId(String userId);
 
+    // Vì đây là thao tác thay đổi db và được custom nên phải cần annotation
     @Transactional
     void deleteByLabMemberId_LabId(String labId);
 
