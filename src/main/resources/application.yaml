@@ -32,5 +32,5 @@ verification-code:
     code-length: 6
 jwt:
   signerKey: "FZ53SRj+TB9MIVipkwxSeNxG4SIE7JQU/LPjLxuWrwoUfn7WQRBahoVphiyS30pa"
-  valid-duration: 300 # in seconds
-  refreshable-duration: 600 # in seconds
+  valid-duration: 1800 # in seconds
+  refreshable-duration: 3600 # in seconds
