@@ -23,7 +23,8 @@ public enum ErrorCode {
     LAB_NAME_INVALID(1010, "Please enter the name of laboratory", HttpStatus.BAD_REQUEST),
     LAB_NOT_EXISTED(1011, "Laboratory not exist", HttpStatus.NOT_FOUND),
     NO_RELATION(1011, "This user is not existed on this lab", HttpStatus.NOT_FOUND),
-    ROLE_NOT_EXISTED(1012, "Role not existed", HttpStatus.NOT_FOUND);
+    ROLE_NOT_EXISTED(1012, "Role not existed", HttpStatus.NOT_FOUND),
+    MEMBER_NOT_EXISTED(1013, "Member not existed", HttpStatus.NOT_FOUND);
     int code;
     String message;
     HttpStatus statusCode;

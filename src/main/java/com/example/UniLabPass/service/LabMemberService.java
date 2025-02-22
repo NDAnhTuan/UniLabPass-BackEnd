@@ -109,8 +109,11 @@ public class LabMemberService {
         var context = SecurityContextHolder.getContext();
         String name = context.getAuthentication().getName();
         MyUser manager = myUserRepository.findByEmail(name).orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
-        LabMember managerUser = labMemberRepository.findById(new LabMemberKey(labId,manager.getId())).orElseThrow();
-        if (managerUser.getRole().getName().equals("MANAGER")) {
+        LabMember managerUser = labMemberRepository.findById(new LabMemberKey(labId,manager.getId())).orElseThrow(
+                () -> new AppException(ErrorCode.MEMBER_NOT_EXISTED)
+        );
+        log.info("Manager Role: " +  managerUser.getRole().getName());
+        if (!managerUser.getRole().getName().equals("MANAGER")) {
             throw new AppException(ErrorCode.UNAUTHORIZED);
         }
     }
