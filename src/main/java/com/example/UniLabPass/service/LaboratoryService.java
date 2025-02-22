@@ -102,7 +102,7 @@ public class LaboratoryService {
         List<LabMemberResponse> labMemberResponses = new ArrayList<LabMemberResponse>();
         for (LabMember labMember
                 :
-                labMemberRepository.findByLabMemberId_MyUserId(admin.getId()).stream().toList()
+                labMemberRepository.findAllByLabMemberId_MyUserId(admin.getId())
         ) {
             LabMemberResponse labMemberResponse = labMemberMapper.toLabMemberResponse(labMember);
             labMemberResponse.setMyUserResponse(myUserMapper.toMyUserResponse(labMember.getMyUser()));

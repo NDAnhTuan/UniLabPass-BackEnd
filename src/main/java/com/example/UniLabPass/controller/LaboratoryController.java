@@ -80,8 +80,6 @@ public class LaboratoryController {
     })
     @GetMapping("/all")
     CustomApiResponse<List<LabMemberResponse>> getAllLabs() {
-        CustomApiResponse customApiResponse = new CustomApiResponse<LabResponse>();
-        customApiResponse.setCode(1000);
         return CustomApiResponse.<List<LabMemberResponse>>builder()
                 .result(laboratoryService.getAllLabs())
                 .build();

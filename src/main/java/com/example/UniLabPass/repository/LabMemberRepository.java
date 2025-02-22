@@ -12,9 +12,9 @@ import java.util.List;
 import java.util.Optional;
 
 public interface LabMemberRepository extends JpaRepository<LabMember, LabMemberKey> {
-    List<LabMember> findByLabMemberId_LabId(String labId);
+    List<LabMember> findAllByLabMemberId_LabId(String labId);
 
-    List<LabMember> findByLabMemberId_MyUserId(String userId);
+    List<LabMember> findAllByLabMemberId_MyUserId(String userId);
 
     // Vì đây là thao tác thay đổi db và được custom nên phải cần annotation
     @Transactional
