@@ -11,9 +11,9 @@ import java.util.List;
 import java.util.Optional;
 
 public interface LabMemberRepository extends JpaRepository<LabMember, LabMemberKey> {
-    Optional<LabMember> findByLabMemberId_LabId(String labId);
+    List<LabMember> findByLabMemberId_LabId(String labId);
 
-    Optional<LabMember> findByLabMemberId_MyUserId(String userId);
+    List<LabMember> findByLabMemberId_MyUserId(String userId);
 
     void deleteByLabMemberId_LabId(String labId);
 
