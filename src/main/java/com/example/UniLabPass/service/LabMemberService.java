@@ -79,6 +79,7 @@ public class LabMemberService {
         List<LabMember> labMemberList =  labMemberRepository.findAllByLabMemberId_LabId(labId).stream().toList();
         List<LabMemberResponse> labMemberResponses = new ArrayList<LabMemberResponse>();
         for (LabMember labMember : labMemberList) {
+            if (labMember.getRole().getName().equals("MANAGER")) continue;
             LabMemberResponse labMemberResponse = labMemberMapper.toLabMemberResponse(labMember);
             labMemberResponse.setMyUserResponse(myUserMapper.toMyUserResponse(labMember.getMyUser()));
 
