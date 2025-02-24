@@ -16,6 +16,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
+import java.util.UUID;
 
 @Configuration
 @RequiredArgsConstructor
@@ -43,8 +44,12 @@ public class ApplicationInitConfig {
                                                             .orElseGet(List::of); // Nếu rỗng, trả về List rỗng;
                 MyUser myUser = MyUser.builder()
                         .email("admin@email.com")
+                        .id(UUID.randomUUID().toString())
                         .password(passwordEncoder.encode("admin123"))
                         .isVerified(true)
+                        .verificationCode("")
+                        .expiryVerificationCode(new Date())
+                        .isVerified(false)
                         .roles(new HashSet<>(roles))
                         .build();
                 myUserRepository.save(myUser);

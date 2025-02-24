@@ -17,7 +17,6 @@ import java.util.Set;
 @Entity
 public class MyUser {
     @Id
-    @GeneratedValue(strategy = GenerationType.UUID)
     String id;
     @Column(unique = true, nullable = true, columnDefinition = "VARCHAR(255)")
     String email;

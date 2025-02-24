@@ -22,6 +22,8 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.security.SecureRandom;
 import java.time.Instant;
@@ -29,6 +31,7 @@ import java.time.temporal.ChronoUnit;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
+import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -49,9 +52,10 @@ public class MyUserService {
     @NonFinal
     static final SecureRandom random = new SecureRandom();
 
-
     public MyUserResponse createMyUser(MyUserCreationRequest request, Role role) {
-        MyUser myUser = myUserMapper.toMyUser(request);;
+        MyUser myUser = myUserMapper.toMyUser(request);
+        myUser.setId(request.getId() != null ? request.getId() : UUID.randomUUID().toString());
+
         if (role.equals(Role.USER)) {
             myUser.setPassword(passwordEncoder.encode(request.getPassword()));
             myUser.setVerificationCode(generateVerificationCode());
@@ -61,14 +65,21 @@ public class MyUserService {
             var roles = roleRepository.findById(role.name()).map(List::of)  // Nếu có giá trị, chuyển thành List
                     .orElseGet(List::of); // Nếu rỗng, trả về List rỗng;
             myUser.setRoles(new HashSet<>(roles));
+
         }
         // Trường hợp không phải tạo tài khoản
+        else {
+            myUser.setVerificationCode("");
+            myUser.setExpiryVerificationCode(new Date());
+            myUser.setRoles(new HashSet<>());
+        }
         try {
             myUser = myUserRepository.save(myUser);
         }
         catch (DataIntegrityViolationException exception) {
             throw new AppException(ErrorCode.USER_EXISTED);
         }
+
         if (role.equals(Role.USER)) emailService.sendVerificationEmail(myUser.getEmail(), myUser.getVerificationCode());
         return myUserMapper.toMyUserResponse(myUser);
     }
