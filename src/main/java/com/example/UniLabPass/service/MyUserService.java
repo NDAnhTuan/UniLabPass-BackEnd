@@ -113,13 +113,11 @@ public class MyUserService {
     // hasRole = Role_?
 //    @PreAuthorize("hasRole('ADMIN')")
     // hasAuthority = full Scope name
-    @PreAuthorize("hasAuthority('ROLE_ADMIN')")
     public List<MyUserResponse> getMyUsers() {
         return myUserRepository.findAll().stream().map(myUserMapper::toMyUserResponse).toList();
     }
 //    @PostAuthorize("returnObject.username == authentication.name")
     // Cho thuc thi nhung khong tra ve ket qua (return)
-    @PreAuthorize("hasAuthority('ROLE_ADMIN')")
     public MyUserResponse getMyUser(String id) {
         return myUserMapper.toMyUserResponse(
                 myUserRepository.findById(id).orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED))
