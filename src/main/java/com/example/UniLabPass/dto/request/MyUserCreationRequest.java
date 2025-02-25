@@ -34,4 +34,7 @@ public class MyUserCreationRequest {
     @Schema(description = "Date of birth", example = "2025-12-31")
     @DobConstraint(min = 16, message = "INVALID_DOB")
     LocalDate dob;
+
+    @Schema(example = "NONE")
+    String gender;
 }

@@ -11,9 +11,15 @@ import org.springframework.stereotype.Component;
 
 @Mapper(componentModel = "spring")
 public interface LabMemberMapper {
-    @Mapping(target = "myUserResponse", ignore = true)
-    LabMemberResponse toLabMemberResponse(LabMember labMember);
-
+    default LabMemberResponse toLabMemberResponse(LabMember entity) {
+        return LabMemberResponse.builder()
+                .id(entity.getLabMemberId().getMyUserId())
+                .firstName(entity.getMyUser().getFirstName())
+                .lastName(entity.getMyUser().getLastName())
+                .status(entity.getMemberStatus())
+                .lastRecord(null) // Update when finish logs
+                .build();
+    }
 
     void updateLabMember(@MappingTarget LabMember labMember, LabMemberUpdateRequest request);
 }

@@ -95,22 +95,21 @@ public class LaboratoryService {
     }
 
     // View all labs
-    public List<LabMemberResponse> getAllLabs() {
+    public List<LabResponse> getAllLabs() {
         var context = SecurityContextHolder.getContext();
         String name = context.getAuthentication().getName();
         MyUser admin = myUserRepository.findByEmail(name).orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
-        List<LabMemberResponse> labMemberResponses = new ArrayList<LabMemberResponse>();
-        for (LabMember labMember
-                :
-                labMemberRepository.findAllByLabMemberId_MyUserId(admin.getId())
-        ) {
-            LabMemberResponse labMemberResponse = labMemberMapper.toLabMemberResponse(labMember);
-            labMemberResponse.setMyUserResponse(myUserMapper.toMyUserResponse(labMember.getMyUser()));
-
-            labMemberResponses.add(labMemberResponse);
+        List<LabResponse> labResponses = new ArrayList<LabResponse>();
+        List<LabMember> labMemberResponses = labMemberRepository.findAllByLabMemberId_MyUserId(admin.getId());
+        for (LabMember labMember : labMemberResponses) {
+            LabResponse lab = LabResponse.builder()
+                    .id(labMember.getLab().getId())
+                    .name(labMember.getLab().getName())
+                    .location(labMember.getLab().getLocation())
+                    .capacity(labMember.getLab().getCapacity())
+                    .build();
+            labResponses.add(lab);
         }
-
-        return labMemberResponses;
+        return labResponses;
     }
-
 }

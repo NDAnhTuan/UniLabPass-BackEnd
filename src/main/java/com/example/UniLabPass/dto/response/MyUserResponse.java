@@ -23,6 +23,8 @@ public class MyUserResponse {
     String lastName;
     @Schema(example = "2003-11-30")
     LocalDate dob;
+    @Schema(example = "MALE")
+    String gender;
 
     Set<RoleResponse> roles;
 }

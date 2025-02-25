@@ -26,6 +26,9 @@ public class MyUserUpdateRequest {
     String firstName;
     @Schema(example = "Nguyen Duc")
     String lastName;
+    @Schema(example = "NONE")
+    String gender;
+
 
     @DobConstraint(min = 16, message = "INVALID_DOB")
     @Schema(example = "2003-11-30")

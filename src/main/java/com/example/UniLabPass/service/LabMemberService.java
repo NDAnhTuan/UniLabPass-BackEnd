@@ -22,9 +22,11 @@ import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -42,8 +44,9 @@ public class LabMemberService {
     LabMemberMapper labMemberMapper;
 
 
-    public LabMemberResponse addLabMember(LabMemberCreationRequest request) {
+    public void addLabMember(LabMemberCreationRequest request) {
         checkAuthorizeManager(request.getLabId());
+
         if (myUserRepository.findById(request.getUserId()).isEmpty()) {
             MyUserCreationRequest myUserCreationRequest = MyUserCreationRequest.builder()
                     .id(request.getUserId())
@@ -53,26 +56,22 @@ public class LabMemberService {
                     .dob(request.getDob())
                     .build();
             myUserService.createMyUser(myUserCreationRequest, Role.MEMBER);
-
         }
         MyUser myUser = myUserRepository.findById(request.getUserId()).orElseThrow(
                 () -> new AppException(ErrorCode.USER_NOT_EXISTED)
         );
         // Increase lab capacity by 1
-        Lab lab = labRepository.findById(request.getLabId()).orElse(new Lab());
+        // Don't create a clone lab when we cant find the lab we want
+        Lab lab = labRepository.findById(request.getLabId()).orElseThrow(() -> new AppException(ErrorCode.LAB_NOT_EXISTED));
         lab.setCapacity(lab.getCapacity() + 1);
         labRepository.save(lab);
 
         LabMember labMember = new LabMember();
         labMember.setLabMemberId(new LabMemberKey(lab.getId(), myUser.getId()));
-        labMember.setRole(roleRepository.findById(request.getRole()).orElseThrow());
+        labMember.setRole(roleRepository.findById(request.getRole()).orElseThrow(() -> new AppException(ErrorCode.ROLE_NOT_EXISTED)));
         labMember.setLab(lab);
         labMember.setMyUser(myUser);
-        labMember = labMemberRepository.save(labMember);
-
-        LabMemberResponse labMemberResponse = labMemberMapper.toLabMemberResponse(labMember);
-        labMemberResponse.setMyUserResponse(myUserMapper.toMyUserResponse(labMember.getMyUser()));
-        return labMemberResponse;
+        labMemberRepository.save(labMember);
     }
     public List<LabMemberResponse> getLabMembers(String labId) {
         checkAuthorizeManager(labId);
@@ -80,8 +79,15 @@ public class LabMemberService {
         List<LabMemberResponse> labMemberResponses = new ArrayList<LabMemberResponse>();
         for (LabMember labMember : labMemberList) {
             if (labMember.getRole().getName().equals("MANAGER")) continue;
-            LabMemberResponse labMemberResponse = labMemberMapper.toLabMemberResponse(labMember);
-            labMemberResponse.setMyUserResponse(myUserMapper.toMyUserResponse(labMember.getMyUser()));
+            // Mapping LabMember into LabMemberResponse
+            LabMemberResponse labMemberResponse = LabMemberResponse.builder()
+                    .id(labMember.getLabMemberId().getMyUserId())
+                    .firstName(labMember.getMyUser().getFirstName())
+                    .lastName(labMember.getMyUser().getLastName())
+                    .gender(labMember.getMyUser().getGender())
+                    .status(labMember.getMemberStatus())
+                    .lastRecord(null) // Update when done all the logs
+                    .build();
 
             labMemberResponses.add(labMemberResponse);
         }
@@ -103,6 +109,8 @@ public class LabMemberService {
         checkAuthorizeManager(request.getLabMemberKey().getLabId());
         LabMember labMember = labMemberRepository.findById(request.getLabMemberKey()).orElseThrow(() -> new AppException(ErrorCode.LAB_NOT_EXISTED));
         labMemberMapper.updateLabMember(labMember, request);
+
+        // Mapping to LabMemberResponse
         return labMemberMapper.toLabMemberResponse(labMemberRepository.save(labMember));
     }
 

@@ -79,8 +79,8 @@ public class LaboratoryController {
             @ApiResponse(responseCode = "403", description = "Accessing the resource you were trying to reach is forbidden" , content = @Content(schema = @Schema(implementation = ErrorApiResponse.class))),
     })
     @GetMapping("/all")
-    CustomApiResponse<List<LabMemberResponse>> getAllLabs() {
-        return CustomApiResponse.<List<LabMemberResponse>>builder()
+    CustomApiResponse<List<LabResponse>> getAllLabs() {
+        return CustomApiResponse.<List<LabResponse>>builder()
                 .result(laboratoryService.getAllLabs())
                 .build();
     }

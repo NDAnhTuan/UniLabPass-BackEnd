@@ -24,6 +24,7 @@ public class MyUser {
     String firstName;
     String lastName;
     LocalDate dob;
+    String gender;
     @Column(nullable = false)
     String verificationCode = "";
     @Column(nullable = false)

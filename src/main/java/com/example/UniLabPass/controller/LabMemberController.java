@@ -30,26 +30,25 @@ public class LabMemberController {
     LabMemberService labMemberService;
 
     @PostMapping
-    @Operation(summary = "", security = {@SecurityRequirement(name = "BearerAuthentication")})
+    @Operation(summary = "Add member into lab", security = {@SecurityRequirement(name = "BearerAuthentication")})
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Successfully retrieved user"),
             @ApiResponse(responseCode = "401", description = "You are not authorized to view the resource", content = @Content(schema = @Schema(implementation = ErrorApiResponse.class))),
             @ApiResponse(responseCode = "403", description = "Accessing the resource you were trying to reach is forbidden" , content = @Content(schema = @Schema(implementation = ErrorApiResponse.class))),
-//            @ApiResponse(responseCode = "400", description = "USER_NOT_EXISTED 1005", content = @Content(schema = @Schema(implementation = ErrorApiResponse.class)))
     })
-    CustomApiResponse<LabMemberResponse> addLabMember(LabMemberCreationRequest request) {
-        return CustomApiResponse.<LabMemberResponse>builder()
-                .result(labMemberService.addLabMember(request))
+    CustomApiResponse<String> addLabMember(LabMemberCreationRequest request) {
+        labMemberService.addLabMember(request);
+        return CustomApiResponse.<String>builder()
+                .result("New member is successfully added to lab")
                 .build();
     }
 
     @GetMapping("/labs/{labId}")
-    @Operation(summary = "", security = {@SecurityRequirement(name = "BearerAuthentication")})
+    @Operation(summary = "Get all members of lab", security = {@SecurityRequirement(name = "BearerAuthentication")})
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Successfully retrieved user"),
             @ApiResponse(responseCode = "401", description = "You are not authorized to view the resource", content = @Content(schema = @Schema(implementation = ErrorApiResponse.class))),
             @ApiResponse(responseCode = "403", description = "Accessing the resource you were trying to reach is forbidden" , content = @Content(schema = @Schema(implementation = ErrorApiResponse.class))),
-//            @ApiResponse(responseCode = "400", description = "USER_NOT_EXISTED 1005", content = @Content(schema = @Schema(implementation = ErrorApiResponse.class)))
     })
     CustomApiResponse<List<LabMemberResponse>> getLabMembers(@PathVariable("labId") String labId) {
         return CustomApiResponse.<List<LabMemberResponse>>builder()
@@ -60,7 +59,7 @@ public class LabMemberController {
     // Delete member from lab
     @Operation(summary = "Delete member from lab", security = {@SecurityRequirement(name = "BearerAuthentication")})
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "New member was added to this lab successfully"),
+            @ApiResponse(responseCode = "200", description = "Member deleted successfully"),
             @ApiResponse(responseCode = "401", description = "You are not authorized to modify the resource", content = @Content(schema = @Schema(implementation = ErrorApiResponse.class))),
     })
     @DeleteMapping("labs/{labId}/users/{userId}")

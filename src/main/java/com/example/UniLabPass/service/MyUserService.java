@@ -83,6 +83,7 @@ public class MyUserService {
         if (role.equals(Role.USER)) emailService.sendVerificationEmail(myUser.getEmail(), myUser.getVerificationCode());
         return myUserMapper.toMyUserResponse(myUser);
     }
+
     public MyUserResponse getMyInfo() {
         var context = SecurityContextHolder.getContext();
         String name = context.getAuthentication().getName();

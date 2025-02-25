@@ -25,6 +25,8 @@ public class LabMemberCreationRequest   {
     String email;
     @Schema(example = "2003-04-11")
     LocalDate dob;
+    @Schema(example = "MALE")
+    String gender;
     @Schema(example = "MEMBER", required = true)
     String role;
 
