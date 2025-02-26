@@ -4,6 +4,7 @@ import com.example.UniLabPass.compositekey.LabMemberKey;
 import com.example.UniLabPass.dto.request.LabMemberCreationRequest;
 import com.example.UniLabPass.dto.request.LabMemberUpdateRequest;
 import com.example.UniLabPass.dto.request.MyUserCreationRequest;
+import com.example.UniLabPass.dto.response.LabMemberInfoRespond;
 import com.example.UniLabPass.dto.response.LabMemberResponse;
 import com.example.UniLabPass.dto.response.MyUserResponse;
 import com.example.UniLabPass.entity.Lab;
@@ -96,6 +97,17 @@ public class LabMemberService {
         }
         return labMemberResponses;
     }
+
+    public LabMemberInfoRespond getLabMemberInfo(String labId, String memberId) {
+        checkAuthorizeManager(labId);
+        LabMemberKey labMemberKey = new LabMemberKey(labId, memberId);
+        LabMember labMember = labMemberRepository.findById(labMemberKey).orElseThrow(() -> new AppException(ErrorCode.NO_RELATION));
+        return LabMemberInfoRespond.builder()
+                .myUserResponse(myUserMapper.toMyUserResponse(labMember.getMyUser()))
+                .status(labMember.getMemberStatus())
+                .build();
+    }
+
     public void deleteLabMember(String labId, String userId) {
         checkAuthorizeManager(labId);
         LabMemberKey labMemberKey = new LabMemberKey(labId, userId);

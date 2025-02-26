@@ -95,7 +95,7 @@ public class MyUserService {
         return myUserMapper.toMyUserResponse(myUser);
 
     }
-    @PreAuthorize("hasAuthority('ROLE_ADMIN')")
+//    @PreAuthorize("hasAuthority('ROLE_ADMIN')")
     public MyUserResponse updateMyUser(String userId,MyUserUpdateRequest request) {
         MyUser myUser = myUserRepository.findById(userId).orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
         myUserMapper.updateMyUser(myUser, request);
@@ -106,7 +106,7 @@ public class MyUserService {
 
         return myUserMapper.toMyUserResponse(myUserRepository.save(myUser));
     }
-    @PreAuthorize("hasAuthority('ROLE_ADMIN')")
+//    @PreAuthorize("hasAuthority('ROLE_ADMIN')")
     public void deleteMyUser(String userId) {
         myUserRepository.deleteById(userId);
     }

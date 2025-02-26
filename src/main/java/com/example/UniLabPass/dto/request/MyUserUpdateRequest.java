@@ -29,7 +29,6 @@ public class MyUserUpdateRequest {
     @Schema(example = "NONE")
     String gender;
 
-
     @DobConstraint(min = 16, message = "INVALID_DOB")
     @Schema(example = "2003-11-30")
     LocalDate dob;

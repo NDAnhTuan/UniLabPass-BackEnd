@@ -1,9 +1,11 @@
 package com.example.UniLabPass.controller;
 
+import com.example.UniLabPass.compositekey.LabMemberKey;
 import com.example.UniLabPass.dto.request.LabMemberCreationRequest;
 import com.example.UniLabPass.dto.request.LabMemberUpdateRequest;
 import com.example.UniLabPass.dto.response.CustomApiResponse;
 import com.example.UniLabPass.dto.response.ErrorApiResponse;
+import com.example.UniLabPass.dto.response.LabMemberInfoRespond;
 import com.example.UniLabPass.dto.response.LabMemberResponse;
 import com.example.UniLabPass.service.LabMemberService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -53,6 +55,19 @@ public class LabMemberController {
     CustomApiResponse<List<LabMemberResponse>> getLabMembers(@PathVariable("labId") String labId) {
         return CustomApiResponse.<List<LabMemberResponse>>builder()
                 .result(labMemberService.getLabMembers(labId))
+                .build();
+    }
+
+    @GetMapping("/lab/{labId}/member/{memberId}")
+    @Operation(summary = "Get member detailed info", security = {@SecurityRequirement(name = "BearerAuthentication")})
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Successfully retrieved user"),
+            @ApiResponse(responseCode = "401", description = "You are not authorized to view the resource", content = @Content(schema = @Schema(implementation = ErrorApiResponse.class))),
+            @ApiResponse(responseCode = "403", description = "Accessing the resource you were trying to reach is forbidden" , content = @Content(schema = @Schema(implementation = ErrorApiResponse.class))),
+    })
+    CustomApiResponse<LabMemberInfoRespond> getLabMemberDetailInfo(@PathVariable("labId") String labId, @PathVariable("memberId") String memberId) {
+        return CustomApiResponse.<LabMemberInfoRespond>builder()
+                .result(labMemberService.getLabMemberInfo(labId, memberId))
                 .build();
     }
 
