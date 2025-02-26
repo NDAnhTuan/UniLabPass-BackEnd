@@ -29,6 +29,8 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Stream;
+
 
 @Service
 @RequiredArgsConstructor
@@ -54,6 +56,7 @@ public class LabMemberService {
                     .lastName(request.getLastName())
                     .email(request.getEmail())
                     .dob(request.getDob())
+                    .gender(request.getGender())
                     .build();
             myUserService.createMyUser(myUserCreationRequest, Role.MEMBER);
         }
