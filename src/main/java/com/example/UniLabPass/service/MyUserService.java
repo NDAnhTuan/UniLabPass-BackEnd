@@ -99,7 +99,8 @@ public class MyUserService {
     public MyUserResponse updateMyUser(String userId,MyUserUpdateRequest request) {
         MyUser myUser = myUserRepository.findById(userId).orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
         myUserMapper.updateMyUser(myUser, request);
-        myUser.setPassword(passwordEncoder.encode(request.getPassword()));
+        if (!request.getPassword().isEmpty())
+            myUser.setPassword(passwordEncoder.encode(request.getPassword()));
 
         var roles = roleRepository.findAllById(request.getRoles());
         myUser.setRoles(new HashSet<>(roles));
