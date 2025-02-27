@@ -39,10 +39,13 @@ import java.util.stream.Stream;
 @Slf4j
 public class LabMemberService {
     MyUserService myUserService;
+    LogService logService;
+
     LabMemberRepository labMemberRepository;
     MyUserRepository myUserRepository;
     LabRepository labRepository;
     RoleRepository roleRepository;
+
     MyUserMapper myUserMapper;
     LabMemberMapper labMemberMapper;
 
@@ -130,6 +133,10 @@ public class LabMemberService {
         LabMemberKey labMemberKey = new LabMemberKey(labId, userId);
         if (!labMemberRepository.existsById(labMemberKey)) {throw new AppException(ErrorCode.NO_RELATION);}
         labMemberRepository.deleteById(labMemberKey);
+
+        // Delete all record involve with this user
+        logService.deleteLog(labId, userId);
+
         // Check if this member is only in this lab, then delete it
         if (labMemberRepository.findAllByLabMemberId_MyUserId(userId).isEmpty()) {
             myUserService.deleteMyUser(userId);

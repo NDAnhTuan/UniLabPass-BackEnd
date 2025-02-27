@@ -15,10 +15,8 @@ import com.example.UniLabPass.exception.ErrorCode;
 import com.example.UniLabPass.mapper.LabMapper;
 import com.example.UniLabPass.mapper.LabMemberMapper;
 import com.example.UniLabPass.mapper.MyUserMapper;
-import com.example.UniLabPass.repository.LabMemberRepository;
-import com.example.UniLabPass.repository.LabRepository;
-import com.example.UniLabPass.repository.MyUserRepository;
-import com.example.UniLabPass.repository.RoleRepository;
+import com.example.UniLabPass.repository.*;
+import jakarta.transaction.Transactional;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
@@ -39,6 +37,8 @@ public class LaboratoryService {
     LabRepository labRepository;
     LabMemberRepository labMemberRepository;
     RoleRepository roleRepository;
+    LogRepository logRepository;
+
     LabMapper labMapper;
     MyUserMapper myUserMapper;
     LabMemberMapper labMemberMapper;
@@ -82,9 +82,13 @@ public class LaboratoryService {
         return labMapper.toLabResponse(labRepository.save(lab));
     }
     // Delete laboratory
+    @Transactional
     public void deleteLaboratory(String labId) {
         // Check if user is MANAGER of lab
         labMemberService.checkAuthorizeManager(labId);
+
+        // Delete all record of this lab
+        logRepository.deleteByLabId(labId);
 
         // Delete all LabMember coexisted with this lab
         labMemberRepository.deleteByLabMemberId_LabId(labId);
