@@ -50,12 +50,13 @@ public class LabMemberService {
     public void addLabMember(LabMemberCreationRequest request) {
         checkAuthorizeManager(request.getLabId());
 
-        LabMemberKey key = new LabMemberKey(request.getLabId(), request.getUserId());
-        if (labMemberRepository.existsById(key)) {
-            throw new AppException(ErrorCode.USER_EXISTED);
+        // If member is alreadty in this fking lab, throw error
+        if (labMemberRepository.existsById(new LabMemberKey(request.getLabId(), request.getUserId()))) {
+            throw new AppException(ErrorCode.MEMBER_ALREADY_EXISTED);
         }
 
-        if (myUserRepository.findById(request.getUserId()).isEmpty()) {
+        // if member not exist in database, then create a new one
+        if (!myUserRepository.existsById(request.getUserId())) {
             MyUserCreationRequest myUserCreationRequest = MyUserCreationRequest.builder()
                     .id(request.getUserId())
                     .firstName(request.getFirstName())
@@ -66,14 +67,25 @@ public class LabMemberService {
                     .build();
             myUserService.createMyUser(myUserCreationRequest, Role.MEMBER);
         }
+        else { // Else if member is already exist, then check if the info is as the same with request's data
+            MyUser userCheck = myUserRepository.findById(request.getUserId()).orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
+            if (! (userCheck.getId().equals(request.getUserId())
+                    &   userCheck.getFirstName().equals(request.getFirstName())
+                    &   userCheck.getLastName().equals(request.getLastName())
+                    &   userCheck.getEmail().equals(request.getEmail())
+                    &   userCheck.getDob().equals(request.getDob())
+                    &   userCheck.getGender().equals(request.getGender()))) {
+                throw new AppException(ErrorCode.USER_EXISTED);
+            }
+        }
         MyUser myUser = myUserRepository.findById(request.getUserId()).orElseThrow(
                 () -> new AppException(ErrorCode.USER_NOT_EXISTED)
         );
         // Increase lab capacity by 1
         // Don't create a clone lab when we cant find the lab we want
         Lab lab = labRepository.findById(request.getLabId()).orElseThrow(() -> new AppException(ErrorCode.LAB_NOT_EXISTED));
-        lab.setCapacity(lab.getCapacity() + 1);
-        labRepository.save(lab);
+        // lab.setCapacity(lab.getCapacity() + 1);
+        // labRepository.save(lab);
 
         LabMember labMember = new LabMember();
         labMember.setLabMemberId(new LabMemberKey(lab.getId(), myUser.getId()));
@@ -118,11 +130,15 @@ public class LabMemberService {
         LabMemberKey labMemberKey = new LabMemberKey(labId, userId);
         if (!labMemberRepository.existsById(labMemberKey)) {throw new AppException(ErrorCode.NO_RELATION);}
         labMemberRepository.deleteById(labMemberKey);
+        // Check if this member is only in this lab, then delete it
+        if (labMemberRepository.findAllByLabMemberId_MyUserId(userId).isEmpty()) {
+            myUserService.deleteMyUser(userId);
+        }
 
-        // Decrease lab capacity by 1
-        Lab lab = labRepository.findById(labId).orElseThrow(() -> new AppException(ErrorCode.LAB_NOT_EXISTED));
-        lab.setCapacity(lab.getCapacity() - 1);
-        labRepository.save(lab);
+//        // Decrease lab capacity by 1
+//        Lab lab = labRepository.findById(labId).orElseThrow(() -> new AppException(ErrorCode.LAB_NOT_EXISTED));
+//        lab.setCapacity(lab.getCapacity() - 1);
+//        labRepository.save(lab);
     }
 
     public LabMemberResponse updateLabMember(LabMemberUpdateRequest request) {
