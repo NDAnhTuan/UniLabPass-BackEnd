@@ -28,10 +28,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.security.SecureRandom;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
-import java.util.Date;
-import java.util.HashSet;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 
 @Service
 @RequiredArgsConstructor
@@ -99,10 +96,10 @@ public class MyUserService {
     public MyUserResponse updateMyUser(String userId,MyUserUpdateRequest request) {
         MyUser myUser = myUserRepository.findById(userId).orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
         myUserMapper.updateMyUser(myUser, request);
-        if (!request.getPassword().isEmpty())
+        if (request.getPassword() != null && !request.getPassword().isEmpty())
             myUser.setPassword(passwordEncoder.encode(request.getPassword()));
-
-        var roles = roleRepository.findAllById(request.getRoles());
+        var roles = request.getRoles() != null ?
+                roleRepository.findAllById(request.getRoles()) : new ArrayList<com.example.UniLabPass.entity.Role>();
         myUser.setRoles(new HashSet<>(roles));
 
         return myUserMapper.toMyUserResponse(myUserRepository.save(myUser));
