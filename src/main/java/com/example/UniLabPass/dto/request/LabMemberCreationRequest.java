@@ -27,9 +27,6 @@ public class LabMemberCreationRequest   {
     LocalDate dob;
     @Schema(example = "MALE")
     String gender;
-    @Schema(example = "MEMBER", required = true)
+    @Schema(example = "MEMBER/MANAGER", required = true)
     String role;
-
-
-
 }

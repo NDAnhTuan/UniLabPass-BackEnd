@@ -50,6 +50,11 @@ public class LabMemberService {
     public void addLabMember(LabMemberCreationRequest request) {
         checkAuthorizeManager(request.getLabId());
 
+        LabMemberKey key = new LabMemberKey(request.getLabId(), request.getUserId());
+        if (labMemberRepository.existsById(key)) {
+            throw new AppException(ErrorCode.USER_EXISTED);
+        }
+
         if (myUserRepository.findById(request.getUserId()).isEmpty()) {
             MyUserCreationRequest myUserCreationRequest = MyUserCreationRequest.builder()
                     .id(request.getUserId())

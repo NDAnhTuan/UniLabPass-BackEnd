@@ -13,6 +13,6 @@ import lombok.experimental.FieldDefaults;
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class LabMemberUpdateRequest {
     LabMemberKey labMemberKey;
-    @Schema(example = "ACTIVE")
+    @Schema(example = "ACTIVE/BLOCKED")
     MemberStatus memberStatus;
 }

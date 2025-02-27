@@ -26,13 +26,13 @@ public class MyUserUpdateRequest {
     String firstName;
     @Schema(example = "Nguyen Duc")
     String lastName;
-    @Schema(example = "NONE")
+    @Schema(example = "MALE/FEMALE/NONE")
     String gender;
 
     @DobConstraint(min = 16, message = "INVALID_DOB")
     @Schema(example = "2003-11-30")
     LocalDate dob;
-    @Schema(type = "array", example = "[\"MANAGER\", \"USER\"]")
 
+    @Schema(type = "array", example = "[\"MANAGER\"]")
     List<String> roles;
 }
