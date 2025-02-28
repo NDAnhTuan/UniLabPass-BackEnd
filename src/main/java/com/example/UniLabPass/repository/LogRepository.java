@@ -16,4 +16,6 @@ public interface LogRepository extends JpaRepository<LaboratoryLog, String> {
 
     void deleteByLabId(String labId);
 //    Page<LaboratoryLog> findAll(Pageable pageable);
+
+    LaboratoryLog findFirstByUserIdOrderByRecordTimeDesc(String userId);
 }

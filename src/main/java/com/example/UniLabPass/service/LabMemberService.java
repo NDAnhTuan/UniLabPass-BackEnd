@@ -9,16 +9,14 @@ import com.example.UniLabPass.dto.response.LabMemberResponse;
 import com.example.UniLabPass.dto.response.MyUserResponse;
 import com.example.UniLabPass.entity.Lab;
 import com.example.UniLabPass.entity.LabMember;
+import com.example.UniLabPass.entity.LaboratoryLog;
 import com.example.UniLabPass.entity.MyUser;
 import com.example.UniLabPass.enums.Role;
 import com.example.UniLabPass.exception.AppException;
 import com.example.UniLabPass.exception.ErrorCode;
 import com.example.UniLabPass.mapper.LabMemberMapper;
 import com.example.UniLabPass.mapper.MyUserMapper;
-import com.example.UniLabPass.repository.LabMemberRepository;
-import com.example.UniLabPass.repository.LabRepository;
-import com.example.UniLabPass.repository.MyUserRepository;
-import com.example.UniLabPass.repository.RoleRepository;
+import com.example.UniLabPass.repository.*;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
@@ -48,18 +46,23 @@ public class LabMemberService {
 
     MyUserMapper myUserMapper;
     LabMemberMapper labMemberMapper;
+    private final LogRepository logRepository;
 
 
     public void addLabMember(LabMemberCreationRequest request) {
         checkAuthorizeManager(request.getLabId());
 
-        // If member is alreadty in this fking lab, throw error
+        // If member is already in this fking lab, throw error
         if (labMemberRepository.existsById(new LabMemberKey(request.getLabId(), request.getUserId()))) {
             throw new AppException(ErrorCode.MEMBER_ALREADY_EXISTED);
         }
 
-        // if member not exist in database, then create a new one
+        // if member not exist in database, then first check email to see if it already in the database or not, then create a new one
         if (!myUserRepository.existsById(request.getUserId())) {
+            // Check email
+            if (myUserRepository.existsByEmail(request.getEmail())) {
+                throw new AppException(ErrorCode.EMAIL_EXISTED);
+            }
             MyUserCreationRequest myUserCreationRequest = MyUserCreationRequest.builder()
                     .id(request.getUserId())
                     .firstName(request.getFirstName())
@@ -72,13 +75,23 @@ public class LabMemberService {
         }
         else { // Else if member is already exist, then check if the info is as the same with request's data
             MyUser userCheck = myUserRepository.findById(request.getUserId()).orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
-            if (! (userCheck.getId().equals(request.getUserId())
-                    &   userCheck.getFirstName().equals(request.getFirstName())
-                    &   userCheck.getLastName().equals(request.getLastName())
-                    &   userCheck.getEmail().equals(request.getEmail())
-                    &   userCheck.getDob().equals(request.getDob())
-                    &   userCheck.getGender().equals(request.getGender()))) {
-                throw new AppException(ErrorCode.USER_EXISTED);
+            if (userCheck.getId().equals(request.getUserId())) {
+                // Check email
+                if (userCheck.getEmail().equals(request.getEmail())) {
+                    // Check other info
+                    if (! (userCheck.getFirstName().equals(request.getFirstName())
+                        && userCheck.getLastName().equals(request.getLastName())
+                        && userCheck.getDob().equals(request.getDob())
+                        && userCheck.getGender().equals(request.getGender())) ) {
+                        throw new AppException(ErrorCode.FALSE_USER_DATA);
+                    }
+                    else {
+                        // Pass everything
+                    }
+                }
+                else {
+                    throw new AppException(ErrorCode.USER_ID_EXISTED);
+                }
             }
         }
         MyUser myUser = myUserRepository.findById(request.getUserId()).orElseThrow(
@@ -104,13 +117,19 @@ public class LabMemberService {
         for (LabMember labMember : labMemberList) {
             if (labMember.getRole().getName().equals("MANAGER")) continue;
             // Mapping LabMember into LabMemberResponse
+            LaboratoryLog log = logRepository.findFirstByUserIdOrderByRecordTimeDesc(labMember.getMyUser().getId());
+            LocalDateTime userLastRecord = null;
+            if (log != null) {
+                userLastRecord = log.getRecordTime();
+            };
+
             LabMemberResponse labMemberResponse = LabMemberResponse.builder()
                     .id(labMember.getLabMemberId().getMyUserId())
                     .firstName(labMember.getMyUser().getFirstName())
                     .lastName(labMember.getMyUser().getLastName())
                     .gender(labMember.getMyUser().getGender())
                     .status(labMember.getMemberStatus())
-                    .lastRecord(null) // Update when done all the logs
+                    .lastRecord(userLastRecord) // Update when done all the logs
                     .build();
 
             labMemberResponses.add(labMemberResponse);

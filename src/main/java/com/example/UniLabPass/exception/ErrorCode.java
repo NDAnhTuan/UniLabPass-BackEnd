@@ -26,7 +26,10 @@ public enum ErrorCode {
     ROLE_NOT_EXISTED(1012, "Role not existed", HttpStatus.NOT_FOUND),
     MEMBER_NOT_EXISTED(1013, "Member not existed", HttpStatus.NOT_FOUND),
     MEMBER_ALREADY_EXISTED(1014, "Member is already exist in this lab", HttpStatus.CONFLICT),
-    LOG_NOT_EXIST(1015, "This log is not exist", HttpStatus.NOT_FOUND),;
+    LOG_NOT_EXIST(1015, "This log is not exist", HttpStatus.NOT_FOUND),
+    EMAIL_EXISTED(1016, "There is already a user with this Email", HttpStatus.CONFLICT),
+    USER_ID_EXISTED(1017, "There is already a user with this ID", HttpStatus.CONFLICT),
+    FALSE_USER_DATA(1018, "There is already a user with different info", HttpStatus.CONFLICT),;
     int code;
     String message;
     HttpStatus statusCode;

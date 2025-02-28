@@ -47,7 +47,7 @@ public class LogController {
             @ApiResponse(responseCode = "200", description = "Get logs successfully"),
     })
     @GetMapping("/{labId}")
-    CustomApiResponse<List<LogRespond>> createNewLog(@PathVariable String labId) {
+    CustomApiResponse<List<LogRespond>> getAllLogs(@PathVariable String labId) {
         return CustomApiResponse.<List<LogRespond>>builder()
                 .result(logService.getLogs(labId))
                 .build();
