@@ -14,18 +14,18 @@ import java.time.LocalDateTime;
 @Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
 @Entity
-public class LaboratoryLog {
+public class EventLog {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     String id;
 
-    String labId;
+    String eventId;
 
-    String userId;
-
-    RecordType recordType;
+    String guestId;
 
     @Column(nullable = false)
+    RecordType recordType;
+
     LocalDateTime recordTime;
 
     LogStatus status;

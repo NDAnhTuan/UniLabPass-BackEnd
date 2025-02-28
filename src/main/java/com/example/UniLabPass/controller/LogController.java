@@ -54,7 +54,7 @@ public class LogController {
     }
 
     // Get log detail
-    @Operation(summary = "Get all logs of lab", security = {@SecurityRequirement(name = "BearerAuthentication")})
+    @Operation(summary = "Get log details", security = {@SecurityRequirement(name = "BearerAuthentication")})
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Get logs successfully"),
     })

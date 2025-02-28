@@ -1,34 +1,23 @@
-package com.example.UniLabPass.entity;
+package com.example.UniLabPass.dto.response;
 
 import com.example.UniLabPass.enums.LogStatus;
 import com.example.UniLabPass.enums.RecordType;
-import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
 import java.time.LocalDateTime;
 
 @Data
+@Builder
 @AllArgsConstructor
 @NoArgsConstructor
-@Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
-@Entity
-public class LaboratoryLog {
-    @Id
-    @GeneratedValue(strategy = GenerationType.UUID)
+public class EventLogRespond {
     String id;
-
-    String labId;
-
-    String userId;
-
+    String guestId;
+    String guestName;
     RecordType recordType;
-
-    @Column(nullable = false)
     LocalDateTime recordTime;
-
     LogStatus status;
-
     String photoURL;
 }

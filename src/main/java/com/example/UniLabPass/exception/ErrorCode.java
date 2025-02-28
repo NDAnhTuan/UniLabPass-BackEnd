@@ -29,7 +29,9 @@ public enum ErrorCode {
     LOG_NOT_EXIST(1015, "This log is not exist", HttpStatus.NOT_FOUND),
     EMAIL_EXISTED(1016, "There is already a user with this Email", HttpStatus.CONFLICT),
     USER_ID_EXISTED(1017, "There is already a user with this ID", HttpStatus.CONFLICT),
-    FALSE_USER_DATA(1018, "There is already a user with different info", HttpStatus.CONFLICT),;
+    FALSE_USER_DATA(1018, "There is already a user with different info", HttpStatus.CONFLICT),
+    EVENT_NOT_EXIST(1019, "There is no event with this ID", HttpStatus.NOT_FOUND),
+    GUEST_NOT_EXIST(1020, "No guest found", HttpStatus.NOT_FOUND),;
     int code;
     String message;
     HttpStatus statusCode;

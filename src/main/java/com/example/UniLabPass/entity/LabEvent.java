@@ -1,8 +1,9 @@
 package com.example.UniLabPass.entity;
 
-import com.example.UniLabPass.enums.LogStatus;
-import com.example.UniLabPass.enums.RecordType;
-import jakarta.persistence.*;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
@@ -14,21 +15,12 @@ import java.time.LocalDateTime;
 @Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
 @Entity
-public class LaboratoryLog {
+public class LabEvent {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     String id;
-
     String labId;
-
-    String userId;
-
-    RecordType recordType;
-
-    @Column(nullable = false)
-    LocalDateTime recordTime;
-
-    LogStatus status;
-
-    String photoURL;
+    String name;
+    LocalDateTime startTime;
+    LocalDateTime endTime;
 }
