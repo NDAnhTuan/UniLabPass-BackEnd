@@ -18,9 +18,17 @@ import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.csv.CSVFormat;
+import org.apache.commons.csv.CSVParser;
+import org.apache.commons.csv.CSVRecord;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -44,11 +52,11 @@ public class LabEventService {
     EventLogMapper eventLogMapper;
 
     // Add new event
-    public void createEvent(LabEventCreationRequest request) {
+    public LabEventRespond createEvent(LabEventCreationRequest request) {
         checkAuthorizeManager(request.getLabId());
 
         LabEvent newEvent = eventMapper.toEvent(request);
-        labEventRepository.save(newEvent);
+        return eventMapper.toEventRespond(labEventRepository.save(newEvent));
     }
 
     // View all events of lab
@@ -73,7 +81,7 @@ public class LabEventService {
                 return eventMapper.toEventRespond(event);
             }
         }
-        return null;
+        return new LabEventRespond();
     }
 
     // Update event
@@ -215,4 +223,5 @@ public class LabEventService {
             throw new AppException(ErrorCode.UNAUTHORIZED);
         }
     }
+
 }

@@ -1,10 +1,12 @@
 package com.example.UniLabPass.dto.request;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Data
 @Builder
@@ -18,9 +20,11 @@ public class LabEventCreationRequest {
     @Schema(example = "Unilab's Event")
     String name;
 
-    @Schema(example = "Current DateTime: 2025-03-01T10:00:00")
+    @Schema(example = "2025-03-01T10:00:00")
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss")
     LocalDateTime startTime;
 
-    @Schema(example = "Current DateTime: 2025-03-01T11:00:00")
+    @Schema(example = "2025-03-01T11:00:00")
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss")
     LocalDateTime endTime;
 }

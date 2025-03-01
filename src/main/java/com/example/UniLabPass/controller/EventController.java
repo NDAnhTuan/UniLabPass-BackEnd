@@ -5,19 +5,32 @@ import com.example.UniLabPass.dto.request.*;
 import com.example.UniLabPass.dto.response.*;
 import com.example.UniLabPass.entity.EventGuest;
 import com.example.UniLabPass.service.LabEventService;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import jakarta.mail.Multipart;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.csv.CSVFormat;
+import org.apache.commons.csv.CSVParser;
+import org.apache.commons.csv.CSVRecord;
+import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.RestClient;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.*;
+import java.nio.charset.StandardCharsets;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 @RestController
@@ -30,15 +43,29 @@ public class EventController {
     LabEventService labEventService;
 
     // Add new event
-    @PostMapping
+    @PostMapping(value = "/create", consumes = "multipart/form-data")
     @Operation(summary = "Add new event to lab", security = {@SecurityRequirement(name = "BearerAuthentication")})
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Successfully add new event to lab"),
     })
-    CustomApiResponse<String> createEvent(@RequestBody LabEventCreationRequest request) {
-        labEventService.createEvent(request);
-        return CustomApiResponse.<String>builder()
-                .result("Successfully created new event")
+    CustomApiResponse<LabEventRespond> createEvent(
+            @RequestPart(value = "eventInfo", required = true)
+            @Schema(example = "{\\\"labId\\\":\\\"8d2bebe3-6047-431a-b80e-7e9f0c5ec21e\\\", \\\"name\\\":\\\"Unilab's Event\\\", \\\"startTime\\\":\\\"2025-03-01T10:00:00\\\", \\\"endTime\\\":\\\"2025-03-01T11:00:00\\\"}")
+            String eventInfoJson,
+            @RequestPart(value = "guestList", required = false) MultipartFile file)
+    {
+        ObjectMapper objectMapper = new ObjectMapper();
+        objectMapper.registerModule(new JavaTimeModule());
+        LabEventCreationRequest request;
+        try {
+            request = objectMapper.readValue(eventInfoJson, LabEventCreationRequest.class);
+        } catch (Exception e) {
+            throw new RuntimeException("Invalid JSON format for eventInfo", e);
+        }
+        LabEventRespond event = labEventService.createEvent(request);
+        String result = labEventService.addListEventGuests(event.getId(), toEventGuestList(file));
+        return CustomApiResponse.<LabEventRespond>builder()
+                .result(event)
                 .build();
     }
 
@@ -89,5 +116,25 @@ public class EventController {
         return CustomApiResponse.<String>builder()
                 .result("Delete event successfully")
                 .build();
+    }
+
+    // Extract info fron CSV
+    public List<EventGuestCreationRequest> toEventGuestList(MultipartFile file) {
+        List<EventGuestCreationRequest> guests = new ArrayList<>();
+
+        try (BufferedReader reader = new BufferedReader(new InputStreamReader(file.getInputStream(), StandardCharsets.UTF_8));
+             CSVParser csvParser = new CSVParser(reader, CSVFormat.DEFAULT.withFirstRecordAsHeader())) {
+
+            for (CSVRecord record : csvParser) {
+                EventGuestCreationRequest guest = new EventGuestCreationRequest(
+                        record.get("guestId"),
+                        record.get("name")
+                );
+                guests.add(guest);
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return guests;
     }
 }

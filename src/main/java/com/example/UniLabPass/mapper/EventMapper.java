@@ -5,10 +5,12 @@ import com.example.UniLabPass.dto.request.LabEventUpdateRequest;
 import com.example.UniLabPass.dto.response.LabEventRespond;
 import com.example.UniLabPass.entity.LabEvent;
 import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
 
 @Mapper(componentModel = "spring")
 public interface EventMapper {
     LabEvent toEvent(LabEventCreationRequest request);
+
     default LabEvent toEventUpdated(LabEventUpdateRequest request) {
         return LabEvent.builder()
                 .id(request.getEventId())
