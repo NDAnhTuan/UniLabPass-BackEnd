@@ -50,7 +50,7 @@ public class EventController {
     })
     CustomApiResponse<LabEventRespond> createEvent(
             @RequestPart(value = "eventInfo", required = true)
-            @Schema(example = "{\\\"labId\\\":\\\"8d2bebe3-6047-431a-b80e-7e9f0c5ec21e\\\", \\\"name\\\":\\\"Unilab's Event\\\", \\\"startTime\\\":\\\"2025-03-01T10:00:00\\\", \\\"endTime\\\":\\\"2025-03-01T11:00:00\\\"}")
+            @Schema(example = "\"{\\\"labId\\\":\\\"dda99be8-15dd-420d-90f5-77834f40d911\\\",\\\"name\\\":\\\"Unilabs Event\\\",\\\"startTime\\\":\\\"2025-03-01T10:00:00\\\",\\\"endTime\\\":\\\"2025-03-01T11:00:00\\\"}\"")
             String eventInfoJson,
             @RequestPart(value = "guestList", required = false) MultipartFile file)
     {
