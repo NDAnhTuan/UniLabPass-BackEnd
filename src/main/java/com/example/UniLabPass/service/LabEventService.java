@@ -14,6 +14,7 @@ import com.example.UniLabPass.mapper.EventGuestMapper;
 import com.example.UniLabPass.mapper.EventLogMapper;
 import com.example.UniLabPass.mapper.EventMapper;
 import com.example.UniLabPass.repository.*;
+import jakarta.transaction.Transactional;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
@@ -94,7 +95,9 @@ public class LabEventService {
     }
 
     // Delete event
+    @Transactional
     public void deleteEvent(String eventId) {
+        checkEventExists(eventId);
         // Delete all event logs and guest
         eventLogRepository.deleteAllByEventId(eventId);
         eventGuestRepository.deleteAllByEventGuestKey_EventId(eventId);
@@ -149,6 +152,7 @@ public class LabEventService {
     }
 
     // Delete event guest
+    @Transactional
     public void deleteEventGuest(EventGuestKey eventGuestKey) {
         checkEventExists(eventGuestKey.getEventId());
         // Delete event log
@@ -157,6 +161,7 @@ public class LabEventService {
     }
 
     // Delete all event guests
+    @Transactional
     public void deleteAllEventGuest(String eventId) {
         checkEventExists(eventId);
         // Delete all event logs, too
