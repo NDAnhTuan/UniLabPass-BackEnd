@@ -1,10 +1,7 @@
 package com.example.UniLabPass.controller;
 
 import com.example.UniLabPass.dto.request.LogCreationRequest;
-import com.example.UniLabPass.dto.response.CustomApiResponse;
-import com.example.UniLabPass.dto.response.LabResponse;
-import com.example.UniLabPass.dto.response.LogDetailRespond;
-import com.example.UniLabPass.dto.response.LogRespond;
+import com.example.UniLabPass.dto.response.*;
 import com.example.UniLabPass.service.LogService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -62,6 +59,18 @@ public class LogController {
     CustomApiResponse<LogDetailRespond> getLogDetail(@PathVariable String logId) {
         return CustomApiResponse.<LogDetailRespond>builder()
                 .result(logService.getLogDetail(logId))
+                .build();
+    }
+
+    // Get weekly report
+    @Operation(summary = "Get log's weekly report", security = {@SecurityRequirement(name = "BearerAuthentication")})
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Get logs successfully"),
+    })
+    @GetMapping("/{logId}/weekly")
+    CustomApiResponse<List<DailyReportResponse>> getWeeklyReport(@PathVariable String logId) {
+        return CustomApiResponse.<List<DailyReportResponse>>builder()
+                .result(logService.getWeeklyReport(logId))
                 .build();
     }
 }

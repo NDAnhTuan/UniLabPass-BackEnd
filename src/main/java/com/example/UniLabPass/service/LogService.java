@@ -2,6 +2,7 @@ package com.example.UniLabPass.service;
 
 import com.example.UniLabPass.compositekey.LabMemberKey;
 import com.example.UniLabPass.dto.request.LogCreationRequest;
+import com.example.UniLabPass.dto.response.DailyReportResponse;
 import com.example.UniLabPass.dto.response.LogDetailRespond;
 import com.example.UniLabPass.dto.response.LogRespond;
 import com.example.UniLabPass.entity.LabMember;
@@ -19,10 +20,15 @@ import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.cglib.core.Local;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
+import java.time.DayOfWeek;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.temporal.TemporalAdjuster;
+import java.time.temporal.TemporalAdjusters;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -96,6 +102,57 @@ public class LogService {
         for (LaboratoryLog log : logs) {
             logRepository.delete(log);
         }
+    }
+
+    // Weekly report
+    public List<DailyReportResponse> getWeeklyReport(String labId) {
+        checkAuthorizeManager(labId);
+        // Create a list of weekday
+        LocalDateTime now = LocalDateTime.now();
+        LocalDateTime mondayMidnight = now.with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY))
+                .withHour(0).withMinute(0).withSecond(0).withNano(0);
+        List<LocalDateTime> weekMidnights = new ArrayList<>();
+        for (int i = 0; i < 7; i++) {
+            weekMidnights.add(mondayMidnight.plusDays(i));
+        }
+
+        // Create return list
+        List<DailyReportResponse> result = new ArrayList<>();
+
+        for (LocalDateTime day : weekMidnights) {
+            DailyReportResponse dailyReport = new DailyReportResponse();
+
+            // If date in the week is not yet then skip
+            if (now.isBefore(day)) {
+                dailyReport.setDayOfWeek(day.getDayOfWeek().toString());
+                dailyReport.setCheckInCount(0);
+                dailyReport.setCheckOutCount(0);
+            }
+            else {
+                // Else then calculated
+                List<LaboratoryLog> dailyLogs = null;
+                if (day.getDayOfWeek() == now.getDayOfWeek()) {
+                    dailyLogs = logRepository.findByRecordTimeBetween(day, now);
+                }
+                else {
+                    dailyLogs = logRepository.findByRecordTimeBetween(day, day.plusDays(1));
+                }
+                if (dailyLogs != null) {
+                    int totalRecord = dailyLogs.size();
+                    int checkInRecord = (int) dailyLogs.stream()
+                            .filter(log -> "CHECKIN".equals(log.getRecordType().toString()))
+                            .count();
+
+                    dailyReport.setDayOfWeek(day.getDayOfWeek().toString());
+                    dailyReport.setCheckInCount(checkInRecord);
+                    dailyReport.setCheckOutCount(totalRecord - checkInRecord);
+                }
+            }
+            // Insert report into result
+            result.add(dailyReport);
+        }
+
+        return result;
     }
 
     // Check authorize
