@@ -4,18 +4,19 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
+import java.util.List;
+
 @Data
 @Builder
-@AllArgsConstructor
 @NoArgsConstructor
+@AllArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class DailyReportResponse {
-    @Schema(example = "MONDAY")
-    String dayOfWeek;
+public class WeeklyReportResponse {
+    @Schema(example = "15")
+    int totalUsers;
 
-    @Schema(example = "10")
-    int checkInCount;
+    @Schema(example = "112")
+    int weeklyAccess;
 
-    @Schema(example = "10")
-    int checkOutCount;
+    List<DailyReportResponse> weeklyLogReport;
 }
