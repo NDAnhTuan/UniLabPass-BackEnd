@@ -12,7 +12,5 @@ public interface EventGuestRepository extends JpaRepository<EventGuest, EventGue
 
     List<EventGuest> findAllByEventGuestKey_EventId(String eventGuestKeyEventId);
 
-    EventGuest findAllByEventGuestKey_GuestId(String eventGuestKeyGuestId);
-
-    Optional<EventGuest> findByEventGuestKey_GuestId(String guestId);
+    Optional<EventGuest> findByEventGuestKey(EventGuestKey eventGuestKey);
 }

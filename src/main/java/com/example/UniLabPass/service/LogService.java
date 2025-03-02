@@ -43,6 +43,11 @@ public class LogService {
 
     // Add a new log
     public String addNewLog(LogCreationRequest request) {
+        if (request.getLabId() != null
+                || request.getUserId() != null
+                || request.getRecordType() != null) {
+            throw new AppException(ErrorCode.LOG_CREATE_ERROR);
+        }
         String message = request.getRecordType().toString();
 
         LaboratoryLog newRecord = logMapper.toLaboratoryLog(request);

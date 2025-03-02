@@ -176,6 +176,11 @@ public class LabEventService {
 
     // Add event log
     public String addEventLog(EventLogCreationRequest request) {
+        if (request.getEventId() != null
+        || request.getGuestId() != null
+        || request.getRecordType() != null) {
+            throw new AppException(ErrorCode.LOG_CREATE_ERROR);
+        }
         EventLog newLog = eventLogMapper.toEventLog(request);
         newLog.setRecordTime(LocalDateTime.now());
         newLog.setStatus(LogStatus.SUCCESS);
@@ -191,8 +196,9 @@ public class LabEventService {
         List<EventLog> eventLogs = eventLogRepository.findAllByEventId(eventId);
         List<EventLogRespond> result = new ArrayList<>();
         for (EventLog eventLog : eventLogs) {
-            EventGuest guest = eventGuestRepository.findByEventGuestKey_GuestId(eventLog.getGuestId()).orElseThrow(
-                    () -> new AppException(ErrorCode.GUEST_NOT_EXIST)
+            EventGuestKey key = new EventGuestKey(eventId, eventLog.getGuestId());
+            EventGuest guest = eventGuestRepository.findByEventGuestKey(key).orElseThrow(
+                    () ->  new AppException(ErrorCode.GUEST_NOT_EXIST)
             );
             EventLogRespond eventLogRespond = eventLogMapper.toEventLogRespond(eventLog);
             eventLogRespond.setGuestName(guest.getName());
@@ -204,8 +210,9 @@ public class LabEventService {
     // View event log detail
     public EventLogRespond getEventLogDetail(String logId) {
         EventLog eventLog = eventLogRepository.findById(logId).orElseThrow(() -> new AppException(ErrorCode.LOG_NOT_EXIST));
-        EventGuest guest = eventGuestRepository.findByEventGuestKey_GuestId(eventLog.getGuestId()).orElseThrow(
-                () -> new AppException(ErrorCode.GUEST_NOT_EXIST)
+        EventGuestKey key = new EventGuestKey(eventLog.getEventId(), eventLog.getGuestId());
+        EventGuest guest = eventGuestRepository.findByEventGuestKey(key).orElseThrow(
+                () ->  new AppException(ErrorCode.GUEST_NOT_EXIST)
         );
         EventLogRespond eventLogRespond = eventLogMapper.toEventLogRespond(eventLog);
         eventLogRespond.setGuestName(guest.getName());
