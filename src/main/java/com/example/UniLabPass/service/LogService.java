@@ -9,6 +9,7 @@ import com.example.UniLabPass.dto.response.WeeklyReportResponse;
 import com.example.UniLabPass.entity.LabMember;
 import com.example.UniLabPass.entity.LaboratoryLog;
 import com.example.UniLabPass.entity.MyUser;
+import com.example.UniLabPass.enums.Global;
 import com.example.UniLabPass.enums.LogStatus;
 import com.example.UniLabPass.enums.MemberStatus;
 import com.example.UniLabPass.exception.AppException;
@@ -49,9 +50,10 @@ public class LogService {
             throw new AppException(ErrorCode.LOG_CREATE_ERROR);
         }
         String message = request.getRecordType().toString();
+        LocalDateTime now = LocalDateTime.now().plusHours(Global.VNHour);
 
         LaboratoryLog newRecord = logMapper.toLaboratoryLog(request);
-        newRecord.setRecordTime(LocalDateTime.now());
+        newRecord.setRecordTime(now);
         // Check if user has been blocked or not
         LabMember member = labMemberRepository.findById(new LabMemberKey(request.getLabId(), request.getUserId()))
                 .orElseThrow(() -> new AppException(ErrorCode.NO_RELATION));
@@ -118,7 +120,7 @@ public class LogService {
         result.setWeeklyAccess(0);
 
         // Create a list of weekday
-        LocalDateTime now = LocalDateTime.now();
+        LocalDateTime now = LocalDateTime.now().plusHours(Global.VNHour);
         LocalDateTime mondayMidnight = now.with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY))
                 .withHour(0).withMinute(0).withSecond(0).withNano(0);
         List<LocalDateTime> weekMidnights = new ArrayList<>();

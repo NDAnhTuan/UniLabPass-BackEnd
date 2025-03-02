@@ -7,6 +7,7 @@ import com.example.UniLabPass.dto.response.EventGuestRespond;
 import com.example.UniLabPass.dto.response.EventLogRespond;
 import com.example.UniLabPass.dto.response.LabEventRespond;
 import com.example.UniLabPass.entity.*;
+import com.example.UniLabPass.enums.Global;
 import com.example.UniLabPass.enums.LogStatus;
 import com.example.UniLabPass.exception.AppException;
 import com.example.UniLabPass.exception.ErrorCode;
@@ -79,7 +80,7 @@ public class LabEventService {
     public LabEventRespond getCurrentEvent(String labId) {
         checkAuthorizeManager(labId);
 
-        LocalDateTime currentTime = LocalDateTime.now();
+        LocalDateTime currentTime = LocalDateTime.now().plusHours(Global.VNHour);
         List<LabEvent> events = labEventRepository.findAllByLabId(labId);
         for (LabEvent event : events) {
             if (event.getStartTime().isBefore(currentTime)
@@ -190,8 +191,10 @@ public class LabEventService {
         || request.getRecordType() == null) {
             throw new AppException(ErrorCode.LOG_CREATE_ERROR);
         }
+        checkEventExists(request.getEventId());
+        LocalDateTime currentTime = LocalDateTime.now().plusHours(Global.VNHour);
         EventLog newLog = eventLogMapper.toEventLog(request);
-        newLog.setRecordTime(LocalDateTime.now());
+        newLog.setRecordTime(currentTime);
         newLog.setStatus(LogStatus.SUCCESS);
 
         eventLogRepository.save(newLog);
