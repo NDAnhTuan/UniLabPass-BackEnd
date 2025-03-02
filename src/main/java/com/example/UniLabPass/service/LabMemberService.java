@@ -112,7 +112,7 @@ public class LabMemberService {
     }
     public List<LabMemberResponse> getLabMembers(String labId) {
         checkAuthorizeManager(labId);
-        List<LabMember> labMemberList =  labMemberRepository.findAllByLabMemberId_LabId(labId).stream().toList();
+        List<LabMember> labMemberList = labMemberRepository.findAllByLabMemberId_LabId(labId).stream().toList();
         List<LabMemberResponse> labMemberResponses = new ArrayList<LabMemberResponse>();
         for (LabMember labMember : labMemberList) {
             if (labMember.getRole().getName().equals("MANAGER")) continue;

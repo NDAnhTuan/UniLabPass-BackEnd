@@ -5,10 +5,7 @@ import com.example.UniLabPass.dto.request.LabCreationRequest;
 import com.example.UniLabPass.dto.request.LabUpdateRequest;
 import com.example.UniLabPass.dto.response.LabMemberResponse;
 import com.example.UniLabPass.dto.response.LabResponse;
-import com.example.UniLabPass.entity.Lab;
-import com.example.UniLabPass.entity.LabMember;
-import com.example.UniLabPass.entity.MyUser;
-import com.example.UniLabPass.entity.Role;
+import com.example.UniLabPass.entity.*;
 import com.example.UniLabPass.enums.MemberStatus;
 import com.example.UniLabPass.exception.AppException;
 import com.example.UniLabPass.exception.ErrorCode;
@@ -37,12 +34,13 @@ public class LaboratoryService {
     LabRepository labRepository;
     LabMemberRepository labMemberRepository;
     RoleRepository roleRepository;
+    LabEventRepository labEventRepository;
     LogRepository logRepository;
 
     LabMapper labMapper;
-    MyUserMapper myUserMapper;
-    LabMemberMapper labMemberMapper;
+
     LabMemberService labMemberService;
+    LabEventService labEventService;
 
     public LabResponse createLaboratory(LabCreationRequest request) {
         Lab lab = labMapper.toLab(request);
@@ -92,6 +90,12 @@ public class LaboratoryService {
 
         // Delete all LabMember coexisted with this lab
         labMemberRepository.deleteByLabMemberId_LabId(labId);
+
+        // Delete all event involve this lab
+        List<LabEvent> events = labEventRepository.findAllByLabId(labId);
+        for (LabEvent event : events) {
+            labEventService.deleteEvent(event.getId());
+        }
 
         // Delete lab
         Lab lab = labRepository.findById(labId).orElseThrow(() -> new AppException(ErrorCode.LAB_NOT_EXISTED));
