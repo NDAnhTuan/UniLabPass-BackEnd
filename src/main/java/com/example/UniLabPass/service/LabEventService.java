@@ -185,9 +185,9 @@ public class LabEventService {
 
     // Add event log
     public String addEventLog(EventLogCreationRequest request) {
-        if (request.getEventId() != null
-        || request.getGuestId() != null
-        || request.getRecordType() != null) {
+        if (request.getEventId() == null
+        || request.getGuestId() == null
+        || request.getRecordType() == null) {
             throw new AppException(ErrorCode.LOG_CREATE_ERROR);
         }
         EventLog newLog = eventLogMapper.toEventLog(request);
