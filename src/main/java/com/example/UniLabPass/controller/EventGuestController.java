@@ -52,7 +52,7 @@ public class EventGuestController {
     }
     // Get event guest list
     @GetMapping("/{eventId}/guests/{guestId}")
-    @Operation(summary = "Get all guests of event", security = {@SecurityRequirement(name = "BearerAuthentication")})
+    @Operation(summary = "Get guest ìnfo of event", security = {@SecurityRequirement(name = "BearerAuthentication")})
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "All guests retrieved"),
     })
