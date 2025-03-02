@@ -175,7 +175,6 @@ public class LabEventService {
     }
 
     // Delete all event guests
-    @Transactional
     public void deleteAllEventGuest(String eventId) {
         checkEventExists(eventId);
         // Delete all event logs, too

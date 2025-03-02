@@ -1,6 +1,7 @@
 package com.example.UniLabPass.repository;
 
 import com.example.UniLabPass.entity.LaboratoryLog;
+import jakarta.transaction.Transactional;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -17,6 +18,7 @@ public interface LogRepository extends JpaRepository<LaboratoryLog, String> {
 
     List<LaboratoryLog> findByRecordTimeBetween(LocalDateTime startTime, LocalDateTime endTime);
 
+    @Transactional
     void deleteByLabId(String labId);
 //    Page<LaboratoryLog> findAll(Pageable pageable);
 

@@ -80,7 +80,6 @@ public class LaboratoryService {
         return labMapper.toLabResponse(labRepository.save(lab));
     }
     // Delete laboratory
-    @Transactional
     public void deleteLaboratory(String labId) {
         // Check if user is MANAGER of lab
         labMemberService.checkAuthorizeManager(labId);
