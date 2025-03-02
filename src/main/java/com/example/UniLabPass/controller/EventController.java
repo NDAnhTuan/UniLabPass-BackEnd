@@ -122,18 +122,20 @@ public class EventController {
     public List<EventGuestCreationRequest> toEventGuestList(MultipartFile file) {
         List<EventGuestCreationRequest> guests = new ArrayList<>();
 
-        try (BufferedReader reader = new BufferedReader(new InputStreamReader(file.getInputStream(), StandardCharsets.UTF_8));
-             CSVParser csvParser = new CSVParser(reader, CSVFormat.DEFAULT.withFirstRecordAsHeader())) {
+        if (file != null && !file.isEmpty()) {
+            try (BufferedReader reader = new BufferedReader(new InputStreamReader(file.getInputStream(), StandardCharsets.UTF_8));
+                 CSVParser csvParser = new CSVParser(reader, CSVFormat.DEFAULT.withFirstRecordAsHeader())) {
 
-            for (CSVRecord record : csvParser) {
-                EventGuestCreationRequest guest = new EventGuestCreationRequest(
-                        record.get("guestId"),
-                        record.get("name")
-                );
-                guests.add(guest);
+                for (CSVRecord record : csvParser) {
+                    EventGuestCreationRequest guest = new EventGuestCreationRequest(
+                            record.get("guestId"),
+                            record.get("name")
+                    );
+                    guests.add(guest);
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
             }
-        } catch (IOException e) {
-            e.printStackTrace();
         }
         return guests;
     }
