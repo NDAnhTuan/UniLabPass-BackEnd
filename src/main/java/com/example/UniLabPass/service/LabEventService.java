@@ -148,6 +148,15 @@ public class LabEventService {
         return result;
     }
 
+    // Get single guest info
+    public EventGuestRespond getGuestInfo(EventGuestKey key) {
+        checkEventExists(key.getEventId());
+        EventGuestRespond result = eventGuestMapper.toGuestRespond(eventGuestRepository.findByEventGuestKey(key).orElseThrow(
+                () -> new AppException(ErrorCode.GUEST_NOT_EXIST)
+        ));
+        return result;
+    }
+
     // Update event guest
     public EventGuestRespond updateEventGuest(EventGuestUpdateRequest request) {
         checkEventExists(request.getEventGuestKey().getEventId());

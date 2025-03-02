@@ -50,6 +50,18 @@ public class EventGuestController {
                 .result(labEventService.getEventGuests(eventId))
                 .build();
     }
+    // Get event guest list
+    @GetMapping("/{eventId}/guests/{guestId}")
+    @Operation(summary = "Get all guests of event", security = {@SecurityRequirement(name = "BearerAuthentication")})
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "All guests retrieved"),
+    })
+    CustomApiResponse<EventGuestRespond> getListEventGuests(@PathVariable String eventId, @PathVariable String guestId) {
+        EventGuestKey key = new EventGuestKey(eventId, guestId);
+        return CustomApiResponse.<EventGuestRespond>builder()
+                .result(labEventService.getGuestInfo(key))
+                .build();
+    }
 
     // Update event guest
     @PutMapping("/guests/update")
