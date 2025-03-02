@@ -101,7 +101,6 @@ public class LabEventService {
     }
 
     // Delete event
-    @Transactional
     public void deleteEvent(String eventId) {
         checkEventExists(eventId);
         // Delete all event logs and guest
@@ -167,7 +166,7 @@ public class LabEventService {
     }
 
     // Delete event guest
-    @Transactional
+
     public void deleteEventGuest(EventGuestKey eventGuestKey) {
         checkEventExists(eventGuestKey.getEventId());
         // Delete event log
