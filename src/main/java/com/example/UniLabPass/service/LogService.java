@@ -9,7 +9,6 @@ import com.example.UniLabPass.dto.response.WeeklyReportResponse;
 import com.example.UniLabPass.entity.LabMember;
 import com.example.UniLabPass.entity.LaboratoryLog;
 import com.example.UniLabPass.entity.MyUser;
-import com.example.UniLabPass.enums.Global;
 import com.example.UniLabPass.enums.LogStatus;
 import com.example.UniLabPass.enums.MemberStatus;
 import com.example.UniLabPass.exception.AppException;
@@ -21,7 +20,9 @@ import com.example.UniLabPass.repository.MyUserRepository;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
+import lombok.experimental.NonFinal;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
@@ -41,6 +42,9 @@ public class LogService {
     LogRepository logRepository;
 
     LogMapper logMapper;
+    @NonFinal
+    @Value("${app.Global.VNHour}")
+    int VNHour;
 
     // Add a new log
     public String addNewLog(LogCreationRequest request) {
@@ -50,7 +54,7 @@ public class LogService {
             throw new AppException(ErrorCode.LOG_CREATE_ERROR);
         }
         String message = request.getRecordType().toString();
-        LocalDateTime now = LocalDateTime.now().plusHours(Global.VNHour);
+        LocalDateTime now = LocalDateTime.now().plusHours(VNHour);
 
         LaboratoryLog newRecord = logMapper.toLaboratoryLog(request);
         newRecord.setRecordTime(now);
@@ -120,7 +124,7 @@ public class LogService {
         result.setWeeklyAccess(0);
 
         // Create a list of weekday
-        LocalDateTime now = LocalDateTime.now().plusHours(Global.VNHour);
+        LocalDateTime now = LocalDateTime.now().plusHours(VNHour);
         LocalDateTime mondayMidnight = now.with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY))
                 .withHour(0).withMinute(0).withSecond(0).withNano(0);
         List<LocalDateTime> weekMidnights = new ArrayList<>();

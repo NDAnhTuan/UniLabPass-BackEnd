@@ -7,7 +7,6 @@ import com.example.UniLabPass.dto.response.EventGuestRespond;
 import com.example.UniLabPass.dto.response.EventLogRespond;
 import com.example.UniLabPass.dto.response.LabEventRespond;
 import com.example.UniLabPass.entity.*;
-import com.example.UniLabPass.enums.Global;
 import com.example.UniLabPass.enums.LogStatus;
 import com.example.UniLabPass.exception.AppException;
 import com.example.UniLabPass.exception.ErrorCode;
@@ -15,27 +14,18 @@ import com.example.UniLabPass.mapper.EventGuestMapper;
 import com.example.UniLabPass.mapper.EventLogMapper;
 import com.example.UniLabPass.mapper.EventMapper;
 import com.example.UniLabPass.repository.*;
-import jakarta.transaction.Transactional;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
+import lombok.experimental.NonFinal;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.csv.CSVFormat;
-import org.apache.commons.csv.CSVParser;
-import org.apache.commons.csv.CSVRecord;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 @Service
 @RequiredArgsConstructor
@@ -52,6 +42,10 @@ public class LabEventService {
     EventMapper eventMapper;
     EventGuestMapper eventGuestMapper;
     EventLogMapper eventLogMapper;
+
+    @NonFinal
+    @Value("${app.Global.VNHour}")
+    int VNHour;
 
     // Add new event
     public LabEventRespond createEvent(LabEventCreationRequest request) {
@@ -80,7 +74,7 @@ public class LabEventService {
     public LabEventRespond getCurrentEvent(String labId) {
         checkAuthorizeManager(labId);
 
-        LocalDateTime currentTime = LocalDateTime.now().plusHours(Global.VNHour);
+        LocalDateTime currentTime = LocalDateTime.now().plusHours(VNHour);
         List<LabEvent> events = labEventRepository.findAllByLabId(labId);
         for (LabEvent event : events) {
             if (event.getStartTime().isBefore(currentTime)
@@ -190,7 +184,7 @@ public class LabEventService {
             throw new AppException(ErrorCode.LOG_CREATE_ERROR);
         }
         checkEventExists(request.getEventId());
-        LocalDateTime currentTime = LocalDateTime.now().plusHours(Global.VNHour);
+        LocalDateTime currentTime = LocalDateTime.now().plusHours(VNHour);
         EventLog newLog = eventLogMapper.toEventLog(request);
         newLog.setRecordTime(currentTime);
         newLog.setStatus(LogStatus.SUCCESS);
