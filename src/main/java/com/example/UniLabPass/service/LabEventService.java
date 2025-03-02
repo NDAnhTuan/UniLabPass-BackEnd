@@ -57,6 +57,11 @@ public class LabEventService {
         checkAuthorizeManager(request.getLabId());
 
         LabEvent newEvent = eventMapper.toEvent(request);
+        if (newEvent.getStartTime() == null
+        || newEvent.getEndTime() == null
+        || newEvent.getStartTime().isAfter(newEvent.getEndTime())) {
+            throw new AppException(ErrorCode.EVENT_TIME_ERROR   );
+        }
         return eventMapper.toEventRespond(labEventRepository.save(newEvent));
     }
 

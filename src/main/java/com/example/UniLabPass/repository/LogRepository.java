@@ -21,4 +21,6 @@ public interface LogRepository extends JpaRepository<LaboratoryLog, String> {
 //    Page<LaboratoryLog> findAll(Pageable pageable);
 
     LaboratoryLog findFirstByUserIdOrderByRecordTimeDesc(String userId);
+
+    List<LaboratoryLog> findByLabIdAndRecordTimeBetween(String labId, LocalDateTime recordTimeAfter, LocalDateTime recordTimeBefore);
 }

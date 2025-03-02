@@ -31,7 +31,8 @@ public enum ErrorCode {
     USER_ID_EXISTED(1017, "There is already a user with this ID", HttpStatus.CONFLICT),
     FALSE_USER_DATA(1018, "There is already a user with different info", HttpStatus.CONFLICT),
     EVENT_NOT_EXIST(1019, "There is no event with this ID", HttpStatus.NOT_FOUND),
-    GUEST_NOT_EXIST(1020, "No guest found", HttpStatus.NOT_FOUND),;
+    GUEST_NOT_EXIST(1020, "No guest found", HttpStatus.NOT_FOUND),
+    EVENT_TIME_ERROR(1020, "Event start time and end time is not valid", HttpStatus.BAD_REQUEST),;
     int code;
     String message;
     HttpStatus statusCode;

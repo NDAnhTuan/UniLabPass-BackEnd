@@ -137,10 +137,10 @@ public class LogService {
                 // Else then calculated
                 List<LaboratoryLog> dailyLogs = null;
                 if (day.getDayOfWeek() == now.getDayOfWeek()) {
-                    dailyLogs = logRepository.findByRecordTimeBetween(day, now);
+                    dailyLogs = logRepository.findByLabIdAndRecordTimeBetween(labId, day, now);
                 }
                 else {
-                    dailyLogs = logRepository.findByRecordTimeBetween(day, day.plusDays(1));
+                    dailyLogs = logRepository.findByLabIdAndRecordTimeBetween(labId, day, day.plusDays(1));
                 }
                 if (dailyLogs != null) {
                     int totalRecord = dailyLogs.size();
