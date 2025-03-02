@@ -67,10 +67,10 @@ public class LogController {
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Get logs successfully"),
     })
-    @GetMapping("/{logId}/weekly")
-    CustomApiResponse<WeeklyReportResponse> getWeeklyReport(@PathVariable String logId) {
+    @GetMapping("/{labId}/weekly")
+    CustomApiResponse<WeeklyReportResponse> getWeeklyReport(@PathVariable String labId) {
         return CustomApiResponse.<WeeklyReportResponse>builder()
-                .result(logService.getWeeklyReport(logId))
+                .result(logService.getWeeklyReport(labId))
                 .build();
     }
 }

@@ -22,6 +22,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVParser;
 import org.apache.commons.csv.CSVRecord;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.RestClient;
@@ -43,27 +44,25 @@ public class EventController {
     LabEventService labEventService;
 
     // Add new event
-    @PostMapping(value = "/create", consumes = "multipart/form-data")
+    @PostMapping(value = "/create")
     @Operation(summary = "Add new event to lab", security = {@SecurityRequirement(name = "BearerAuthentication")})
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Successfully add new event to lab"),
     })
-    CustomApiResponse<LabEventRespond> createEvent(
-            @RequestPart(value = "eventInfo", required = true)
-            @Schema(example = "\"{\\\"labId\\\":\\\"dda99be8-15dd-420d-90f5-77834f40d911\\\",\\\"name\\\":\\\"Unilabs Event\\\",\\\"startTime\\\":\\\"2025-03-01T10:00:00\\\",\\\"endTime\\\":\\\"2025-03-01T11:00:00\\\"}\"")
-            String eventInfoJson,
-            @RequestPart(value = "guestList", required = false) MultipartFile file)
+    CustomApiResponse<LabEventRespond> createEvent(@RequestBody EventWIthGuestCreationRequest request)
     {
-        ObjectMapper objectMapper = new ObjectMapper();
-        objectMapper.registerModule(new JavaTimeModule());
-        LabEventCreationRequest request;
+        LabEventRespond event = null;
+
         try {
-            request = objectMapper.readValue(eventInfoJson, LabEventCreationRequest.class);
-        } catch (Exception e) {
-            throw new RuntimeException("Invalid JSON format for eventInfo", e);
+            event = labEventService.createEvent(request.getEventInfo());
+            String addGuest = labEventService.addListEventGuests(request.getEventInfo().getLabId(), request.getGuestList());
         }
-        LabEventRespond event = labEventService.createEvent(request);
-        String result = labEventService.addListEventGuests(event.getId(), toEventGuestList(file));
+        catch (Exception e) {
+//            if (event != null) {
+//                labEventService.deleteEvent(event.getId());
+//            }
+            log.error(e.getMessage());
+        }
         return CustomApiResponse.<LabEventRespond>builder()
                 .result(event)
                 .build();
@@ -116,27 +115,5 @@ public class EventController {
         return CustomApiResponse.<String>builder()
                 .result("Delete event successfully")
                 .build();
-    }
-
-    // Extract info fron CSV
-    public List<EventGuestCreationRequest> toEventGuestList(MultipartFile file) {
-        List<EventGuestCreationRequest> guests = new ArrayList<>();
-
-        if (file != null && !file.isEmpty()) {
-            try (BufferedReader reader = new BufferedReader(new InputStreamReader(file.getInputStream(), StandardCharsets.UTF_8));
-                 CSVParser csvParser = new CSVParser(reader, CSVFormat.DEFAULT.withFirstRecordAsHeader())) {
-
-                for (CSVRecord record : csvParser) {
-                    EventGuestCreationRequest guest = new EventGuestCreationRequest(
-                            record.get("guestId"),
-                            record.get("name")
-                    );
-                    guests.add(guest);
-                }
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
-        return guests;
     }
 }
