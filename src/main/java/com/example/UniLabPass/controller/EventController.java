@@ -55,7 +55,7 @@ public class EventController {
 
         try {
             event = labEventService.createEvent(request.getEventInfo());
-            String addGuest = labEventService.addListEventGuests(request.getEventInfo().getLabId(), request.getGuestList());
+            String addGuest = labEventService.addListEventGuests(event.getId(), request.getGuestList());
         }
         catch (Exception e) {
 //            if (event != null) {
