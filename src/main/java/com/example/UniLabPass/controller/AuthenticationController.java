@@ -41,6 +41,14 @@ public class AuthenticationController {
 
     }
 
+    @PostMapping("/resend-verify-email")
+    CustomApiResponse<Void> resendVerifyCode(@RequestBody ResendVerificationCodeRequest request) {
+        emailService.resendVerifyCode(request);
+        return CustomApiResponse.<Void>builder()
+                .message("Resend verify code successfully")
+                .build();
+    }
+
     @Operation(summary = "Log in to the application", security = {@SecurityRequirement(name = "")})
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Successfully retrieved list"),

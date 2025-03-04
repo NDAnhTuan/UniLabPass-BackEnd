@@ -1,5 +1,6 @@
 package com.example.UniLabPass.service;
 
+import com.example.UniLabPass.dto.request.ResendVerificationCodeRequest;
 import com.example.UniLabPass.dto.request.VerificationCodeRequest;
 import com.example.UniLabPass.dto.response.VerificationCodeResponse;
 import com.example.UniLabPass.entity.MyUser;
@@ -18,6 +19,8 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import java.security.SecureRandom;
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.Date;
 
 @Service
@@ -27,6 +30,7 @@ import java.util.Date;
 public class EmailService {
     JavaMailSender mailSender;
     MyUserRepository myUserRepository;
+    MyUserService myUserService;
 
 
     public void sendVerificationEmail(String toEmail, String verificationCode) {
@@ -52,6 +56,18 @@ public class EmailService {
         return VerificationCodeResponse.builder()
                 .verifiedEmail(verifiedEmail)
                 .build();
+    }
+
+    public void resendVerifyCode(ResendVerificationCodeRequest request) {
+        MyUser myUser = myUserRepository.findByEmail(request.getEmail()).orElseThrow(
+                () -> new AppException(ErrorCode.USER_NOT_EXISTED)
+        );
+        myUser.setVerificationCode(myUserService.generateVerificationCode());
+        myUser.setExpiryVerificationCode(new Date(
+                Instant.now().plus(5, ChronoUnit.MINUTES).toEpochMilli()
+        ));
+        myUserRepository.save(myUser);
+        sendVerificationEmail(myUser.getEmail(), myUserService.generateVerificationCode());
     }
 
 }

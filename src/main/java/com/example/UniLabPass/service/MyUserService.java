@@ -123,7 +123,7 @@ public class MyUserService {
         );
     }
 
-    private  String generateVerificationCode() {
+    public String generateVerificationCode() {
         StringBuilder code = new StringBuilder(CODE_LENGTH);
         for (int i = 0; i < CODE_LENGTH; i++) {
             code.append(CHARACTERS.charAt(random.nextInt(CHARACTERS.length())));
