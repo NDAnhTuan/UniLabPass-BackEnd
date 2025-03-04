@@ -40,6 +40,11 @@ public class AuthenticationController {
                 .build();
 
     }
+    @Operation(summary = "Resend Verify Email", security = {@SecurityRequirement(name = "")})
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Resend verify code successfully"),
+            @ApiResponse(responseCode = "400", description = "USER_NOT_EXISTED 1005", content = @Content(schema = @Schema(implementation = ErrorApiResponse.class)))
+    })
 
     @PostMapping("/resend-verify-email")
     CustomApiResponse<Void> resendVerifyCode(@RequestBody ResendVerificationCodeRequest request) {
@@ -49,6 +54,28 @@ public class AuthenticationController {
                 .build();
     }
 
+    @Operation(summary = "Change Password", security = {@SecurityRequirement(name = "BearerAuthentication")})
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Change pass successfully"),
+            @ApiResponse(responseCode = "401", description = "You are not authorized to view the resource", content = @Content(schema = @Schema(implementation = ErrorApiResponse.class))),
+            @ApiResponse(responseCode = "400", description = "USER_NOT_EXISTED 1005", content = @Content(schema = @Schema(implementation = ErrorApiResponse.class)))
+    })
+    @PostMapping("/change-pass")
+    CustomApiResponse<Void> changePassword(@RequestBody ChangePasswordRequest request) {
+        authenticationService.changePassword(request);
+        return CustomApiResponse.<Void>builder()
+                .message("Change Password successfully")
+                .build();
+    }
+
+    @Operation(summary = "Send Reset Password", security = {@SecurityRequirement(name = "")})
+    @PostMapping("/send-reset-pass")
+    CustomApiResponse<Void> sendResetPassword(ResendVerificationCodeRequest request) {
+        emailService.sendResetPassword(request.getEmail());
+        return CustomApiResponse.<Void>builder()
+                .message("Send Password recovery confirmation code successfully")
+                .build();
+    }
     @Operation(summary = "Log in to the application", security = {@SecurityRequirement(name = "")})
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Successfully retrieved list"),

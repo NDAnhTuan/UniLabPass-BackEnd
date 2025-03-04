@@ -42,12 +42,7 @@ public class MyUserService {
     PasswordEncoder passwordEncoder;
 
     EmailService emailService;
-    @NonFinal
-    static final String CHARACTERS = "1234567890";
-    @NonFinal
-    static final int CODE_LENGTH = 4;
-    @NonFinal
-    static final SecureRandom random = new SecureRandom();
+
 
     public MyUserResponse createMyUser(MyUserCreationRequest request, Role role) {
         MyUser myUser = myUserMapper.toMyUser(request);
@@ -55,7 +50,7 @@ public class MyUserService {
 
         if (role.equals(Role.USER)) {
             myUser.setPassword(passwordEncoder.encode(request.getPassword()));
-            myUser.setVerificationCode(generateVerificationCode());
+            myUser.setVerificationCode(emailService.generateVerificationCode());
             myUser.setExpiryVerificationCode(new Date(
                     Instant.now().plus(5, ChronoUnit.MINUTES).toEpochMilli()
             ));
@@ -123,11 +118,5 @@ public class MyUserService {
         );
     }
 
-    public String generateVerificationCode() {
-        StringBuilder code = new StringBuilder(CODE_LENGTH);
-        for (int i = 0; i < CODE_LENGTH; i++) {
-            code.append(CHARACTERS.charAt(random.nextInt(CHARACTERS.length())));
-        }
-        return code.toString();
-    }
+
 }

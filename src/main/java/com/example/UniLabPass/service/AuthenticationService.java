@@ -1,7 +1,6 @@
 package com.example.UniLabPass.service;
 
-import com.example.UniLabPass.dto.request.LogoutRequest;
-import com.example.UniLabPass.dto.request.RefreshTokenRequest;
+import com.example.UniLabPass.dto.request.*;
 import com.example.UniLabPass.entity.InvalidatedToken;
 import com.example.UniLabPass.entity.MyUser;
 import com.example.UniLabPass.entity.Role;
@@ -10,8 +9,6 @@ import com.example.UniLabPass.repository.RoleRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 
-import com.example.UniLabPass.dto.request.AuthenticationRequest;
-import com.example.UniLabPass.dto.request.IntrospectRequest;
 import com.example.UniLabPass.dto.response.AuthenticationResponse;
 import com.example.UniLabPass.dto.response.IntrospectResponse;
 import com.example.UniLabPass.exception.AppException;
@@ -26,6 +23,7 @@ import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.experimental.NonFinal;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -56,10 +54,11 @@ public class AuthenticationService {
     @NonFinal
     @Value("${jwt.refreshable-duration}")
     protected long REFRESH_DURATION;
+
+    PasswordEncoder passwordEncoder = new BCryptPasswordEncoder(10);
     public AuthenticationResponse authenticate(AuthenticationRequest request) {
         var myUser = myUserRepository.findByEmail(request.getEmail())
                 .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
-        PasswordEncoder passwordEncoder = new BCryptPasswordEncoder(10);
 
         var roleAdmin = roleRepository.findById("ADMIN").orElse(new Role());
         var roleUser = roleRepository.findById("USER").orElse(new Role());
@@ -101,6 +100,25 @@ public class AuthenticationService {
         }
 
     }
+
+    public void changePassword(ChangePasswordRequest request) {
+        var context = SecurityContextHolder.getContext();
+        String email = context.getAuthentication().getName();
+
+        MyUser myUser = myUserRepository.findByEmail(email).orElseThrow(
+                () -> new AppException(ErrorCode.USER_NOT_EXISTED)
+        );
+        boolean authenticated = passwordEncoder.matches(request.getOldPassword(), myUser.getPassword());
+        if (!authenticated) {
+            throw new AppException(ErrorCode.UNAUTHENTICATED);
+        }
+        else {
+            myUser.setPassword(passwordEncoder.encode(request.getNewPassword()));
+            myUserRepository.save(myUser);
+        }
+
+    }
+
 
     public AuthenticationResponse refreshToken(RefreshTokenRequest request)
             throws ParseException, JOSEException {

@@ -26,11 +26,11 @@ public class MyUser {
     LocalDate dob;
     String gender;
     @Column(nullable = false)
-    String verificationCode = "";
+    String verificationCode;
     @Column(nullable = false)
-    Date expiryVerificationCode = new Date();
+    Date expiryVerificationCode;
     @Column(nullable = false)
-    boolean isVerified = false;
+    boolean isVerified;
 
     @ManyToMany
     // Tự động tạo bảng user_role và tự động

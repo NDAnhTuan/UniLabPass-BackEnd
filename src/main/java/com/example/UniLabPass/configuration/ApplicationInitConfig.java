@@ -49,7 +49,6 @@ public class ApplicationInitConfig {
                         .isVerified(true)
                         .verificationCode("")
                         .expiryVerificationCode(new Date())
-                        .isVerified(false)
                         .roles(new HashSet<>(roles))
                         .build();
                 myUserRepository.save(myUser);

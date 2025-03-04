@@ -16,6 +16,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.security.SecureRandom;
@@ -30,7 +31,13 @@ import java.util.Date;
 public class EmailService {
     JavaMailSender mailSender;
     MyUserRepository myUserRepository;
-    MyUserService myUserService;
+    PasswordEncoder passwordEncoder;
+    @NonFinal
+    static final String CHARACTERS = "1234567890";
+    @NonFinal
+    static final int CODE_LENGTH = 4;
+    @NonFinal
+    static final SecureRandom random = new SecureRandom();
 
 
     public void sendVerificationEmail(String toEmail, String verificationCode) {
@@ -39,6 +46,21 @@ public class EmailService {
         message.setSubject("Email Verification Code");
         message.setText("Your verification code is: " + verificationCode
                 + "\n Your verification code only lasts for 5 minutes, please enter it quickly");
+        mailSender.send(message);
+    }
+
+    public void sendResetPassword(String email) {
+        String newPass = generateVerificationCode() + generateVerificationCode();
+        MyUser myUser = myUserRepository.findByEmail(email).orElseThrow(
+                () -> new AppException(ErrorCode.USER_NOT_EXISTED)
+        );
+        myUser.setPassword(passwordEncoder.encode(newPass));
+        myUserRepository.save(myUser);
+        SimpleMailMessage message = new SimpleMailMessage();
+        message.setTo(email);
+        message.setSubject("Reset Password");
+        message.setText("Your Reset Password is: " + newPass
+                + "\n This is a your new password");
         mailSender.send(message);
     }
     // Hàm verify email
@@ -62,12 +84,20 @@ public class EmailService {
         MyUser myUser = myUserRepository.findByEmail(request.getEmail()).orElseThrow(
                 () -> new AppException(ErrorCode.USER_NOT_EXISTED)
         );
-        myUser.setVerificationCode(myUserService.generateVerificationCode());
+        myUser.setVerificationCode(generateVerificationCode());
         myUser.setExpiryVerificationCode(new Date(
                 Instant.now().plus(5, ChronoUnit.MINUTES).toEpochMilli()
         ));
         myUserRepository.save(myUser);
-        sendVerificationEmail(myUser.getEmail(), myUserService.generateVerificationCode());
+        sendVerificationEmail(myUser.getEmail(), myUser.getVerificationCode());
+    }
+
+    public String generateVerificationCode() {
+        StringBuilder code = new StringBuilder(CODE_LENGTH);
+        for (int i = 0; i < CODE_LENGTH; i++) {
+            code.append(CHARACTERS.charAt(random.nextInt(CHARACTERS.length())));
+        }
+        return code.toString();
     }
 
 }
