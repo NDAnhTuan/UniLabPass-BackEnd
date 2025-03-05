@@ -76,6 +76,15 @@ public class AuthenticationController {
                 .message("Send Password recovery confirmation code successfully")
                 .build();
     }
+
+    @Operation(summary = "Check Password", security = {@SecurityRequirement(name = "BearerAuthentication")})
+    @PostMapping("/check-password")
+    CustomApiResponse<CheckPasswordResponse> checkPassword(CheckPasswordRequest request) {
+        return CustomApiResponse.<CheckPasswordResponse>builder()
+                .result(authenticationService.checkPassword(request))
+                .build();
+    }
+
     @Operation(summary = "Log in to the application", security = {@SecurityRequirement(name = "")})
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Successfully retrieved list"),

@@ -1,6 +1,7 @@
 package com.example.UniLabPass.service;
 
 import com.example.UniLabPass.dto.request.*;
+import com.example.UniLabPass.dto.response.CheckPasswordResponse;
 import com.example.UniLabPass.entity.InvalidatedToken;
 import com.example.UniLabPass.entity.MyUser;
 import com.example.UniLabPass.entity.Role;
@@ -117,6 +118,18 @@ public class AuthenticationService {
             myUserRepository.save(myUser);
         }
 
+    }
+
+    public CheckPasswordResponse checkPassword(CheckPasswordRequest request) {
+        var context = SecurityContextHolder.getContext();
+        String email = context.getAuthentication().getName();
+
+        MyUser myUser = myUserRepository.findByEmail(email).orElseThrow(
+                () -> new AppException(ErrorCode.USER_NOT_EXISTED)
+        );
+        return CheckPasswordResponse.builder()
+                .authenticated(passwordEncoder.matches(request.getPassword(), myUser.getPassword()))
+                .build();
     }
 
 
