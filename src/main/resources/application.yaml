@@ -9,9 +9,10 @@ app:
 
 spring:
   datasource:
-    url: "jdbc:postgresql://dpg-cup38r56l47c73cii7s0-a.oregon-postgres.render.com:5432/unilab_pass"
-    username: unilab_pass_user
-    password: YbfqbZYVRcCDJx6g8XMpSwfCOAigeE86
+    url: "jdbc:postgresql://dpg-cvdho32n91rc739kj7p0-a.oregon-postgres.render.com:5432/unilab_pass_ltu2"
+
+    username: unilab_pass_ltu2_user
+    password: bajQQw1pkOEo4YiQqi9oPS6DvFZGY6y2
   jpa:
     properties:
       hibernate:
