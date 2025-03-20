@@ -68,15 +68,13 @@ public class EmailService {
         MyUser myUser = myUserRepository.findByEmail(request.getEmail()).orElseThrow(
                 () -> new AppException(ErrorCode.USER_NOT_EXISTED)
         );
-        var verifiedEmail = true;
         if (!myUser.getExpiryVerificationCode().after(new Date())
-                || !myUser.getVerificationCode().equals(request.getCode())) {
-            verifiedEmail = false;
-        }
-        myUser.setVerified(verifiedEmail);
+                || !myUser.getVerificationCode().equals(request.getCode()))
+            throw new AppException(ErrorCode.INCORRECT_VERIFY_CODE);
+        myUser.setVerified(true);
         myUserRepository.save(myUser);
         return VerificationCodeResponse.builder()
-                .verifiedEmail(verifiedEmail)
+                .verifiedEmail(true)
                 .build();
     }
 

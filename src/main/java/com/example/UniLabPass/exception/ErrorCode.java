@@ -22,7 +22,6 @@ public enum ErrorCode {
     INVALID_DOB(1009, "Your age must be at least {min}", HttpStatus.BAD_REQUEST),
     LAB_NAME_INVALID(1010, "Please enter the name of laboratory", HttpStatus.BAD_REQUEST),
     LAB_NOT_EXISTED(1011, "Laboratory not exist", HttpStatus.NOT_FOUND),
-    NO_RELATION(1011, "This user is not existed on this lab", HttpStatus.NOT_FOUND),
     ROLE_NOT_EXISTED(1012, "Role not existed", HttpStatus.NOT_FOUND),
     MEMBER_NOT_EXISTED(1013, "Member not existed", HttpStatus.NOT_FOUND),
     MEMBER_ALREADY_EXISTED(1014, "Member is already exist in this lab", HttpStatus.CONFLICT),
@@ -33,7 +32,10 @@ public enum ErrorCode {
     EVENT_NOT_EXIST(1019, "There is no event with this ID", HttpStatus.NOT_FOUND),
     GUEST_NOT_EXIST(1020, "No guest found", HttpStatus.NOT_FOUND),
     EVENT_TIME_ERROR(1021, "Event start time and end time is not valid", HttpStatus.BAD_REQUEST),
-    LOG_CREATE_ERROR(1022, "Log info missing or error", HttpStatus.BAD_REQUEST),;
+    LOG_CREATE_ERROR(1022, "Log info missing or error", HttpStatus.BAD_REQUEST),
+    NO_RELATION(1023, "This user is not existed on this lab", HttpStatus.NOT_FOUND),
+    INCORRECT_PASSWORD(1024,"Password you entered is incorrect", HttpStatus.UNAUTHORIZED),
+    INCORRECT_VERIFY_CODE(1025,"Verify code you entered is incorrect", HttpStatus.BAD_REQUEST);
     int code;
     String message;
     HttpStatus statusCode;

@@ -109,10 +109,8 @@ public class AuthenticationService {
         MyUser myUser = myUserRepository.findByEmail(email).orElseThrow(
                 () -> new AppException(ErrorCode.USER_NOT_EXISTED)
         );
-        boolean authenticated = passwordEncoder.matches(request.getOldPassword(), myUser.getPassword());
-        if (!authenticated) {
-            throw new AppException(ErrorCode.UNAUTHENTICATED);
-        }
+        if (!passwordEncoder.matches(request.getOldPassword(), myUser.getPassword()))
+            throw new AppException(ErrorCode.INCORRECT_PASSWORD);
         else {
             myUser.setPassword(passwordEncoder.encode(request.getNewPassword()));
             myUserRepository.save(myUser);
@@ -127,8 +125,10 @@ public class AuthenticationService {
         MyUser myUser = myUserRepository.findByEmail(email).orElseThrow(
                 () -> new AppException(ErrorCode.USER_NOT_EXISTED)
         );
+        if (!passwordEncoder.matches(request.getPassword(), myUser.getPassword()))
+            throw new AppException(ErrorCode.INCORRECT_PASSWORD);
         return CheckPasswordResponse.builder()
-                .authenticated(passwordEncoder.matches(request.getPassword(), myUser.getPassword()))
+                .authenticated(true)
                 .build();
     }
 
@@ -229,7 +229,7 @@ public class AuthenticationService {
 
 
 
-    // Hàm xây dựng thuộc tính scope và claim permisstion trong jwt
+    // Hàm xây dựng thuộc tính scope và claim permission trong jwt
     private String buildScope(MyUser myUser) {
         StringJoiner stringJoiner = new StringJoiner(" ");
         if (!CollectionUtils.isEmpty(myUser.getRoles())) {
