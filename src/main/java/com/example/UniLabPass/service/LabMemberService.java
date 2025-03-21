@@ -117,7 +117,9 @@ public class LabMemberService {
         for (LabMember labMember : labMemberList) {
             if (labMember.getRole().getName().equals("MANAGER")) continue;
             // Mapping LabMember into LabMemberResponse
-            LaboratoryLog log = logRepository.findFirstByUserIdOrderByRecordTimeDesc(labMember.getMyUser().getId());
+            LaboratoryLog log = logRepository.findFirstByUserIdAndLabIdOrderByRecordTimeDesc(
+                    labMember.getMyUser().getId(), labMember.getLab().getId()
+            ).orElse(null);
             LocalDateTime userLastRecord = null;
             if (log != null) {
                 userLastRecord = log.getRecordTime();

@@ -9,6 +9,7 @@ import org.springframework.stereotype.Repository;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface LogRepository extends JpaRepository<LaboratoryLog, String> {
@@ -22,7 +23,7 @@ public interface LogRepository extends JpaRepository<LaboratoryLog, String> {
     void deleteByLabId(String labId);
 //    Page<LaboratoryLog> findAll(Pageable pageable);
 
-    LaboratoryLog findFirstByUserIdOrderByRecordTimeDesc(String userId);
+    Optional<LaboratoryLog> findFirstByUserIdAndLabIdOrderByRecordTimeDesc(String userId, String labId);
 
     List<LaboratoryLog> findByLabIdAndRecordTimeBetween(String labId, LocalDateTime recordTimeAfter, LocalDateTime recordTimeBefore);
 }
