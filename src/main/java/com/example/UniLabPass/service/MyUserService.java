@@ -11,6 +11,7 @@ import com.example.UniLabPass.exception.ErrorCode;
 import com.example.UniLabPass.mapper.MyUserMapper;
 import com.example.UniLabPass.repository.MyUserRepository;
 import com.example.UniLabPass.repository.RoleRepository;
+import com.example.UniLabPass.utils.GlobalUtils;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
@@ -42,6 +43,7 @@ public class MyUserService {
     PasswordEncoder passwordEncoder;
 
     EmailService emailService;
+    GlobalUtils globalUtils;
 
 
     public MyUserResponse createMyUser(MyUserCreationRequest request, Role role) {
@@ -50,7 +52,7 @@ public class MyUserService {
 
         if (role.equals(Role.USER)) {
             myUser.setPassword(passwordEncoder.encode(request.getPassword()));
-            myUser.setVerificationCode(emailService.generateVerificationCode());
+            myUser.setVerificationCode(globalUtils.generateVerificationCode());
             myUser.setExpiryVerificationCode(new Date(
                     Instant.now().plus(5, ChronoUnit.MINUTES).toEpochMilli()
             ));

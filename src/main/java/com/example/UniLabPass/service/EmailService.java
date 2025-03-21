@@ -7,6 +7,7 @@ import com.example.UniLabPass.entity.MyUser;
 import com.example.UniLabPass.exception.AppException;
 import com.example.UniLabPass.exception.ErrorCode;
 import com.example.UniLabPass.repository.MyUserRepository;
+import com.example.UniLabPass.utils.GlobalUtils;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
@@ -32,12 +33,8 @@ public class EmailService {
     JavaMailSender mailSender;
     MyUserRepository myUserRepository;
     PasswordEncoder passwordEncoder;
-    @NonFinal
-    static final String CHARACTERS = "1234567890";
-    @NonFinal
-    static final int CODE_LENGTH = 4;
-    @NonFinal
-    static final SecureRandom random = new SecureRandom();
+
+    GlobalUtils globalUtils;
 
 
     public void sendVerificationEmail(String toEmail, String verificationCode) {
@@ -50,10 +47,11 @@ public class EmailService {
     }
 
     public void sendResetPassword(String email) {
-        String newPass = generateVerificationCode() + generateVerificationCode();
+        String newPass = globalUtils.generateVerificationCode() + globalUtils.generateVerificationCode();
         MyUser myUser = myUserRepository.findByEmail(email).orElseThrow(
                 () -> new AppException(ErrorCode.USER_NOT_EXISTED)
         );
+        if (!myUser.isVerified()) throw new AppException(ErrorCode.UNVERIFIED_EMAIL);
         myUser.setPassword(passwordEncoder.encode(newPass));
         myUserRepository.save(myUser);
         SimpleMailMessage message = new SimpleMailMessage();
@@ -82,7 +80,7 @@ public class EmailService {
         MyUser myUser = myUserRepository.findByEmail(request.getEmail()).orElseThrow(
                 () -> new AppException(ErrorCode.USER_NOT_EXISTED)
         );
-        myUser.setVerificationCode(generateVerificationCode());
+        myUser.setVerificationCode(globalUtils.generateVerificationCode());
         myUser.setExpiryVerificationCode(new Date(
                 Instant.now().plus(5, ChronoUnit.MINUTES).toEpochMilli()
         ));
@@ -90,12 +88,5 @@ public class EmailService {
         sendVerificationEmail(myUser.getEmail(), myUser.getVerificationCode());
     }
 
-    public String generateVerificationCode() {
-        StringBuilder code = new StringBuilder(CODE_LENGTH);
-        for (int i = 0; i < CODE_LENGTH; i++) {
-            code.append(CHARACTERS.charAt(random.nextInt(CHARACTERS.length())));
-        }
-        return code.toString();
-    }
 
 }
