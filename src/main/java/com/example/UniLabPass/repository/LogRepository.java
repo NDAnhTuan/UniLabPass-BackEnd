@@ -1,6 +1,7 @@
 package com.example.UniLabPass.repository;
 
 import com.example.UniLabPass.entity.LaboratoryLog;
+import com.example.UniLabPass.enums.LogStatus;
 import jakarta.transaction.Transactional;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -17,7 +18,7 @@ public interface LogRepository extends JpaRepository<LaboratoryLog, String> {
 
     List<LaboratoryLog> findByLabIdAndUserId(String labId, String userId);
 
-    List<LaboratoryLog> findByRecordTimeBetween(LocalDateTime startTime, LocalDateTime endTime);
+    Optional<LaboratoryLog> findFirstByUserIdAndLabIdAndStatusOrderByRecordTimeDesc(String userId, String labId, LogStatus status);
 
     @Transactional
     void deleteByLabId(String labId);

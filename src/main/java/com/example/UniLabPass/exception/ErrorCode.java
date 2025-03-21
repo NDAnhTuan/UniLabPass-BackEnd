@@ -35,7 +35,11 @@ public enum ErrorCode {
     LOG_CREATE_ERROR(1022, "Log info missing or error", HttpStatus.BAD_REQUEST),
     NO_RELATION(1023, "This user is not existed on this lab", HttpStatus.NOT_FOUND),
     INCORRECT_PASSWORD(1024,"Password you entered is incorrect", HttpStatus.UNAUTHORIZED),
-    INCORRECT_VERIFY_CODE(1025,"Verify code you entered is incorrect", HttpStatus.BAD_REQUEST);
+    INCORRECT_VERIFY_CODE(1025,"Verify code you entered is incorrect", HttpStatus.BAD_REQUEST),
+    BLOCKED_USER(1026, "Checkin/out denied since user has been blocked", HttpStatus.BAD_REQUEST),
+    DUPLICATE_CHECK_IN(1027,"User/Member hasn’t CHECKOUT yet", HttpStatus.BAD_REQUEST),
+    DUPLICATE_CHECK_OUT(1028,"User/Member hasn’t CHECKIN yet", HttpStatus.BAD_REQUEST);
+
     int code;
     String message;
     HttpStatus statusCode;

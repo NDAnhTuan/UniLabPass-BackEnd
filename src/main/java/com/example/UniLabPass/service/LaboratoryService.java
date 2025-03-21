@@ -13,6 +13,7 @@ import com.example.UniLabPass.mapper.LabMapper;
 import com.example.UniLabPass.mapper.LabMemberMapper;
 import com.example.UniLabPass.mapper.MyUserMapper;
 import com.example.UniLabPass.repository.*;
+import com.example.UniLabPass.utils.GlobalUtils;
 import jakarta.transaction.Transactional;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
@@ -41,6 +42,7 @@ public class LaboratoryService {
 
     LabMemberService labMemberService;
     LabEventService labEventService;
+    GlobalUtils globalUtils;
 
     public LabResponse createLaboratory(LabCreationRequest request) {
         Lab lab = labMapper.toLab(request);
@@ -74,7 +76,7 @@ public class LaboratoryService {
     }
 
     public LabResponse updateLaboratory(String labId, LabUpdateRequest request) {
-        labMemberService.checkAuthorizeManager(labId);
+        globalUtils.checkAuthorizeManager(labId);
         Lab lab = labRepository.findById(labId).orElseThrow(() -> new AppException(ErrorCode.LAB_NOT_EXISTED));
         labMapper.updateLab(lab, request);
         return labMapper.toLabResponse(labRepository.save(lab));
@@ -82,7 +84,7 @@ public class LaboratoryService {
     // Delete laboratory
     public void deleteLaboratory(String labId) {
         // Check if user is MANAGER of lab
-        labMemberService.checkAuthorizeManager(labId);
+        globalUtils.checkAuthorizeManager(labId);
 
         // Delete all record of this lab
         logRepository.deleteByLabId(labId);

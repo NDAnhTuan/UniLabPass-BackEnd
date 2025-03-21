@@ -6,7 +6,6 @@ import com.example.UniLabPass.dto.request.LabMemberUpdateRequest;
 import com.example.UniLabPass.dto.request.MyUserCreationRequest;
 import com.example.UniLabPass.dto.response.LabMemberInfoRespond;
 import com.example.UniLabPass.dto.response.LabMemberResponse;
-import com.example.UniLabPass.dto.response.MyUserResponse;
 import com.example.UniLabPass.entity.Lab;
 import com.example.UniLabPass.entity.LabMember;
 import com.example.UniLabPass.entity.LaboratoryLog;
@@ -17,18 +16,17 @@ import com.example.UniLabPass.exception.ErrorCode;
 import com.example.UniLabPass.mapper.LabMemberMapper;
 import com.example.UniLabPass.mapper.MyUserMapper;
 import com.example.UniLabPass.repository.*;
+import com.example.UniLabPass.utils.GlobalUtils;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.dao.DataIntegrityViolationException;
-import org.springframework.security.core.context.SecurityContextHolder;
+
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Stream;
 
 
 @Service
@@ -46,11 +44,13 @@ public class LabMemberService {
 
     MyUserMapper myUserMapper;
     LabMemberMapper labMemberMapper;
-    private final LogRepository logRepository;
+    LogRepository logRepository;
+
+    GlobalUtils globalUtils;
 
 
     public void addLabMember(LabMemberCreationRequest request) {
-        checkAuthorizeManager(request.getLabId());
+        globalUtils.checkAuthorizeManager(request.getLabId());
 
         // If member is already in this fking lab, throw error
         if (labMemberRepository.existsById(new LabMemberKey(request.getLabId(), request.getUserId()))) {
@@ -85,9 +85,6 @@ public class LabMemberService {
                         && userCheck.getGender().equals(request.getGender())) ) {
                         throw new AppException(ErrorCode.FALSE_USER_DATA);
                     }
-                    else {
-                        // Pass everything
-                    }
                 }
                 else {
                     throw new AppException(ErrorCode.USER_ID_EXISTED);
@@ -100,8 +97,6 @@ public class LabMemberService {
         // Increase lab capacity by 1
         // Don't create a clone lab when we cant find the lab we want
         Lab lab = labRepository.findById(request.getLabId()).orElseThrow(() -> new AppException(ErrorCode.LAB_NOT_EXISTED));
-        // lab.setCapacity(lab.getCapacity() + 1);
-        // labRepository.save(lab);
 
         LabMember labMember = new LabMember();
         labMember.setLabMemberId(new LabMemberKey(lab.getId(), myUser.getId()));
@@ -111,7 +106,7 @@ public class LabMemberService {
         labMemberRepository.save(labMember);
     }
     public List<LabMemberResponse> getLabMembers(String labId) {
-        checkAuthorizeManager(labId);
+        globalUtils.checkAuthorizeManager(labId);
         List<LabMember> labMemberList = labMemberRepository.findAllByLabMemberId_LabId(labId).stream().toList();
         List<LabMemberResponse> labMemberResponses = new ArrayList<LabMemberResponse>();
         for (LabMember labMember : labMemberList) {
@@ -123,7 +118,7 @@ public class LabMemberService {
             LocalDateTime userLastRecord = null;
             if (log != null) {
                 userLastRecord = log.getRecordTime();
-            };
+            }
 
             LabMemberResponse labMemberResponse = LabMemberResponse.builder()
                     .id(labMember.getLabMemberId().getMyUserId())
@@ -140,7 +135,7 @@ public class LabMemberService {
     }
 
     public LabMemberInfoRespond getLabMemberInfo(String labId, String memberId) {
-        checkAuthorizeManager(labId);
+        globalUtils.checkAuthorizeManager(labId);
         LabMemberKey labMemberKey = new LabMemberKey(labId, memberId);
         LabMember labMember = labMemberRepository.findById(labMemberKey).orElseThrow(() -> new AppException(ErrorCode.NO_RELATION));
         return LabMemberInfoRespond.builder()
@@ -150,7 +145,7 @@ public class LabMemberService {
     }
 
     public void deleteLabMember(String labId, String userId) {
-        checkAuthorizeManager(labId);
+        globalUtils.checkAuthorizeManager(labId);
         LabMemberKey labMemberKey = new LabMemberKey(labId, userId);
         if (!labMemberRepository.existsById(labMemberKey)) {throw new AppException(ErrorCode.NO_RELATION);}
         labMemberRepository.deleteById(labMemberKey);
@@ -163,14 +158,10 @@ public class LabMemberService {
             myUserService.deleteMyUser(userId);
         }
 
-//        // Decrease lab capacity by 1
-//        Lab lab = labRepository.findById(labId).orElseThrow(() -> new AppException(ErrorCode.LAB_NOT_EXISTED));
-//        lab.setCapacity(lab.getCapacity() - 1);
-//        labRepository.save(lab);
     }
 
     public LabMemberResponse updateLabMember(LabMemberUpdateRequest request) {
-        checkAuthorizeManager(request.getLabMemberKey().getLabId());
+        globalUtils.checkAuthorizeManager(request.getLabMemberKey().getLabId());
         LabMember labMember = labMemberRepository.findById(request.getLabMemberKey()).orElseThrow(() -> new AppException(ErrorCode.LAB_NOT_EXISTED));
         labMemberMapper.updateLabMember(labMember, request);
 
@@ -178,17 +169,6 @@ public class LabMemberService {
         return labMemberMapper.toLabMemberResponse(labMemberRepository.save(labMember));
     }
 
-    public void checkAuthorizeManager(String labId) {
-        var context = SecurityContextHolder.getContext();
-        String name = context.getAuthentication().getName();
-        MyUser manager = myUserRepository.findByEmail(name).orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
-        LabMember managerUser = labMemberRepository.findById(new LabMemberKey(labId,manager.getId())).orElseThrow(
-                () -> new AppException(ErrorCode.UNAUTHORIZED)
-        );
-        log.info("Manager Role: " +  managerUser.getRole().getName());
-        if (!managerUser.getRole().getName().equals("MANAGER")) {
-            throw new AppException(ErrorCode.UNAUTHORIZED);
-        }
-    }
+
 
 }

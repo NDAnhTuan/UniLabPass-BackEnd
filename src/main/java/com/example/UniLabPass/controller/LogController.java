@@ -11,10 +11,8 @@ import jakarta.validation.Valid;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
-import lombok.extern.java.Log;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.client.RestClient;
 
 import java.util.List;
 
@@ -32,8 +30,8 @@ public class LogController {
             @ApiResponse(responseCode = "200", description = "Log was created successfully"),
     })
     @PostMapping()
-    CustomApiResponse<String> createNewLog(@RequestBody @Valid LogCreationRequest request) {
-        return CustomApiResponse.<String>builder()
+    CustomApiResponse<LogRespond> createNewLog(@RequestBody @Valid LogCreationRequest request) {
+        return CustomApiResponse.<LogRespond>builder()
                 .result(logService.addNewLog(request))
                 .build();
     }
