@@ -5,6 +5,7 @@ import jakarta.transaction.Transactional;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface EventLogRepository extends JpaRepository<EventLog, String> {
     @Transactional
@@ -14,4 +15,7 @@ public interface EventLogRepository extends JpaRepository<EventLog, String> {
     void deleteAllByGuestId(String guestId);
 
     List<EventLog> findAllByEventId(String eventId);
+
+    Optional<EventLog> findFirstByGuestIdAndEventIdOrderByRecordTimeDesc(String guestId, String eventId);
+
 }

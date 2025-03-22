@@ -8,12 +8,14 @@ import com.example.UniLabPass.dto.response.EventLogRespond;
 import com.example.UniLabPass.dto.response.LabEventRespond;
 import com.example.UniLabPass.entity.*;
 import com.example.UniLabPass.enums.LogStatus;
+import com.example.UniLabPass.enums.RecordType;
 import com.example.UniLabPass.exception.AppException;
 import com.example.UniLabPass.exception.ErrorCode;
 import com.example.UniLabPass.mapper.EventGuestMapper;
 import com.example.UniLabPass.mapper.EventLogMapper;
 import com.example.UniLabPass.mapper.EventMapper;
 import com.example.UniLabPass.repository.*;
+import com.example.UniLabPass.utils.GlobalUtils;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
@@ -47,9 +49,10 @@ public class LabEventService {
     @Value("${app.Global.VNHour}")
     int VNHour;
 
+    GlobalUtils globalUtils;
     // Add new event
     public LabEventRespond createEvent(LabEventCreationRequest request) {
-        checkAuthorizeManager(request.getLabId());
+        globalUtils.checkAuthorizeManager(request.getLabId());
 
         LabEvent newEvent = eventMapper.toEvent(request);
         if (newEvent.getStartTime() == null
@@ -72,7 +75,7 @@ public class LabEventService {
 
     // Check current event of lab
     public LabEventRespond getCurrentEvent(String labId) {
-        checkAuthorizeManager(labId);
+        globalUtils.checkAuthorizeManager(labId);
 
         LocalDateTime currentTime = LocalDateTime.now().plusHours(VNHour);
         List<LabEvent> events = labEventRepository.findAllByLabId(labId);
@@ -87,7 +90,7 @@ public class LabEventService {
 
     // Update event
     public LabEventRespond updateEvent(LabEventUpdateRequest request) {
-        checkAuthorizeManager(request.getLabId());
+        globalUtils.checkAuthorizeManager(request.getLabId());
         checkEventExists(request.getEventId());
 
         LabEvent updatedEvent = eventMapper.toEventUpdated(request);
@@ -177,7 +180,7 @@ public class LabEventService {
     }
 
     // Add event log
-    public String addEventLog(EventLogCreationRequest request) {
+    public EventLogRespond addEventLog(EventLogCreationRequest request) {
         if (request.getEventId() == null
         || request.getGuestId() == null
         || request.getRecordType() == null) {
@@ -189,9 +192,21 @@ public class LabEventService {
         newLog.setRecordTime(currentTime);
         newLog.setStatus(LogStatus.SUCCESS);
 
-        eventLogRepository.save(newLog);
+        EventLog recentLog = eventLogRepository
+                .findFirstByGuestIdAndEventIdOrderByRecordTimeDesc(
+                        newLog.getGuestId(), newLog.getEventId()).orElseThrow(
+                        () -> new AppException(ErrorCode.LOG_NOT_EXIST)
+                );
 
-        return request.getRecordType() + " succesfully in this event";
+        if (newLog.getRecordType() == RecordType.CHECKIN && recentLog.getRecordType() == RecordType.CHECKIN) {
+            throw new AppException(ErrorCode.DUPLICATE_CHECK_IN);
+        }
+
+        if (newLog.getRecordType() == RecordType.CHECKOUT && recentLog.getRecordType() == RecordType.CHECKOUT) {
+            throw new AppException(ErrorCode.DUPLICATE_CHECK_OUT);
+        }
+        return eventLogMapper.toEventLogRespond(eventLogRepository.save(newLog));
+
     }
 
     // View event log
@@ -228,20 +243,6 @@ public class LabEventService {
     public void checkEventExists(String eventId) {
         if (!labEventRepository.existsById(eventId)) {
             throw new AppException(ErrorCode.EVENT_NOT_EXIST);
-        }
-    }
-
-    // Check authorize
-    public void checkAuthorizeManager(String labId) {
-        var context = SecurityContextHolder.getContext();
-        String name = context.getAuthentication().getName();
-        MyUser manager = myUserRepository.findByEmail(name).orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
-        LabMember managerUser = labMemberRepository.findById(new LabMemberKey(labId,manager.getId())).orElseThrow(
-                () -> new AppException(ErrorCode.UNAUTHORIZED)
-        );
-        log.info("Manager Role: " +  managerUser.getRole().getName());
-        if (!managerUser.getRole().getName().equals("MANAGER")) {
-            throw new AppException(ErrorCode.UNAUTHORIZED);
         }
     }
 

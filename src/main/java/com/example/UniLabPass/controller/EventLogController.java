@@ -31,8 +31,8 @@ public class EventLogController {
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "CHECKIN/CHECKOUT successfully in this event"),
     })
-    CustomApiResponse<String> addEventLog(EventLogCreationRequest request) {
-        return CustomApiResponse.<String>builder()
+    CustomApiResponse<EventLogRespond> addEventLog(EventLogCreationRequest request) {
+        return CustomApiResponse.<EventLogRespond>builder()
                 .result(labEventService.addEventLog(request))
                 .build();
     }
