@@ -10,6 +10,7 @@ import com.example.UniLabPass.entity.LabMember;
 import com.example.UniLabPass.entity.LaboratoryLog;
 import com.example.UniLabPass.entity.MyUser;
 import com.example.UniLabPass.enums.LogStatus;
+import com.example.UniLabPass.enums.LogType;
 import com.example.UniLabPass.enums.MemberStatus;
 import com.example.UniLabPass.enums.RecordType;
 import com.example.UniLabPass.exception.AppException;
@@ -78,8 +79,10 @@ public class LogService {
             newRecord.setStatus(LogStatus.SUCCESS);
         }
 
-        if (newRecord.getRecordType() == RecordType.CHECKIN && recentLog.getRecordType() == RecordType.CHECKIN) {
-            throw new AppException(ErrorCode.DUPLICATE_CHECK_IN);
+        if (newRecord.getRecordType() == RecordType.CHECKIN) {
+            if (recentLog.getRecordType() == RecordType.CHECKIN) throw new AppException(ErrorCode.DUPLICATE_CHECK_IN);
+            else if (request.getLogType() == LogType.ILLEGAL &&
+                    newRecord.getPhotoURL() == null) throw new AppException(ErrorCode.LOG_CREATE_ERROR);
         }
 
         if (newRecord.getRecordType() == RecordType.CHECKOUT && recentLog.getRecordType() == RecordType.CHECKOUT) {

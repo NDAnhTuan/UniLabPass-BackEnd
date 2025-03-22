@@ -8,6 +8,7 @@ import com.example.UniLabPass.dto.response.EventLogRespond;
 import com.example.UniLabPass.dto.response.LabEventRespond;
 import com.example.UniLabPass.entity.*;
 import com.example.UniLabPass.enums.LogStatus;
+import com.example.UniLabPass.enums.LogType;
 import com.example.UniLabPass.enums.RecordType;
 import com.example.UniLabPass.exception.AppException;
 import com.example.UniLabPass.exception.ErrorCode;
@@ -198,8 +199,9 @@ public class LabEventService {
                         () -> new AppException(ErrorCode.LOG_NOT_EXIST)
                 );
 
-        if (newLog.getRecordType() == RecordType.CHECKIN && recentLog.getRecordType() == RecordType.CHECKIN) {
-            throw new AppException(ErrorCode.DUPLICATE_CHECK_IN);
+        if (newLog.getRecordType() == RecordType.CHECKIN) {
+            if (recentLog.getRecordType() == RecordType.CHECKIN) throw new AppException(ErrorCode.DUPLICATE_CHECK_IN);
+            else if (newLog.getPhotoURL() == null) throw new AppException(ErrorCode.LOG_CREATE_ERROR);
         }
 
         if (newLog.getRecordType() == RecordType.CHECKOUT && recentLog.getRecordType() == RecordType.CHECKOUT) {
