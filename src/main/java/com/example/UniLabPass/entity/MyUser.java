@@ -32,6 +32,8 @@ public class MyUser {
     @Column(nullable = false)
     boolean isVerified;
 
+    String photoURL;
+
     @ManyToMany
     // Tự động tạo bảng user_role và tự động
     // thực hiện add dữ liệu vào bảng user_role
