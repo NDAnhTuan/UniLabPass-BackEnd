@@ -31,6 +31,11 @@ spring:
           auth: true
           starttls:
             enable: true
+  servlet:
+    multipart:
+      enabled: true
+      max-file-size: 20MB
+      max-request-size: 50MB
 verification-code:
   email:
     character: "123456789"
