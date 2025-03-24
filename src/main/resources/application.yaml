@@ -36,11 +36,6 @@ verification-code:
     character: "123456789"
     code-length: 6
 jwt:
-  signerKey: "FZ53SRj+TB9MIVipkwxSeNxG4SIE7JQU/LPjLxuWrwoUfn7WQRBahoVphiyS30pa"
+  signerKey: ${JWT_SIGNER_KEY}
   valid-duration: 1800 # in seconds
   refreshable-duration: 3600 # in seconds
-
-cloudinary:
-  cloud-name:
-  api-key:
-  api-secret:
