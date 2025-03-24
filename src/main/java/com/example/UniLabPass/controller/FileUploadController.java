@@ -28,7 +28,7 @@ public class FileUploadController {
 
     @PostMapping(value = "/upload/video", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     @Operation(summary = "", security = {@SecurityRequirement(name = "BearerAuthentication")})
-    public ResponseEntity<?> uploadVideo(@RequestParam("file") MultipartFile file,
+    public ResponseEntity<?> uploadVideo(@RequestPart("file") MultipartFile file,
                                          @RequestParam("folder") String folderName) throws IOException {
         return ResponseEntity.ok(cloudinaryService.uploadVideo(file, folderName));
     }
