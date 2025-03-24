@@ -2,6 +2,9 @@ package com.example.UniLabPass.service;
 
 import com.cloudinary.Cloudinary;
 import com.cloudinary.utils.ObjectUtils;
+import lombok.AccessLevel;
+import lombok.RequiredArgsConstructor;
+import lombok.experimental.FieldDefaults;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -9,13 +12,11 @@ import java.io.IOException;
 import java.util.Map;
 
 @Service
+@RequiredArgsConstructor
+@FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class CloudinaryService {
 
-    private final Cloudinary cloudinary;
-
-    public CloudinaryService(Cloudinary cloudinary) {
-        this.cloudinary = cloudinary;
-    }
+    Cloudinary cloudinary;
 
     public Map uploadFile(MultipartFile file, String folderName) throws IOException {
         return cloudinary.uploader().upload(file.getBytes(),
