@@ -25,6 +25,8 @@ public class MyUserResponse {
     LocalDate dob;
     @Schema(example = "MALE")
     String gender;
+    @Schema()
+    String photoURL;
 
     Set<RoleResponse> roles;
 }

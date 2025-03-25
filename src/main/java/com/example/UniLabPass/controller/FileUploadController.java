@@ -1,7 +1,14 @@
 package com.example.UniLabPass.controller;
+import com.example.UniLabPass.dto.request.MyUserCreationRequest;
+import com.example.UniLabPass.dto.response.CloudinaryResponse;
+import com.example.UniLabPass.dto.response.CustomApiResponse;
 import com.example.UniLabPass.service.CloudinaryService;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.parameters.RequestBody;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -10,7 +17,8 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.IOException;
 
 @RestController
-@RequestMapping("/api/files")
+@RequestMapping("/image")
+@Slf4j
 public class FileUploadController {
 
     private final CloudinaryService cloudinaryService;
@@ -19,17 +27,22 @@ public class FileUploadController {
         this.cloudinaryService = cloudinaryService;
     }
 
-    @PostMapping(value = "/upload/image", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @PostMapping(value = "/upload", consumes = {MediaType.MULTIPART_FORM_DATA_VALUE })
     @Operation(summary = "", security = {@SecurityRequirement(name = "BearerAuthentication")})
-    public ResponseEntity<?> uploadImage(@RequestPart("file") MultipartFile file,
-                                         @RequestParam("folder") String folderName) throws IOException {
-        return ResponseEntity.ok(cloudinaryService.uploadFile(file, folderName));
+    public CustomApiResponse<CloudinaryResponse> uploadImage(
+            @RequestPart("file") MultipartFile file,
+            @RequestPart("userId") String userId) throws IOException {
+        return CustomApiResponse.<CloudinaryResponse>builder()
+                .result(cloudinaryService.uploadFile(userId,file))
+                .build();
     }
 
-    @PostMapping(value = "/upload/video", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @DeleteMapping(value = "/delete/{userId}")
     @Operation(summary = "", security = {@SecurityRequirement(name = "BearerAuthentication")})
-    public ResponseEntity<?> uploadVideo(@RequestPart("file") MultipartFile file,
-                                         @RequestParam("folder") String folderName) throws IOException {
-        return ResponseEntity.ok(cloudinaryService.uploadVideo(file, folderName));
+    public CustomApiResponse<Void> deleteImage(@PathVariable String userId) throws IOException {
+        cloudinaryService.deleteFile(userId);
+        return CustomApiResponse.<Void>builder()
+                .build();
     }
+
 }
