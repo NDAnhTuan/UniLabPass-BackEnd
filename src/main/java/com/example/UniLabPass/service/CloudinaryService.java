@@ -28,15 +28,23 @@ public class CloudinaryService {
         MyUser myUser =  myUserRepository.findById(userId).orElseThrow(
                 () -> new AppException(ErrorCode.USER_NOT_EXISTED));
 
-        var imageOjb = cloudinary.uploader().upload(file.getBytes(),
-                ObjectUtils.asMap("public_id", myUser.getId(), "overwrite", true));
+        try {
+            // Upload ảnh lên Cloudinary
+            var imageObj = cloudinary.uploader().upload(file.getBytes(),
+                    ObjectUtils.asMap("public_id", myUser.getId(), "overwrite", true));
 
-        myUser.setPhotoURL(imageOjb.get("url").toString());
-        myUserRepository.save(myUser);
-        return CloudinaryResponse.builder()
-                .userId(imageOjb.get("public_id").toString())
-                .url(imageOjb.get("url").toString())
-                .build();
+            // Lưu photoURL vào MyUser
+            myUser.setPhotoURL(imageObj.get("url").toString());
+            myUserRepository.save(myUser);
+
+            // Trả về thông tin upload thành công
+            return CloudinaryResponse.builder()
+                    .userId(myUser.getId())
+                    .url(myUser.getPhotoURL())
+                    .build();
+        } catch (RuntimeException e) {
+            throw new AppException(ErrorCode.UPLOAD_FAILED);
+        }
     }
 
     // Xóa ảnh bằng publicId

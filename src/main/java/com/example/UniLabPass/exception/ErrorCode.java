@@ -38,7 +38,9 @@ public enum ErrorCode {
     INCORRECT_VERIFY_CODE(1025,"Verify code you entered is incorrect", HttpStatus.BAD_REQUEST),
     BLOCKED_USER(1026, "Checkin/out denied since user has been blocked", HttpStatus.BAD_REQUEST),
     DUPLICATE_CHECK_IN(1027,"User/Member hasn’t CHECKOUT yet", HttpStatus.BAD_REQUEST),
-    DUPLICATE_CHECK_OUT(1028,"User/Member hasn’t CHECKIN yet", HttpStatus.BAD_REQUEST);
+    DUPLICATE_CHECK_OUT(1028,"User/Member hasn’t CHECKIN yet", HttpStatus.BAD_REQUEST),
+    UPLOAD_FAILED(1029, "Upload image failed", HttpStatus.INTERNAL_SERVER_ERROR);
+    ;
 
     int code;
     String message;
