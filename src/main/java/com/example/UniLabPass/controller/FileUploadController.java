@@ -31,9 +31,11 @@ public class FileUploadController {
     @Operation(summary = "", security = {@SecurityRequirement(name = "BearerAuthentication")})
     public CustomApiResponse<CloudinaryResponse> uploadImage(
             @RequestPart("file") MultipartFile file,
-            @RequestPart("userId") String userId) throws IOException {
+            @RequestPart("userId") String userId,
+            @RequestPart(value = "labId", required = false) String labId
+    ) throws IOException {
         return CustomApiResponse.<CloudinaryResponse>builder()
-                .result(cloudinaryService.uploadFile(userId,file))
+                .result(cloudinaryService.uploadFile(userId,labId,file))
                 .build();
     }
 

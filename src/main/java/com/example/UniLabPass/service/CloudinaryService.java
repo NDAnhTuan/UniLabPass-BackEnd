@@ -2,10 +2,12 @@ package com.example.UniLabPass.service;
 
 import com.cloudinary.Cloudinary;
 import com.cloudinary.utils.ObjectUtils;
+import com.example.UniLabPass.compositekey.LabMemberKey;
 import com.example.UniLabPass.dto.response.CloudinaryResponse;
 import com.example.UniLabPass.entity.MyUser;
 import com.example.UniLabPass.exception.AppException;
 import com.example.UniLabPass.exception.ErrorCode;
+import com.example.UniLabPass.repository.LabMemberRepository;
 import com.example.UniLabPass.repository.MyUserRepository;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
@@ -22,9 +24,10 @@ public class CloudinaryService {
 
     Cloudinary cloudinary;
     MyUserRepository myUserRepository;
+    LabMemberRepository labMemberRepository;
 
     // Update ảnh (ghi đè lên ảnh cũ bằng publicId)
-    public CloudinaryResponse uploadFile(String userId, MultipartFile file) throws IOException {
+    public CloudinaryResponse uploadFile(String userId, String labId, MultipartFile file) throws IOException {
         MyUser myUser =  myUserRepository.findById(userId).orElseThrow(
                 () -> new AppException(ErrorCode.USER_NOT_EXISTED));
 
@@ -43,6 +46,7 @@ public class CloudinaryService {
                     .url(myUser.getPhotoURL())
                     .build();
         } catch (RuntimeException e) {
+            if (!labId.isEmpty()) labMemberRepository.deleteById(new LabMemberKey(labId,myUser.getId()));
             throw new AppException(ErrorCode.UPLOAD_FAILED);
         }
     }
