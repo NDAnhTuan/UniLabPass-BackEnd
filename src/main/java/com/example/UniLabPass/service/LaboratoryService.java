@@ -3,18 +3,14 @@ package com.example.UniLabPass.service;
 import com.example.UniLabPass.compositekey.LabMemberKey;
 import com.example.UniLabPass.dto.request.LabCreationRequest;
 import com.example.UniLabPass.dto.request.LabUpdateRequest;
-import com.example.UniLabPass.dto.response.LabMemberResponse;
 import com.example.UniLabPass.dto.response.LabResponse;
 import com.example.UniLabPass.entity.*;
 import com.example.UniLabPass.enums.MemberStatus;
 import com.example.UniLabPass.exception.AppException;
 import com.example.UniLabPass.exception.ErrorCode;
 import com.example.UniLabPass.mapper.LabMapper;
-import com.example.UniLabPass.mapper.LabMemberMapper;
-import com.example.UniLabPass.mapper.MyUserMapper;
 import com.example.UniLabPass.repository.*;
 import com.example.UniLabPass.utils.GlobalUtils;
-import jakarta.transaction.Transactional;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
@@ -40,7 +36,6 @@ public class LaboratoryService {
 
     LabMapper labMapper;
 
-    LabMemberService labMemberService;
     LabEventService labEventService;
     GlobalUtils globalUtils;
 
@@ -99,7 +94,6 @@ public class LaboratoryService {
         }
 
         // Delete lab
-        Lab lab = labRepository.findById(labId).orElseThrow(() -> new AppException(ErrorCode.LAB_NOT_EXISTED));
         labRepository.deleteById(labId);
     }
 

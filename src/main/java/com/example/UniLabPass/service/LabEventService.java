@@ -1,14 +1,12 @@
 package com.example.UniLabPass.service;
 
 import com.example.UniLabPass.compositekey.EventGuestKey;
-import com.example.UniLabPass.compositekey.LabMemberKey;
 import com.example.UniLabPass.dto.request.*;
 import com.example.UniLabPass.dto.response.EventGuestRespond;
 import com.example.UniLabPass.dto.response.EventLogRespond;
 import com.example.UniLabPass.dto.response.LabEventRespond;
 import com.example.UniLabPass.entity.*;
 import com.example.UniLabPass.enums.LogStatus;
-import com.example.UniLabPass.enums.LogType;
 import com.example.UniLabPass.enums.RecordType;
 import com.example.UniLabPass.exception.AppException;
 import com.example.UniLabPass.exception.ErrorCode;
@@ -23,7 +21,6 @@ import lombok.experimental.FieldDefaults;
 import lombok.experimental.NonFinal;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -36,8 +33,6 @@ import java.util.List;
 @Slf4j
 public class LabEventService {
     // variables
-    MyUserRepository myUserRepository;
-    LabMemberRepository labMemberRepository;
     LabEventRepository labEventRepository;
     EventGuestRepository eventGuestRepository;
     EventLogRepository eventLogRepository;
@@ -149,10 +144,9 @@ public class LabEventService {
     // Get single guest info
     public EventGuestRespond getGuestInfo(EventGuestKey key) {
         checkEventExists(key.getEventId());
-        EventGuestRespond result = eventGuestMapper.toGuestRespond(eventGuestRepository.findByEventGuestKey(key).orElseThrow(
+        return eventGuestMapper.toGuestRespond(eventGuestRepository.findByEventGuestKey(key).orElseThrow(
                 () -> new AppException(ErrorCode.GUEST_NOT_EXIST)
         ));
-        return result;
     }
 
     // Update event guest

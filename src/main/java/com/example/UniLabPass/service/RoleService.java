@@ -3,7 +3,6 @@ package com.example.UniLabPass.service;
 import com.example.UniLabPass.dto.request.RoleRequest;
 import com.example.UniLabPass.dto.response.RoleResponse;
 import com.example.UniLabPass.mapper.RoleMapper;
-//import com.example.UniLabPass.repository.PermissionRepository;
 import com.example.UniLabPass.repository.RoleRepository;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
@@ -12,7 +11,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 
-import java.util.HashSet;
 import java.util.List;
 
 @Service

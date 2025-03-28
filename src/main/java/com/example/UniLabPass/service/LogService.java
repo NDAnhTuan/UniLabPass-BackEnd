@@ -93,10 +93,6 @@ public class LogService {
     }
 
 
-    private  LaboratoryLog checkoutLog(LaboratoryLog newRecord) {
-        return newRecord;
-    }
-
     // Get list of log (include pageSize and pageNumber)
     public List<LogRespond> getLogs(String labId) {
         globalUtils.checkAuthorizeManager(labId);

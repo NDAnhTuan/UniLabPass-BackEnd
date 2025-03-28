@@ -1,17 +1,12 @@
 package com.example.UniLabPass.controller;
-import com.example.UniLabPass.dto.request.MyUserCreationRequest;
 import com.example.UniLabPass.dto.response.CloudinaryResponse;
 import com.example.UniLabPass.dto.response.CustomApiResponse;
-import com.example.UniLabPass.enums.LogStatus;
 import com.example.UniLabPass.service.CloudinaryService;
 import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
-import io.swagger.v3.oas.annotations.parameters.RequestBody;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 

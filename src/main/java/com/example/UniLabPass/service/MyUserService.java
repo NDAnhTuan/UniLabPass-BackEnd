@@ -1,6 +1,5 @@
 package com.example.UniLabPass.service;
 
-import com.example.UniLabPass.dto.request.LabMemberCreationRequest;
 import com.example.UniLabPass.dto.request.MyUserCreationRequest;
 import com.example.UniLabPass.dto.request.MyUserUpdateRequest;
 import com.example.UniLabPass.dto.response.MyUserResponse;
@@ -15,18 +14,12 @@ import com.example.UniLabPass.utils.GlobalUtils;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
-import lombok.experimental.NonFinal;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.DataIntegrityViolationException;
-import org.springframework.security.access.prepost.PostAuthorize;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Propagation;
-import org.springframework.transaction.annotation.Transactional;
 
-import java.security.SecureRandom;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.*;
