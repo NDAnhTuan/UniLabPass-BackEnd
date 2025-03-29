@@ -34,7 +34,7 @@ public class LogController {
     })
     @PostMapping(consumes = {MediaType.MULTIPART_FORM_DATA_VALUE })
     CustomApiResponse<LogRespond> createNewLog(@RequestPart @Valid LogCreationRequest request,
-                                               @RequestPart MultipartFile file) throws IOException {
+                                               @RequestPart(required = false) MultipartFile file) throws IOException {
         return CustomApiResponse.<LogRespond>builder()
                 .result(logService.addNewLog(request,file))
                 .build();
