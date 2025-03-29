@@ -1,6 +1,7 @@
 package com.example.UniLabPass.dto.response;
 
 import com.example.UniLabPass.enums.LogStatus;
+import com.example.UniLabPass.enums.LogType;
 import com.example.UniLabPass.enums.RecordType;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
@@ -20,4 +21,6 @@ public class LogRespond {
     RecordType recordType;
     LocalDateTime recordTime;
     LogStatus status;
+    LogType logType;
+    String photoURL; // Use this to get info of photo used
 }
