@@ -20,6 +20,4 @@ public class EventLogCreationRequest {
     @Schema(example = "CHECKIN/CHECKOUT")
     RecordType recordType;
 
-    @Schema(example = "https://firebasestorage.googleapis.com/v0/b/your-project-id.appspot.com/o/images%2Fprofile.jpg?alt=media")
-    String photoURL;
 }

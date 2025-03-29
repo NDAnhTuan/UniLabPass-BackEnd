@@ -19,9 +19,12 @@ import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.MediaType;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.util.List;
 
 @RestController
@@ -38,11 +41,11 @@ public class MyUserController {
                     "USER_EXISTED 1002, INVALID_DOB 1009", content = @Content(schema = @Schema(implementation = ErrorApiResponse.class)))
     })
     @PostMapping("/signup")
-    CustomApiResponse<MyUserResponse> createMyUser(@RequestBody @Valid MyUserCreationRequest request) {
+    CustomApiResponse<MyUserResponse> createMyUser(@RequestBody @Valid MyUserCreationRequest request) throws IOException {
         CustomApiResponse customApiResponse = new CustomApiResponse<MyUserResponse>();
         customApiResponse.setCode(1000);
         return CustomApiResponse.<MyUserResponse>builder()
-                .result(myUserService.createMyUser(request, Role.USER))
+                .result(myUserService.createMyUser(request, Role.USER, null))
                 .build();
     }
     @GetMapping
@@ -99,13 +102,13 @@ public class MyUserController {
             @ApiResponse(responseCode = "401", description = "You are not authorized to modify the resource", content = @Content(schema = @Schema(implementation = ErrorApiResponse.class))),
             @ApiResponse(responseCode = "403", description = "Accessing to the resource you are trying to modify is forbidden" , content = @Content(schema = @Schema(implementation = ErrorApiResponse.class))),
     })
-    CustomApiResponse<String> deleteMyUser(@PathVariable String userId) {
+    CustomApiResponse<String> deleteMyUser(@PathVariable String userId) throws IOException {
         myUserService.deleteMyUser(userId);
         return CustomApiResponse.<String>builder()
                 .result("User has been deleted")
                 .build();
     }
-    @PutMapping("/{userId}")
+    @PutMapping(value = "/{userId}", consumes = {MediaType.MULTIPART_FORM_DATA_VALUE })
     @Operation(summary = "Update User", security = {@SecurityRequirement(name = "BearerAuthentication")})
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Successfully updated your info"),
@@ -114,9 +117,11 @@ public class MyUserController {
             @ApiResponse(responseCode = "404", description = "INVALID_PASSWORD 1004, USERNAME_INVALID 1003, " +
                     "INVALID_DOB 1009, USER_NOT_EXISTED 1005", content = @Content(schema = @Schema(implementation = ErrorApiResponse.class)))
     })
-    CustomApiResponse<MyUserResponse> updateMyUser(@PathVariable String userId, @RequestBody MyUserUpdateRequest request) {
+    CustomApiResponse<MyUserResponse> updateMyUser(@PathVariable String userId,
+                                                   @RequestPart MyUserUpdateRequest request,
+                                                   @RequestPart(required = false) MultipartFile file) throws IOException {
         return CustomApiResponse.<MyUserResponse>builder()
-                .result(myUserService.updateMyUser(userId, request))
+                .result(myUserService.updateMyUser(userId, request, file))
                 .build();
     }
 }

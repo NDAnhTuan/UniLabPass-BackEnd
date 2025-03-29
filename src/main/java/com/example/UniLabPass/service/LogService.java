@@ -27,7 +27,9 @@ import lombok.experimental.NonFinal;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.time.DayOfWeek;
 import java.time.LocalDateTime;
 import java.time.temporal.TemporalAdjusters;
@@ -43,6 +45,8 @@ public class LogService {
     LabMemberRepository labMemberRepository;
     LogRepository logRepository;
 
+    CloudinaryService cloudinaryService;
+
     LogMapper logMapper;
 
     GlobalUtils globalUtils;
@@ -51,7 +55,7 @@ public class LogService {
     int VNHour;
 
     // Add a new log
-    public LogRespond addNewLog(LogCreationRequest request) {
+    public LogRespond addNewLog(LogCreationRequest request, MultipartFile file) throws IOException {
         if (request.getLabId() == null
                 || request.getUserId() == null
                 || request.getRecordType() == null) {
@@ -89,6 +93,12 @@ public class LogService {
             throw new AppException(ErrorCode.DUPLICATE_CHECK_OUT);
         }
 
+        if (file != null) {
+            newRecord.setPhotoURL(
+                    cloudinaryService.uploadFileLog(
+                            newRecord.getId(), file, "Normal").getUrl()
+            );
+        }
         return logMapper.toLogRespond(logRepository.save(newRecord));
     }
 
@@ -125,9 +135,10 @@ public class LogService {
     }
 
     // Delete logs with userId and labId
-    public void deleteLog(String labId, String userId) {
+    public void deleteLog(String labId, String userId) throws IOException {
         List<LaboratoryLog> logs = logRepository.findByLabIdAndUserId(labId, userId);
         for (LaboratoryLog log : logs) {
+            cloudinaryService.deleteFile(log.getId());
             logRepository.delete(log);
         }
     }

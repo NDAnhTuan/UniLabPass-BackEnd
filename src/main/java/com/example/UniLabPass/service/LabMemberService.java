@@ -23,7 +23,9 @@ import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
 
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -49,7 +51,7 @@ public class LabMemberService {
     GlobalUtils globalUtils;
 
 
-    public void addLabMember(LabMemberCreationRequest request) {
+    public void addLabMember(LabMemberCreationRequest request, MultipartFile file) throws IOException {
         globalUtils.checkAuthorizeManager(request.getLabId());
 
         // If member is already in this fking lab, throw error
@@ -71,7 +73,7 @@ public class LabMemberService {
                     .dob(request.getDob())
                     .gender(request.getGender())
                     .build();
-            myUserService.createMyUser(myUserCreationRequest, Role.MEMBER);
+            myUserService.createMyUser(myUserCreationRequest, Role.MEMBER, file);
         }
         else { // Else if member is already exist, then check if the info is as the same with request's data
             MyUser userCheck = myUserRepository.findById(request.getUserId()).orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
@@ -144,7 +146,7 @@ public class LabMemberService {
                 .build();
     }
 
-    public void deleteLabMember(String labId, String userId) {
+    public void deleteLabMember(String labId, String userId) throws IOException {
         globalUtils.checkAuthorizeManager(labId);
         LabMemberKey labMemberKey = new LabMemberKey(labId, userId);
         if (!labMemberRepository.existsById(labMemberKey)) {throw new AppException(ErrorCode.NO_RELATION);}

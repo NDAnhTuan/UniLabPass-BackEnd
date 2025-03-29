@@ -24,6 +24,4 @@ public class LogCreationRequest {
     @Schema(example = "LEGAL/ILLEGAL", description = "Illegal/legal identification field for facial authentication process (if wrong 3 times is illegal)")
     LogType logType;
 
-    @Schema(example = "https://firebasestorage.googleapis.com/v0/b/your-project-id.appspot.com/o/images%2Fprofile.jpg?alt=media")
-    String photoURL;
 }

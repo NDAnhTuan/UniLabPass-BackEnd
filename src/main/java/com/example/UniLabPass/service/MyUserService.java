@@ -19,7 +19,9 @@ import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.*;
@@ -36,10 +38,11 @@ public class MyUserService {
     PasswordEncoder passwordEncoder;
 
     EmailService emailService;
+    CloudinaryService cloudinaryService;
     GlobalUtils globalUtils;
 
 
-    public MyUserResponse createMyUser(MyUserCreationRequest request, Role role) {
+    public MyUserResponse createMyUser(MyUserCreationRequest request, Role role, MultipartFile file) throws IOException {
         MyUser myUser = myUserMapper.toMyUser(request);
         myUser.setId(request.getId() != null ? request.getId() : UUID.randomUUID().toString());
 
@@ -60,6 +63,8 @@ public class MyUserService {
             myUser.setExpiryVerificationCode(new Date());
             myUser.setRoles(new HashSet<>());
         }
+        // set photoURL
+        myUser = uploadImage(myUser,file);
         try {
             myUser = myUserRepository.save(myUser);
         }
@@ -83,7 +88,7 @@ public class MyUserService {
 
     }
 //    @PreAuthorize("hasAuthority('ROLE_ADMIN')")
-    public MyUserResponse updateMyUser(String userId,MyUserUpdateRequest request) {
+    public MyUserResponse updateMyUser(String userId,MyUserUpdateRequest request, MultipartFile file) throws IOException {
         MyUser myUser = myUserRepository.findById(userId).orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
         myUserMapper.updateMyUser(myUser, request);
         if (request.getPassword() != null && !request.getPassword().isEmpty())
@@ -91,11 +96,23 @@ public class MyUserService {
         var roles = request.getRoles() != null ?
                 roleRepository.findAllById(request.getRoles()) : new ArrayList<com.example.UniLabPass.entity.Role>();
         myUser.setRoles(new HashSet<>(roles));
+        // set photoURL
+        myUser = uploadImage(myUser,file);
 
         return myUserMapper.toMyUserResponse(myUserRepository.save(myUser));
     }
+
+    private MyUser uploadImage(MyUser myUser, MultipartFile file) throws IOException {
+        if (file != null) {
+            myUser.setPhotoURL(
+                    cloudinaryService.uploadFileMyUser(myUser.getId(), file).getUrl()
+            );
+        }
+        return myUser;
+    }
 //    @PreAuthorize("hasAuthority('ROLE_ADMIN')")
-    public void deleteMyUser(String userId) {
+    public void deleteMyUser(String userId) throws IOException {
+        cloudinaryService.deleteFile(userId);
         myUserRepository.deleteById(userId);
     }
     //Protect Method before access

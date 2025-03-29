@@ -22,7 +22,9 @@ import lombok.experimental.NonFinal;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -36,6 +38,8 @@ public class LabEventService {
     LabEventRepository labEventRepository;
     EventGuestRepository eventGuestRepository;
     EventLogRepository eventLogRepository;
+
+    CloudinaryService cloudinaryService;
 
     EventMapper eventMapper;
     EventGuestMapper eventGuestMapper;
@@ -94,9 +98,13 @@ public class LabEventService {
     }
 
     // Delete event
-    public void deleteEvent(String eventId) {
+    public void deleteEvent(String eventId) throws IOException {
         checkEventExists(eventId);
         // Delete all event logs and guest
+        var eventLog = eventLogRepository.findAllByEventId(eventId);
+        for (EventLog event: eventLog) {
+            cloudinaryService.deleteFile(event.getId());
+        }
         eventLogRepository.deleteAllByEventId(eventId);
         eventGuestRepository.deleteAllByEventGuestKey_EventId(eventId);
         labEventRepository.deleteById(eventId);
@@ -175,7 +183,7 @@ public class LabEventService {
     }
 
     // Add event log
-    public EventLogRespond addEventLog(EventLogCreationRequest request) {
+    public EventLogRespond addEventLog(EventLogCreationRequest request, MultipartFile file) throws IOException {
         if (request.getEventId() == null
         || request.getGuestId() == null
         || request.getRecordType() == null) {
@@ -200,6 +208,13 @@ public class LabEventService {
 
         if (newLog.getRecordType() == RecordType.CHECKOUT && recentLog.getRecordType() == RecordType.CHECKOUT) {
             throw new AppException(ErrorCode.DUPLICATE_CHECK_OUT);
+        }
+
+        if (file != null) {
+            newLog.setPhotoURL(
+                    cloudinaryService.uploadFileLog(
+                            newLog.getId(), file, "Event").getUrl()
+            );
         }
         return eventLogMapper.toEventLogRespond(eventLogRepository.save(newLog));
 

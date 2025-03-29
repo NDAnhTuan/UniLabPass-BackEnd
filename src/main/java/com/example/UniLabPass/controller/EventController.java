@@ -110,7 +110,7 @@ public class EventController {
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Delete event successfully"),
     })
-    CustomApiResponse<String> deleteEvent(@PathVariable String eventId) {
+    CustomApiResponse<String> deleteEvent(@PathVariable String eventId) throws IOException {
         labEventService.deleteEvent(eventId);
         return CustomApiResponse.<String>builder()
                 .result("Delete event successfully")

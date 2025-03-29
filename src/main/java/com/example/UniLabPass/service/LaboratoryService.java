@@ -19,6 +19,7 @@ import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -77,7 +78,7 @@ public class LaboratoryService {
         return labMapper.toLabResponse(labRepository.save(lab));
     }
     // Delete laboratory
-    public void deleteLaboratory(String labId) {
+    public void deleteLaboratory(String labId) throws IOException {
         // Check if user is MANAGER of lab
         globalUtils.checkAuthorizeManager(labId);
 

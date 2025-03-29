@@ -33,31 +33,22 @@ public class CloudinaryService {
     EventLogRepository eventLogRepository;
 
     // Update ảnh (ghi đè lên ảnh cũ bằng publicId)
-    public CloudinaryResponse uploadFileMyUser(String userId, String labId, MultipartFile file) throws IOException {
-        MyUser myUser =  myUserRepository.findById(userId).orElseThrow(
-                () -> new AppException(ErrorCode.USER_NOT_EXISTED));
-
+    public CloudinaryResponse uploadFileMyUser(String userId, MultipartFile file) throws IOException {
         try {
             // Upload ảnh lên Cloudinary
             var imageObj = cloudinary.uploader().upload(file.getBytes(),
-                    ObjectUtils.asMap("public_id", myUser.getId(), "overwrite", true));
-
-            // Lưu photoURL vào MyUser
-            myUser.setPhotoURL(imageObj.get("url").toString());
-            myUserRepository.save(myUser);
-
+                    ObjectUtils.asMap("public_id", userId, "overwrite", true));
             // Trả về thông tin upload thành công
             return CloudinaryResponse.builder()
-                    .userId(myUser.getId())
-                    .url(myUser.getPhotoURL())
+                    .id(imageObj.get("public_id").toString())
+                    .url(imageObj.get("url").toString())
                     .build();
         } catch (RuntimeException e) {
-            if (!labId.isEmpty()) labMemberRepository.deleteById(new LabMemberKey(labId,myUser.getId()));
             throw new AppException(ErrorCode.UPLOAD_FAILED);
         }
     }
 
-    public CloudinaryResponse uploadFileLogEvent(String logId, MultipartFile file) throws IOException {
+    private CloudinaryResponse uploadFileLogEvent(String logId, MultipartFile file) throws IOException {
         var log = eventLogRepository.findById(logId).orElseThrow(() -> new AppException(ErrorCode.LOG_NOT_EXIST));
 
         try {
@@ -71,7 +62,7 @@ public class CloudinaryService {
 
             // Trả về thông tin upload thành công
             return CloudinaryResponse.builder()
-                    .userId(log.getId())
+                    .id(log.getId())
                     .url(log.getPhotoURL())
                     .build();
         } catch (RuntimeException e) {
@@ -97,7 +88,7 @@ public class CloudinaryService {
 
             // Trả về thông tin upload thành công
             return CloudinaryResponse.builder()
-                    .userId(log.getId())
+                    .id(log.getId())
                     .url(log.getPhotoURL())
                     .build();
         } catch (RuntimeException e) {
@@ -106,26 +97,8 @@ public class CloudinaryService {
         }
     }
 
-    // Xóa ảnh bằng userId
-    public void deleteFileUser(String userId) throws IOException {
-        MyUser myUser = myUserRepository.findById(userId).orElseThrow(
-                () -> new AppException(ErrorCode.USER_NOT_EXISTED)
-        );
-        cloudinary.uploader().destroy(myUser.getId(), ObjectUtils.emptyMap());
-        myUser.setPhotoURL("");
-        myUserRepository.save(myUser);
-    }
-    public void deleteFileLog(String logId) throws IOException {
-        LaboratoryLog laboratoryLog = logRepository.findById(logId).orElse(null);
-        EventLog eventLog = eventLogRepository.findById(logId).orElse(null);
-
-        cloudinary.uploader().destroy(laboratoryLog != null ? laboratoryLog.getId() : eventLog.getId(), ObjectUtils.emptyMap());
-        if (laboratoryLog != null) {
-            laboratoryLog.setPhotoURL("");
-            logRepository.save(laboratoryLog);
-        } else {
-            eventLog.setPhotoURL("");
-            eventLogRepository.save(eventLog);
-        }
+    // Xóa ảnh bằng Id
+    public void deleteFile(String id) throws IOException {
+        cloudinary.uploader().destroy(id, ObjectUtils.emptyMap());
     }
 }

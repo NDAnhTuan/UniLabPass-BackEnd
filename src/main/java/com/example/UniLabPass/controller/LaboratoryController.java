@@ -18,6 +18,7 @@ import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
 
+import java.io.IOException;
 import java.util.List;
 
 @RestController
@@ -64,7 +65,7 @@ public class LaboratoryController {
             @ApiResponse(responseCode = "403", description = "Accessing the resource you were trying to reach is forbidden" , content = @Content(schema = @Schema(implementation = ErrorApiResponse.class))),
     })
     @DeleteMapping("/{labId}")
-    CustomApiResponse<String> deleteLab(@PathVariable("labId") String labId) {
+    CustomApiResponse<String> deleteLab(@PathVariable("labId") String labId) throws IOException {
         laboratoryService.deleteLaboratory(labId);
         return CustomApiResponse.<String>builder()
                 .result("Lab deleted successfully")
