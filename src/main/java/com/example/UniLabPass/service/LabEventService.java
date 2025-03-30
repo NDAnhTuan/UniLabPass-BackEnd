@@ -210,11 +210,16 @@ public class LabEventService {
             throw new AppException(ErrorCode.DUPLICATE_CHECK_OUT);
         }
 
-        if (file != null) {
-            newLog.setPhotoURL(
-                    cloudinaryService.uploadFileLog(
-                            newLog.getId(), file, "Event").getUrl()
-            );
+        try {
+            if (file != null) {
+                newLog.setPhotoURL(
+                        cloudinaryService.uploadFileLog(
+                                newLog.getId(), file, "Event").getUrl()
+                );
+            }
+        }
+        catch (AppException e) {
+            throw new AppException(e.getErrorCode());
         }
         return eventLogMapper.toEventLogRespond(eventLogRepository.save(newLog));
 

@@ -1,6 +1,7 @@
 package com.example.UniLabPass.service;
 
 import com.cloudinary.Cloudinary;
+import com.cloudinary.Transformation;
 import com.cloudinary.utils.ObjectUtils;
 import com.example.UniLabPass.compositekey.LabMemberKey;
 import com.example.UniLabPass.dto.response.CloudinaryResponse;
@@ -16,6 +17,7 @@ import com.example.UniLabPass.repository.MyUserRepository;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -24,6 +26,7 @@ import java.io.IOException;
 @Service
 @RequiredArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
+@Slf4j
 public class CloudinaryService {
 
     Cloudinary cloudinary;
@@ -37,13 +40,21 @@ public class CloudinaryService {
         try {
             // Upload ảnh lên Cloudinary
             var imageObj = cloudinary.uploader().upload(file.getBytes(),
-                    ObjectUtils.asMap("public_id", userId, "overwrite", true));
+                    ObjectUtils.asMap("public_id", userId,
+                            "transformation", new Transformation()
+                                    .fetchFormat("auto")
+                                    .quality("auto")
+                                    .width(1024)   // ✅ Resize ảnh về 1024px
+                                    .height(1024)  // ✅ Giới hạn tối đa 1024px
+                                    .crop("limit"), // ✅ Giữ tỷ lệ ảnh,
+                            "overwrite", true));
             // Trả về thông tin upload thành công
             return CloudinaryResponse.builder()
                     .id(imageObj.get("public_id").toString())
                     .url(imageObj.get("url").toString())
                     .build();
         } catch (RuntimeException e) {
+            log.info(e.getMessage());
             throw new AppException(ErrorCode.UPLOAD_FAILED);
         }
     }

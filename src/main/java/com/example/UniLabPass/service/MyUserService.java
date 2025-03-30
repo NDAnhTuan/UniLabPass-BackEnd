@@ -64,7 +64,12 @@ public class MyUserService {
             myUser.setRoles(new HashSet<>());
         }
         // set photoURL
-        myUser = uploadImage(myUser,file);
+        try {
+            myUser = uploadImage(myUser, file);
+        }
+        catch (RuntimeException e) {
+            throw new AppException(ErrorCode.UPLOAD_FAILED);
+        }
         try {
             myUser = myUserRepository.save(myUser);
         }
@@ -97,7 +102,12 @@ public class MyUserService {
                 roleRepository.findAllById(request.getRoles()) : new ArrayList<com.example.UniLabPass.entity.Role>();
         myUser.setRoles(new HashSet<>(roles));
         // set photoURL
-        myUser = uploadImage(myUser,file);
+        try {
+            myUser = uploadImage(myUser, file);
+        }
+        catch (RuntimeException e) {
+            throw new AppException(ErrorCode.UPLOAD_FAILED);
+        }
 
         return myUserMapper.toMyUserResponse(myUserRepository.save(myUser));
     }

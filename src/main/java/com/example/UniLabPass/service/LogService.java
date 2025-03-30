@@ -93,11 +93,16 @@ public class LogService {
             throw new AppException(ErrorCode.DUPLICATE_CHECK_OUT);
         }
 
-        if (file != null) {
-            newRecord.setPhotoURL(
-                    cloudinaryService.uploadFileLog(
-                            newRecord.getId(), file, "Normal").getUrl()
-            );
+        try {
+            if (file != null) {
+                newRecord.setPhotoURL(
+                        cloudinaryService.uploadFileLog(
+                                newRecord.getId(), file, "Normal").getUrl()
+                );
+            }
+        }
+        catch (AppException e) {
+            throw new AppException(e.getErrorCode());
         }
         return logMapper.toLogRespond(logRepository.save(newRecord));
     }
