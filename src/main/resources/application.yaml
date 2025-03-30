@@ -4,6 +4,8 @@ server:
     context-path: /api
 
 app:
+  services:
+    model: "https://unilabpass-faceverification.onrender.com"
   Global:
     VNHour: 7
 
