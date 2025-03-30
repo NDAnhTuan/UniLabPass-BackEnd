@@ -36,9 +36,9 @@ public class ModelController {
             @ApiResponse(responseCode = "200")
     })
     @PostMapping(value = "/verify", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    CustomApiResponse<String> verify(@RequestPart("image1") MultipartFile image1,
+    CustomApiResponse<Object> verify(@RequestPart("image1") MultipartFile image1,
                                      @RequestPart("image2") MultipartFile image2)  {
-        return CustomApiResponse.<String>builder()
+        return CustomApiResponse.<Object>builder()
                 .result(modelService.verify(image1,image2))
                 .build();
     }

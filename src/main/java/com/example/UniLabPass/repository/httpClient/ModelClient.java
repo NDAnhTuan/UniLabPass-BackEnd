@@ -7,12 +7,11 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.multipart.MultipartFile;
 
-// Việc giao tiếp giữa các service sẽ thông qua url và sử dụng FeignClient
 @FeignClient(name = "model-service", url = "${app.services.model}")
 public interface ModelClient {
     @PostMapping(value = "/verify", consumes = MediaType.MULTIPART_FORM_DATA_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE)
-    String verify(@RequestPart("image1") MultipartFile image1,
+    Object verify(@RequestPart("image1") MultipartFile image1,
                          @RequestPart("image2") MultipartFile image2);
     @GetMapping(value = "/healthcheck", produces = MediaType.APPLICATION_JSON_VALUE)
     String healthcheck();

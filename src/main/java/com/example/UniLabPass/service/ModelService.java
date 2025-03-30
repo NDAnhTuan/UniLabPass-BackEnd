@@ -15,7 +15,7 @@ import org.springframework.web.multipart.MultipartFile;
 public class ModelService {
     ModelClient modelClient;
 
-    public String verify(MultipartFile image1, MultipartFile image2) {
+    public Object verify(MultipartFile image1, MultipartFile image2) {
         return modelClient.verify(image1,image2);
     }
 
