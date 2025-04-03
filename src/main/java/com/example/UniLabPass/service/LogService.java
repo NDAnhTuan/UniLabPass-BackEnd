@@ -92,7 +92,7 @@ public class LogService {
         if (newRecord.getRecordType() == RecordType.CHECKOUT && recentLog!= null && recentLog.getRecordType() == RecordType.CHECKOUT) {
             throw new AppException(ErrorCode.DUPLICATE_CHECK_OUT);
         }
-
+        newRecord = logRepository.save(newRecord);
         try {
             if (file != null) {
                 newRecord.setPhotoURL(
