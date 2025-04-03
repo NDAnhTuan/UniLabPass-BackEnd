@@ -68,8 +68,8 @@ public class LogService {
 
         LaboratoryLog recentLog = logRepository
                 .findFirstByUserIdAndLabIdAndStatusOrderByRecordTimeDesc(
-                        newRecord.getUserId(), newRecord.getLabId(), LogStatus.SUCCESS).orElseThrow(
-                        () -> new AppException(ErrorCode.LOG_NOT_EXIST)
+                        newRecord.getUserId(), newRecord.getLabId(), LogStatus.SUCCESS).orElse(
+                        null
                 );
         // Check if user has been blocked or not
         LabMember member = labMemberRepository.findById(new LabMemberKey(newRecord.getLabId(), newRecord.getUserId()))
@@ -84,12 +84,12 @@ public class LogService {
         }
 
         if (newRecord.getRecordType() == RecordType.CHECKIN) {
-            if (recentLog.getRecordType() == RecordType.CHECKIN) throw new AppException(ErrorCode.DUPLICATE_CHECK_IN);
+            if (recentLog!= null && recentLog.getRecordType() == RecordType.CHECKIN) throw new AppException(ErrorCode.DUPLICATE_CHECK_IN);
             else if (request.getLogType() == LogType.ILLEGAL &&
                     newRecord.getPhotoURL() == null) throw new AppException(ErrorCode.LOG_CREATE_ERROR);
         }
 
-        if (newRecord.getRecordType() == RecordType.CHECKOUT && recentLog.getRecordType() == RecordType.CHECKOUT) {
+        if (newRecord.getRecordType() == RecordType.CHECKOUT && recentLog!= null && recentLog.getRecordType() == RecordType.CHECKOUT) {
             throw new AppException(ErrorCode.DUPLICATE_CHECK_OUT);
         }
 
