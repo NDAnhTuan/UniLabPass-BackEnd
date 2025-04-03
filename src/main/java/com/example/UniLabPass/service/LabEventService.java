@@ -197,18 +197,20 @@ public class LabEventService {
 
         EventLog recentLog = eventLogRepository
                 .findFirstByGuestIdAndEventIdOrderByRecordTimeDesc(
-                        newLog.getGuestId(), newLog.getEventId()).orElseThrow(
-                        () -> new AppException(ErrorCode.LOG_NOT_EXIST)
+                        newLog.getGuestId(), newLog.getEventId()).orElse(
+                        null
                 );
 
         if (newLog.getRecordType() == RecordType.CHECKIN) {
-            if (recentLog.getRecordType() == RecordType.CHECKIN) throw new AppException(ErrorCode.DUPLICATE_CHECK_IN);
+            if (recentLog!= null && recentLog.getRecordType() == RecordType.CHECKIN) throw new AppException(ErrorCode.DUPLICATE_CHECK_IN);
             else if (newLog.getPhotoURL() == null) throw new AppException(ErrorCode.LOG_CREATE_ERROR);
         }
 
-        if (newLog.getRecordType() == RecordType.CHECKOUT && recentLog.getRecordType() == RecordType.CHECKOUT) {
+        if (newLog.getRecordType() == RecordType.CHECKOUT && recentLog!= null && recentLog.getRecordType() == RecordType.CHECKOUT) {
             throw new AppException(ErrorCode.DUPLICATE_CHECK_OUT);
         }
+
+        newLog = eventLogRepository.save(newLog);
 
         try {
             if (file != null) {
