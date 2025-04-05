@@ -78,20 +78,18 @@ public class LogService {
             logRepository.save(newRecord);
             throw new AppException(ErrorCode.BLOCKED_USER);
         }
-        else if (request.getLogType() == LogType.ILLEGAL) {
-            if (newRecord.getRecordType() == RecordType.CHECKIN && file == null) throw new AppException(ErrorCode.LOG_CREATE_ERROR);
-            else newRecord.setStatus(LogStatus.ILLEGAL);
-        }
-        else {
+        else if (request.getLogType() == LogType.LEGAL) {
+            if (newRecord.getRecordType() == RecordType.CHECKIN) {
+                if (recentLog!= null && recentLog.getRecordType() == RecordType.CHECKIN) throw new AppException(ErrorCode.DUPLICATE_CHECK_IN);
+                else if (file == null) throw new AppException(ErrorCode.LOG_CREATE_ERROR);
+            }
+            if (newRecord.getRecordType() == RecordType.CHECKOUT && recentLog!= null && recentLog.getRecordType() == RecordType.CHECKOUT) {
+                throw new AppException(ErrorCode.DUPLICATE_CHECK_OUT);
+            }
             newRecord.setStatus(LogStatus.SUCCESS);
         }
-
-        if (newRecord.getRecordType() == RecordType.CHECKIN) {
-            if (recentLog!= null && recentLog.getRecordType() == RecordType.CHECKIN) throw new AppException(ErrorCode.DUPLICATE_CHECK_IN);
-        }
-
-        if (newRecord.getRecordType() == RecordType.CHECKOUT && recentLog!= null && recentLog.getRecordType() == RecordType.CHECKOUT) {
-            throw new AppException(ErrorCode.DUPLICATE_CHECK_OUT);
+        else {
+            newRecord.setStatus(LogStatus.ILLEGAL);
         }
         newRecord = logRepository.save(newRecord);
         try {
