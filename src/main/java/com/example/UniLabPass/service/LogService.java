@@ -68,9 +68,8 @@ public class LogService {
 
         LaboratoryLog recentLog = logRepository
                 .findFirstByUserIdAndLabIdAndStatusOrderByRecordTimeDesc(
-                        newRecord.getUserId(), newRecord.getLabId(), LogStatus.SUCCESS).orElse(
-                        null
-                );
+                        newRecord.getUserId(), newRecord.getLabId(), LogStatus.SUCCESS)
+                .orElse(null);
         // Check if user has been blocked or not
         LabMember member = labMemberRepository.findById(new LabMemberKey(newRecord.getLabId(), newRecord.getUserId()))
                 .orElseThrow(() -> new AppException(ErrorCode.NO_RELATION));
@@ -79,14 +78,16 @@ public class LogService {
             logRepository.save(newRecord);
             throw new AppException(ErrorCode.BLOCKED_USER);
         }
+        else if (request.getLogType() == LogType.ILLEGAL) {
+            if (newRecord.getRecordType() == RecordType.CHECKIN && file == null) throw new AppException(ErrorCode.LOG_CREATE_ERROR);
+            else newRecord.setStatus(LogStatus.ILLEGAL);
+        }
         else {
             newRecord.setStatus(LogStatus.SUCCESS);
         }
 
         if (newRecord.getRecordType() == RecordType.CHECKIN) {
             if (recentLog!= null && recentLog.getRecordType() == RecordType.CHECKIN) throw new AppException(ErrorCode.DUPLICATE_CHECK_IN);
-            else if (request.getLogType() == LogType.ILLEGAL &&
-                    file != null) throw new AppException(ErrorCode.LOG_CREATE_ERROR);
         }
 
         if (newRecord.getRecordType() == RecordType.CHECKOUT && recentLog!= null && recentLog.getRecordType() == RecordType.CHECKOUT) {
