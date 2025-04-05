@@ -202,8 +202,8 @@ public class LabEventService {
                 );
 
         if (newLog.getRecordType() == RecordType.CHECKIN) {
-            if (recentLog!= null && recentLog.getRecordType() == RecordType.CHECKIN) throw new AppException(ErrorCode.DUPLICATE_CHECK_IN);
-            else if (newLog.getPhotoURL() == null) throw new AppException(ErrorCode.LOG_CREATE_ERROR);
+            if (recentLog != null && recentLog.getRecordType() == RecordType.CHECKIN) throw new AppException(ErrorCode.DUPLICATE_CHECK_IN);
+            else if (file != null) throw new AppException(ErrorCode.LOG_CREATE_ERROR);
         }
 
         if (newLog.getRecordType() == RecordType.CHECKOUT && recentLog!= null && recentLog.getRecordType() == RecordType.CHECKOUT) {
