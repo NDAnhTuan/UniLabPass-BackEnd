@@ -78,8 +78,13 @@ public class LogService {
             logRepository.save(newRecord);
             throw new AppException(ErrorCode.BLOCKED_USER);
         }
+        // If illegal, check if the file exists
+        else if (request.getLogType() == LogType.ILLEGAL) {
+            if (newRecord.getRecordType() == RecordType.CHECKIN && file == null) throw new AppException(ErrorCode.LOG_CREATE_ERROR);
+            newRecord.setStatus(LogStatus.ILLEGAL);
+        }
         // If legal, check duplicate
-        else if (request.getLogType() == LogType.LEGAL) {
+        else {
             if (newRecord.getRecordType() == RecordType.CHECKIN) {
                 if (recentLog!= null && recentLog.getRecordType() == RecordType.CHECKIN) throw new AppException(ErrorCode.DUPLICATE_CHECK_IN);
             }
@@ -87,11 +92,6 @@ public class LogService {
                 throw new AppException(ErrorCode.DUPLICATE_CHECK_OUT);
             }
             newRecord.setStatus(LogStatus.SUCCESS);
-        }
-        // If illegal, check if the file exists
-        else {
-            if (newRecord.getRecordType() == RecordType.CHECKIN && file == null) throw new AppException(ErrorCode.LOG_CREATE_ERROR);
-            newRecord.setStatus(LogStatus.ILLEGAL);
         }
         newRecord = logRepository.save(newRecord);
         try {
