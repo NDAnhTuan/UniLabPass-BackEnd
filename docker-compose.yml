@@ -1,7 +1,7 @@
 
 services:
   spring-app:
-    image: nguyenducanhtuan0602/unilabpass-backend:v1
+    image: nguyenducanhtuan0602/unilabpass-backend:v2
     ports:
       - "8080:8080"
     env_file:
