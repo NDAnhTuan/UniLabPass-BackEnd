@@ -70,18 +70,21 @@ public class LogService {
                 .findFirstByUserIdAndLabIdAndStatusOrderByRecordTimeDesc(
                         newRecord.getUserId(), newRecord.getLabId(), LogStatus.SUCCESS)
                 .orElse(null);
-        // Check if user has been blocked or not
         LabMember member = labMemberRepository.findById(new LabMemberKey(newRecord.getLabId(), newRecord.getUserId()))
                 .orElseThrow(() -> new AppException(ErrorCode.NO_RELATION));
-        if (member.getMemberStatus() == MemberStatus.BLOCKED) {
-            newRecord.setStatus(LogStatus.BLOCKED);
-            logRepository.save(newRecord);
-            throw new AppException(ErrorCode.BLOCKED_USER);
-        }
+        // Check if user has been blocked or not
+//        if (member.getMemberStatus() == MemberStatus.BLOCKED) {
+//            newRecord.setStatus(LogStatus.BLOCKED);
+//            logRepository.save(newRecord);
+//            throw new AppException(ErrorCode.BLOCKED_USER);
+//        }
         // If illegal, check if the file exists
-        else if (request.getLogType() == LogType.ILLEGAL) {
+//        else
+        if (request.getLogType() == LogType.ILLEGAL) {
             if (newRecord.getRecordType() == RecordType.CHECKIN && file == null) throw new AppException(ErrorCode.LOG_CREATE_ERROR);
             newRecord.setStatus(LogStatus.ILLEGAL);
+            member.setMemberStatus(MemberStatus.BLOCKED);
+            labMemberRepository.save(member);
         }
         // If legal, check duplicate
         else {
