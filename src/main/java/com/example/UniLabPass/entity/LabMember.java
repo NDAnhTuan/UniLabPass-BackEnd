@@ -6,6 +6,8 @@ import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
+import java.time.LocalDateTime;
+
 @Data
 @Builder
 @NoArgsConstructor
@@ -32,5 +34,9 @@ public class LabMember {
 
     @Column(nullable = false)
     MemberStatus memberStatus = MemberStatus.ACTIVE;
+
+    int remainVerify;
+
+    LocalDateTime expiryRemain;
 
 }

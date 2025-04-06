@@ -37,9 +37,10 @@ public class ModelController {
     })
     @PostMapping(value = "/verify", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     CustomApiResponse<Object> verify(@RequestPart("image1") MultipartFile image1,
-                                     @RequestPart("userId") String userId) throws IOException {
+                                     @RequestPart("userId") String userId,
+                                     @RequestPart("labId") String labId) throws IOException {
         return CustomApiResponse.<Object>builder()
-                .result(modelService.verify(image1,userId))
+                .result(modelService.verify(image1,userId, labId))
                 .build();
     }
 

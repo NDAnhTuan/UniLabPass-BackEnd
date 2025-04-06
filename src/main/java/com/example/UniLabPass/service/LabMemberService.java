@@ -20,8 +20,10 @@ import com.example.UniLabPass.utils.GlobalUtils;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
+import lombok.experimental.NonFinal;
 import lombok.extern.slf4j.Slf4j;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -49,6 +51,9 @@ public class LabMemberService {
     LogRepository logRepository;
 
     GlobalUtils globalUtils;
+    @NonFinal
+    @Value("${app.Global.RemainVerify}")
+    int RemainVerify;
 
 
     public void addLabMember(LabMemberCreationRequest request, MultipartFile file) throws IOException {
@@ -105,6 +110,8 @@ public class LabMemberService {
         labMember.setRole(roleRepository.findById(request.getRole()).orElseThrow(() -> new AppException(ErrorCode.ROLE_NOT_EXISTED)));
         labMember.setLab(lab);
         labMember.setMyUser(myUser);
+        labMember.setRemainVerify(RemainVerify);
+        labMember.setExpiryRemain(LocalDateTime.now());
         labMemberRepository.save(labMember);
     }
     public List<LabMemberResponse> getLabMembers(String labId) {
