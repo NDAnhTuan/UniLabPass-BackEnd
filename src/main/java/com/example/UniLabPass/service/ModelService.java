@@ -62,7 +62,11 @@ public class ModelService {
         // Nếu chưa hết hạn
         if (labMember.getExpiryRemain().isAfter(LocalDateTime.now())) {
             labMember.setRemainVerify(labMember.getRemainVerify() - 1);
-            if (labMember.getRemainVerify() == 0) isIllegal = true;
+            if (labMember.getRemainVerify() == 0) {
+                isIllegal = true;
+                labMember.setRemainVerify(RemainVerify);
+                labMember.setExpiryRemain(LocalDateTime.now().plusMinutes(5));
+            }
         }
         // Đã hết hạn
         else {
