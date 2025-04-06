@@ -9,6 +9,8 @@ import com.example.UniLabPass.repository.LabMemberRepository;
 import com.example.UniLabPass.repository.MyUserRepository;
 import com.example.UniLabPass.repository.httpClient.ModelClient;
 import com.example.UniLabPass.utils.ByteArrayMultipartFile;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
@@ -54,31 +56,48 @@ public class ModelService {
             fileBytes = buffer.toByteArray();
         }
 
+        // Chuyển thành MultipartFile
+        MultipartFile image2 = new ByteArrayMultipartFile("file", "downloaded_file.jpg", "image/jpeg", fileBytes);
+        // Gọi model
+        Object modelResponse = modelClient.verify(image1, image2);
+        // Parse JSON động
+        ObjectMapper objectMapper = new ObjectMapper();
+        JsonNode root = objectMapper.readTree(modelResponse.toString());
+
+        // Truy cập trường samePerson
+        boolean samePerson = root.get("samePerson").asBoolean();
         boolean isIllegal = false;
 
         LabMember labMember = labMemberRepository.findById(new LabMemberKey(labId,userId)).orElseThrow(
                 () -> new AppException(ErrorCode.MEMBER_NOT_EXISTED)
         );
-        // Nếu chưa hết hạn
-        if (labMember.getExpiryRemain().isAfter(LocalDateTime.now())) {
-            labMember.setRemainVerify(labMember.getRemainVerify() - 1);
-            if (labMember.getRemainVerify() == 0) {
-                isIllegal = true;
+        if (samePerson) {
+            labMember.setRemainVerify(RemainVerify);
+            labMember.setExpiryRemain(LocalDateTime.now());
+        }
+        //Trường hợp mặt không giống
+        else {
+            // Nếu chưa hết hạn
+            if (labMember.getExpiryRemain().isAfter(LocalDateTime.now())) {
+                labMember.setRemainVerify(labMember.getRemainVerify() - 1);
+                if (labMember.getRemainVerify() == 0) {
+                    isIllegal = true;
+                    labMember.setRemainVerify(RemainVerify);
+                    labMember.setExpiryRemain(LocalDateTime.now().plusMinutes(5));
+                }
+            }
+            // Đã hết hạn (nghĩa là đây là lần đầu)
+            else {
                 labMember.setRemainVerify(RemainVerify);
                 labMember.setExpiryRemain(LocalDateTime.now().plusMinutes(5));
+                labMember.setRemainVerify(labMember.getRemainVerify() - 1);
             }
-        }
-        // Đã hết hạn
-        else {
-            labMember.setRemainVerify(RemainVerify);
-            labMember.setExpiryRemain(LocalDateTime.now().plusMinutes(5));
         }
         labMemberRepository.save(labMember);
 
-        // Chuyển thành MultipartFile
-        MultipartFile image2 = new ByteArrayMultipartFile("file", "downloaded_file.jpg", "image/jpeg", fileBytes);
+
         Map<String, Object> response = new HashMap<>();
-        response.put("result", modelClient.verify(image1, image2));
+        response.put("result", modelResponse);
         response.put("isIllegal", isIllegal);
 
         return response;
