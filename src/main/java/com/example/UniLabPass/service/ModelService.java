@@ -17,6 +17,7 @@ import lombok.experimental.FieldDefaults;
 import lombok.experimental.NonFinal;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -59,45 +60,54 @@ public class ModelService {
         // Chuyển thành MultipartFile
         MultipartFile image2 = new ByteArrayMultipartFile("file", "downloaded_file.jpg", "image/jpeg", fileBytes);
         // Gọi model
-        Object modelResponse = modelClient.verify(image1, image2);
+        ResponseEntity<String> modelResponse = modelClient.verify(image1, image2);
         // Parse JSON động
         ObjectMapper objectMapper = new ObjectMapper();
-        JsonNode root = objectMapper.readTree(modelResponse.toString());
+        JsonNode root;
 
         // Truy cập trường samePerson
-        boolean samePerson = root.get("samePerson").asBoolean();
+        boolean samePerson = false;
+        var error = "";
+        String body = modelResponse.getBody();
+        root = objectMapper.readTree(body);
+        if (root.get("samePerson") != null)
+            samePerson = root.get("samePerson").asBoolean();
+        if (root.get("error") != null)
+            error = root.get("error").toString();
         boolean isIllegal = false;
 
-        LabMember labMember = labMemberRepository.findById(new LabMemberKey(labId,userId)).orElseThrow(
-                () -> new AppException(ErrorCode.MEMBER_NOT_EXISTED)
-        );
-        if (samePerson) {
-            labMember.setRemainVerify(RemainVerify);
-            labMember.setExpiryRemain(LocalDateTime.now());
-        }
-        //Trường hợp mặt không giống
-        else {
-            // Nếu chưa hết hạn
-            if (labMember.getExpiryRemain().isAfter(LocalDateTime.now())) {
-                labMember.setRemainVerify(labMember.getRemainVerify() - 1);
-                if (labMember.getRemainVerify() == 0) {
-                    isIllegal = true;
+        if (error.equals("")) {
+            LabMember labMember = labMemberRepository.findById(new LabMemberKey(labId,userId)).orElseThrow(
+                    () -> new AppException(ErrorCode.MEMBER_NOT_EXISTED)
+            );
+            if (samePerson) {
+                labMember.setRemainVerify(RemainVerify);
+                labMember.setExpiryRemain(LocalDateTime.now());
+            }
+            //Trường hợp mặt không giống
+            else {
+                // Nếu chưa hết hạn
+                if (labMember.getExpiryRemain().isAfter(LocalDateTime.now())) {
+                    labMember.setRemainVerify(labMember.getRemainVerify() - 1);
+                    if (labMember.getRemainVerify() == 0) {
+                        isIllegal = true;
+                        labMember.setRemainVerify(RemainVerify);
+                        labMember.setExpiryRemain(LocalDateTime.now().plusMinutes(5));
+                    }
+                }
+                // Đã hết hạn (nghĩa là đây là lần đầu)
+                else {
                     labMember.setRemainVerify(RemainVerify);
                     labMember.setExpiryRemain(LocalDateTime.now().plusMinutes(5));
+                    labMember.setRemainVerify(labMember.getRemainVerify() - 1);
                 }
             }
-            // Đã hết hạn (nghĩa là đây là lần đầu)
-            else {
-                labMember.setRemainVerify(RemainVerify);
-                labMember.setExpiryRemain(LocalDateTime.now().plusMinutes(5));
-                labMember.setRemainVerify(labMember.getRemainVerify() - 1);
-            }
+            labMemberRepository.save(labMember);
         }
-        labMemberRepository.save(labMember);
 
 
         Map<String, Object> response = new HashMap<>();
-        response.put("result", modelResponse);
+        response.put("result", root);
         response.put("isIllegal", isIllegal);
 
         return response;
