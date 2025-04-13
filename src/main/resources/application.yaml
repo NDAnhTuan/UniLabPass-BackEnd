@@ -45,7 +45,7 @@ verification-code:
     code-length: 6
 jwt:
   signerKey: ${JWT_SIGNER_KEY}
-  valid-duration: 1800 # in seconds
-  refreshable-duration: 3600 # in seconds
+  valid-duration: 30 # in seconds
+  refreshable-duration: 60 # in seconds
 cloudinary:
   url: ${CLOUDINARY_URL}

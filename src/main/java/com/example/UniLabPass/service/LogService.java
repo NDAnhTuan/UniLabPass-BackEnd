@@ -34,6 +34,7 @@ import java.time.DayOfWeek;
 import java.time.LocalDateTime;
 import java.time.temporal.TemporalAdjusters;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 
 @Service
@@ -127,6 +128,7 @@ public class LogService {
             logElement.setUserLastName(user.getLastName());
             logList.add(logElement);
         }
+        logList.sort(Comparator.comparing(LogRespond::getRecordTime));
         return logList;
     }
 
