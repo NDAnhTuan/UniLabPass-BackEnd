@@ -128,7 +128,7 @@ public class LogService {
             logElement.setUserLastName(user.getLastName());
             logList.add(logElement);
         }
-        logList.sort(Comparator.comparing(LogRespond::getRecordTime));
+        logList.sort(Comparator.comparing(LogRespond::getRecordTime).reversed());
         return logList;
     }
 
