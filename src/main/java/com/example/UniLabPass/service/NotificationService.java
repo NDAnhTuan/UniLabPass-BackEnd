@@ -38,6 +38,11 @@ public class NotificationService {
         Notification notification = notificationRepository.findById(id).orElseThrow(
                 () -> new AppException(ErrorCode.NOTIFICATION_NOT_EXIST)
         );
+        MyUser myUser = myUserRepository.findById(notification.getUserId()).orElseThrow(
+                () -> new AppException(ErrorCode.USER_NOT_EXISTED)
+        );
+        if (!myUser.getId().equals(SecurityContextHolder.getContext().getAuthentication().getName()))
+            throw new AppException(ErrorCode.UNAUTHORIZED);
         notificationRepository.delete(notification);
     }
 }
