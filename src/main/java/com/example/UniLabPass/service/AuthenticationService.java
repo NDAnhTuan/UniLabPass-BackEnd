@@ -72,7 +72,7 @@ public class AuthenticationService {
         if (!myUser.isVerified()) {
             throw new AppException(ErrorCode.UNVERIFIED_EMAIL);
         }
-        if (!myUser.getExpoPushToken().equals(request.getExpoPushToken())) {
+        if (myUser.getExpoPushToken() == null || !myUser.getExpoPushToken().equals(request.getExpoPushToken())) {
             myUser.setExpoPushToken(request.getExpoPushToken());
             myUserRepository.save(myUser);
         }
