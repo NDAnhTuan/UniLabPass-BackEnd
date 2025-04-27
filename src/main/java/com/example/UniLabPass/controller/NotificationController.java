@@ -43,9 +43,10 @@ public class NotificationController {
                 .build();
     }
 
-    @DeleteMapping
+    @DeleteMapping("/{id}")
     @Operation(summary = "", security = {@SecurityRequirement(name = "BearerAuthentication")})
     public CustomApiResponse<Void> deleteNotification(@PathVariable("id") String id) {
+        notificationService.deleteNotification(id);
         return CustomApiResponse.<Void>builder().build();
     }
 }

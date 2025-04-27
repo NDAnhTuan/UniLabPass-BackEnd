@@ -41,7 +41,7 @@ public class NotificationService {
         MyUser myUser = myUserRepository.findById(notification.getUserId()).orElseThrow(
                 () -> new AppException(ErrorCode.USER_NOT_EXISTED)
         );
-        if (!myUser.getId().equals(SecurityContextHolder.getContext().getAuthentication().getName()))
+        if (!myUser.getEmail().equals(SecurityContextHolder.getContext().getAuthentication().getName()))
             throw new AppException(ErrorCode.UNAUTHORIZED);
         notificationRepository.delete(notification);
     }
