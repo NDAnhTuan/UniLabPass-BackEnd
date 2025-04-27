@@ -14,10 +14,7 @@ import com.example.UniLabPass.enums.*;
 import com.example.UniLabPass.exception.AppException;
 import com.example.UniLabPass.exception.ErrorCode;
 import com.example.UniLabPass.mapper.LogMapper;
-import com.example.UniLabPass.repository.LabMemberRepository;
-import com.example.UniLabPass.repository.LogRepository;
-import com.example.UniLabPass.repository.MyUserRepository;
-import com.example.UniLabPass.repository.NotificationRepository;
+import com.example.UniLabPass.repository.*;
 import com.example.UniLabPass.utils.GlobalUtils;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
@@ -39,6 +36,7 @@ import java.util.*;
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 @Slf4j
 public class LogService {
+    RoleRepository roleRepository;
     MyUserRepository myUserRepository;
     LabMemberRepository labMemberRepository;
     LogRepository logRepository;
@@ -76,9 +74,9 @@ public class LogService {
             if (newRecord.getRecordType() == RecordType.CHECKIN && file == null) throw new AppException(ErrorCode.LOG_CREATE_ERROR);
             newRecord.setStatus(LogStatus.ILLEGAL);
             member.setMemberStatus(MemberStatus.BLOCKED);
-            labMemberRepository.save(member);
             //Notify Task
             notifyIllegalAccess(request.getLabId());
+            labMemberRepository.save(member);
         }
         // If legal, check duplicate
         else {
@@ -213,7 +211,8 @@ public class LogService {
 
     private void notifyIllegalAccess(String LabId) {
         //Notify task
-        var managers = labMemberRepository.findAllByLabMemberId_LabIdAndRole(LabId, Role.MANAGER);
+        var managers = labMemberRepository.findAllByLabMemberId_LabIdAndRole(LabId, roleRepository.findById("MANAGER").orElse(null));
+        log.info(managers.toString());
         for (LabMember manager: managers) {
             if (manager.getMyUser().getExpoPushToken() == null) continue;
             expoPushService.sendPushNotification(
