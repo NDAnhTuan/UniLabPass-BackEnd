@@ -33,4 +33,11 @@ public class NotificationService {
                 notification -> notificationMapper.toNotificationResponse(notification)
         ).toList();
     }
+
+    public void deleteNotification(String id) {
+        Notification notification = notificationRepository.findById(id).orElseThrow(
+                () -> new AppException(ErrorCode.NOTIFICATION_NOT_EXIST)
+        );
+        notificationRepository.delete(notification);
+    }
 }

@@ -40,8 +40,8 @@ public enum ErrorCode {
     DUPLICATE_CHECK_IN(1027,"User/Member hasn’t CHECKOUT yet", HttpStatus.BAD_REQUEST),
     DUPLICATE_CHECK_OUT(1028,"User/Member hasn’t CHECKIN yet", HttpStatus.BAD_REQUEST),
     UPLOAD_FAILED(1029, "Upload image failed", HttpStatus.INTERNAL_SERVER_ERROR),
-    DEVICE_HAS_CHANGED
-            (1030, "Device has changed", HttpStatus.UNAUTHORIZED);
+    DEVICE_HAS_CHANGED(1030, "Device has changed", HttpStatus.UNAUTHORIZED),
+    NOTIFICATION_NOT_EXIST(1031,"There is no notification with this ID", HttpStatus.NOT_FOUND)
     ;
 
     int code;

@@ -1,20 +1,15 @@
 package com.example.UniLabPass.controller;
 
 import com.example.UniLabPass.dto.response.CustomApiResponse;
-import com.example.UniLabPass.dto.response.ErrorApiResponse;
 import com.example.UniLabPass.dto.response.NotificationResponse;
 import com.example.UniLabPass.service.ExpoPushService;
 import com.example.UniLabPass.service.NotificationService;
 import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.media.Content;
-import io.swagger.v3.oas.annotations.media.Schema;
-import io.swagger.v3.oas.annotations.responses.ApiResponse;
-import io.swagger.v3.oas.annotations.responses.ApiResponses;
+
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
-import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
@@ -46,5 +41,11 @@ public class NotificationController {
         return CustomApiResponse.<List<NotificationResponse>>builder()
                 .result(notificationService.getMyNotifications())
                 .build();
+    }
+
+    @DeleteMapping
+    @Operation(summary = "", security = {@SecurityRequirement(name = "BearerAuthentication")})
+    public CustomApiResponse<Void> deleteNotification(@PathVariable("id") String id) {
+        return CustomApiResponse.<Void>builder().build();
     }
 }
