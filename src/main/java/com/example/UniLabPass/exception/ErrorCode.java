@@ -39,7 +39,9 @@ public enum ErrorCode {
     BLOCKED_USER(1026, "Checkin/out denied since user has been blocked", HttpStatus.BAD_REQUEST),
     DUPLICATE_CHECK_IN(1027,"User/Member hasn’t CHECKOUT yet", HttpStatus.BAD_REQUEST),
     DUPLICATE_CHECK_OUT(1028,"User/Member hasn’t CHECKIN yet", HttpStatus.BAD_REQUEST),
-    UPLOAD_FAILED(1029, "Upload image failed", HttpStatus.INTERNAL_SERVER_ERROR);
+    UPLOAD_FAILED(1029, "Upload image failed", HttpStatus.INTERNAL_SERVER_ERROR),
+    DEVICE_HAS_CHANGED
+            (1030, "Device has changed", HttpStatus.UNAUTHORIZED);
     ;
 
     int code;

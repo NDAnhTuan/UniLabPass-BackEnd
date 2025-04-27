@@ -72,6 +72,10 @@ public class AuthenticationService {
         if (!myUser.isVerified()) {
             throw new AppException(ErrorCode.UNVERIFIED_EMAIL);
         }
+        if (!myUser.getExpoPushToken().equals(request.getExpoPushToken())) {
+            myUser.setExpoPushToken(request.getExpoPushToken());
+            myUserRepository.save(myUser);
+        }
         var token = generateToken(myUser);
 
         return AuthenticationResponse.builder()
@@ -174,7 +178,7 @@ public class AuthenticationService {
                 ))
                 .jwtID(UUID.randomUUID().toString())
                 .claim("scope", buildScope(myUser))
-
+                .claim("expoPushToken", myUser.getExpoPushToken())
                 .build();
 
         Payload payload = new Payload(jwtClaimsSet.toJSONObject());
@@ -210,6 +214,13 @@ public class AuthenticationService {
         JWSVerifier verifier = new MACVerifier(SIGNER_KEY.getBytes());
 
         SignedJWT signedJWT = SignedJWT.parse(token);
+        var expoPushToken = signedJWT.getJWTClaimsSet().getClaim("expoPushToken");
+        MyUser myUser = myUserRepository.findByEmail(signedJWT.getJWTClaimsSet().getSubject()).orElseThrow(
+                () -> new AppException(ErrorCode.UNAUTHENTICATED)
+        );
+
+        if (!myUser.getExpoPushToken().equals(expoPushToken))
+            throw new AppException(ErrorCode.DEVICE_HAS_CHANGED);
 
         Date expiryTime = isRefresh
                 ? new Date(signedJWT.getJWTClaimsSet().getIssueTime().toInstant()
@@ -219,6 +230,7 @@ public class AuthenticationService {
         var verified =  signedJWT.verify(verifier);
         if (!(verified && expiryTime.after(new Date())))
             throw new AppException(ErrorCode.UNAUTHENTICATED);
+
 
         if (invalidatedTokenRepository
                 .existsById(signedJWT.getJWTClaimsSet().getJWTID()))

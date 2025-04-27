@@ -30,10 +30,6 @@ public class ExpoPushService {
         message.put("body", body);
         message.put("sound", "default"); // optional
         message.put("priority", "high"); // optional
-        message.put("data", Map.of(
-                "type", "yes-no",
-                "question", "Do you want to accept the invite?"
-        ));
 
         HttpEntity<Map<String, Object>> request = new HttpEntity<>(message, headers);
 

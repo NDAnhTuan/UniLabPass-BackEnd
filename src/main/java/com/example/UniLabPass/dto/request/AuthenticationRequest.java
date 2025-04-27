@@ -14,4 +14,6 @@ public class AuthenticationRequest {
     String email;
     @Schema(example = "admin123", required = true)
     String password;
+    @Schema(example = "token", required = true)
+    String expoPushToken;
 }

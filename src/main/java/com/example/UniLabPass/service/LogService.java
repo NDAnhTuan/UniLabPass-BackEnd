@@ -9,16 +9,15 @@ import com.example.UniLabPass.dto.response.WeeklyReportResponse;
 import com.example.UniLabPass.entity.LabMember;
 import com.example.UniLabPass.entity.LaboratoryLog;
 import com.example.UniLabPass.entity.MyUser;
-import com.example.UniLabPass.enums.LogStatus;
-import com.example.UniLabPass.enums.LogType;
-import com.example.UniLabPass.enums.MemberStatus;
-import com.example.UniLabPass.enums.RecordType;
+import com.example.UniLabPass.entity.Notification;
+import com.example.UniLabPass.enums.*;
 import com.example.UniLabPass.exception.AppException;
 import com.example.UniLabPass.exception.ErrorCode;
 import com.example.UniLabPass.mapper.LogMapper;
 import com.example.UniLabPass.repository.LabMemberRepository;
 import com.example.UniLabPass.repository.LogRepository;
 import com.example.UniLabPass.repository.MyUserRepository;
+import com.example.UniLabPass.repository.NotificationRepository;
 import com.example.UniLabPass.utils.GlobalUtils;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
@@ -33,9 +32,7 @@ import java.io.IOException;
 import java.time.DayOfWeek;
 import java.time.LocalDateTime;
 import java.time.temporal.TemporalAdjusters;
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.List;
+import java.util.*;
 
 @Service
 @RequiredArgsConstructor
@@ -45,6 +42,7 @@ public class LogService {
     MyUserRepository myUserRepository;
     LabMemberRepository labMemberRepository;
     LogRepository logRepository;
+    NotificationRepository notificationRepository;
 
     CloudinaryService cloudinaryService;
     ExpoPushService expoPushService;
@@ -74,22 +72,13 @@ public class LogService {
                 .orElse(null);
         LabMember member = labMemberRepository.findById(new LabMemberKey(newRecord.getLabId(), newRecord.getUserId()))
                 .orElseThrow(() -> new AppException(ErrorCode.NO_RELATION));
-        // Check if user has been blocked or not
-//        if (member.getMemberStatus() == MemberStatus.BLOCKED) {
-//            newRecord.setStatus(LogStatus.BLOCKED);
-//            logRepository.save(newRecord);
-//            throw new AppException(ErrorCode.BLOCKED_USER);
-//        }
-        // If illegal, check if the file exists
-//        else
         if (request.getLogType() == LogType.ILLEGAL) {
             if (newRecord.getRecordType() == RecordType.CHECKIN && file == null) throw new AppException(ErrorCode.LOG_CREATE_ERROR);
             newRecord.setStatus(LogStatus.ILLEGAL);
             member.setMemberStatus(MemberStatus.BLOCKED);
             labMemberRepository.save(member);
-            expoPushService.sendPushNotification(
-                    "ExponentPushToken[zaIMqUCQpYUD0XVdsy4LqI]",
-                    "Unauthorized access", "Someone has accessed it without permission, check the log for more details");
+            //Notify Task
+            notifyIllegalAccess(request.getLabId());
         }
         // If legal, check duplicate
         else {
@@ -222,4 +211,23 @@ public class LogService {
         return result;
     }
 
+    private void notifyIllegalAccess(String LabId) {
+        //Notify task
+        var managers = labMemberRepository.findAllByLabMemberId_LabIdAndRole(LabId, Role.MANAGER);
+        for (LabMember manager: managers) {
+            if (manager.getMyUser().getExpoPushToken().isEmpty()) continue;
+            expoPushService.sendPushNotification(
+                    manager.getMyUser().getExpoPushToken(),
+                    "Unauthorized access",
+                    "Someone has accessed it without permission, check the log for more details");
+            notificationRepository.save(Notification.builder()
+                    .id(UUID.randomUUID().toString())
+                    .userId(manager.getMyUser().getId())
+                    .title("Unauthorized access")
+                    .body("Someone has accessed it without permission, check the log for more details")
+                    .type(NotifyType.TEXT)
+                    .createdAt(new Date())
+                    .build());
+        }
+    }
 }

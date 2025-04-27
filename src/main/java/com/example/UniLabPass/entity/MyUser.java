@@ -32,6 +32,8 @@ public class MyUser {
     @Column(nullable = false)
     boolean isVerified;
 
+    String expoPushToken;
+
     String photoURL;
 
     @ManyToMany
