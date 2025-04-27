@@ -24,6 +24,8 @@ public class Notification {
     String title;
     String body;
     NotifyType type;
+    @Column(nullable = true)
+    String labId;
     @CreatedDate
     Date createdAt;
 

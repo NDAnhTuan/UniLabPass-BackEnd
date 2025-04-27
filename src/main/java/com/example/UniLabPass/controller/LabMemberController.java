@@ -1,6 +1,7 @@
 package com.example.UniLabPass.controller;
 
 import com.example.UniLabPass.compositekey.LabMemberKey;
+import com.example.UniLabPass.dto.request.InviteManagerForLabRequest;
 import com.example.UniLabPass.dto.request.LabMemberCreationRequest;
 import com.example.UniLabPass.dto.request.LabMemberUpdateRequest;
 import com.example.UniLabPass.dto.response.CustomApiResponse;
@@ -46,6 +47,14 @@ public class LabMemberController {
         labMemberService.addLabMember(request, file);
         return CustomApiResponse.<String>builder()
                 .result("New member is successfully added to lab")
+                .build();
+    }
+
+    @PostMapping("/invite")
+    @Operation(summary = "invite manager into lab", security = {@SecurityRequirement(name = "BearerAuthentication")})
+    CustomApiResponse<String> inviteManager(@RequestBody InviteManagerForLabRequest request) {
+        return CustomApiResponse.<String>builder()
+                .result(labMemberService.inviteManager(request))
                 .build();
     }
 

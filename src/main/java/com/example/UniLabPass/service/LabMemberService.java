@@ -1,15 +1,14 @@
 package com.example.UniLabPass.service;
 
 import com.example.UniLabPass.compositekey.LabMemberKey;
+import com.example.UniLabPass.dto.request.InviteManagerForLabRequest;
 import com.example.UniLabPass.dto.request.LabMemberCreationRequest;
 import com.example.UniLabPass.dto.request.LabMemberUpdateRequest;
 import com.example.UniLabPass.dto.request.MyUserCreationRequest;
 import com.example.UniLabPass.dto.response.LabMemberInfoRespond;
 import com.example.UniLabPass.dto.response.LabMemberResponse;
-import com.example.UniLabPass.entity.Lab;
-import com.example.UniLabPass.entity.LabMember;
-import com.example.UniLabPass.entity.LaboratoryLog;
-import com.example.UniLabPass.entity.MyUser;
+import com.example.UniLabPass.entity.*;
+import com.example.UniLabPass.enums.NotifyType;
 import com.example.UniLabPass.enums.Role;
 import com.example.UniLabPass.exception.AppException;
 import com.example.UniLabPass.exception.ErrorCode;
@@ -24,13 +23,17 @@ import lombok.experimental.NonFinal;
 import lombok.extern.slf4j.Slf4j;
 
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
+import java.util.UUID;
 
 
 @Service
@@ -40,11 +43,13 @@ import java.util.List;
 public class LabMemberService {
     MyUserService myUserService;
     LogService logService;
+    ExpoPushService expoPushService;
 
     LabMemberRepository labMemberRepository;
     MyUserRepository myUserRepository;
     LabRepository labRepository;
     RoleRepository roleRepository;
+    NotificationRepository notificationRepository;
 
     MyUserMapper myUserMapper;
     LabMemberMapper labMemberMapper;
@@ -113,6 +118,31 @@ public class LabMemberService {
         labMember.setRemainVerify(RemainVerify);
         labMember.setExpiryRemain(LocalDateTime.now());
         labMemberRepository.save(labMember);
+    }
+
+    public String inviteManager(InviteManagerForLabRequest request) {
+        globalUtils.checkAuthorizeManager(request.getLabId());
+        String currEmail = SecurityContextHolder.getContext().getAuthentication().getName();
+        MyUser myUser = myUserRepository.findByEmail(request.getEmail()).orElseThrow(
+                () -> new AppException(ErrorCode.USER_NOT_EXISTED)
+        );
+        Lab lab = labRepository.findById(request.getLabId()).orElseThrow(
+                () -> new AppException(ErrorCode.LAB_NOT_EXISTED)
+        );
+        expoPushService.sendPushNotification(
+                myUser.getExpoPushToken(),
+                "Invite to become lab manager of " + lab.getName(),
+                currEmail + " invited you to become lab manager.");
+        notificationRepository.save(Notification.builder()
+                .id(UUID.randomUUID().toString())
+                .userId(myUser.getId())
+                .title("Invite to become lab manager of " + lab.getName())
+                .body(currEmail + " invited you to become lab manager.")
+                .type(NotifyType.YES_NO)
+                .labId(request.getLabId())
+                .createdAt(new Date())
+                .build());
+        return "Invite successfully";
     }
     public List<LabMemberResponse> getLabMembers(String labId) {
         globalUtils.checkAuthorizeManager(labId);
