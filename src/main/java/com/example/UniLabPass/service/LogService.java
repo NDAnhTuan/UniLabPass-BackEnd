@@ -47,6 +47,7 @@ public class LogService {
     LogRepository logRepository;
 
     CloudinaryService cloudinaryService;
+    ExpoPushService expoPushService;
 
     LogMapper logMapper;
 
@@ -86,6 +87,9 @@ public class LogService {
             newRecord.setStatus(LogStatus.ILLEGAL);
             member.setMemberStatus(MemberStatus.BLOCKED);
             labMemberRepository.save(member);
+            expoPushService.sendPushNotification(
+                    "ExponentPushToken[zaIMqUCQpYUD0XVdsy4LqI]",
+                    "Unauthorized access", "Someone has accessed it without permission, check the log for more details");
         }
         // If legal, check duplicate
         else {

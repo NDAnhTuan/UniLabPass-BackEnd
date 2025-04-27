@@ -5,6 +5,7 @@ import com.example.UniLabPass.dto.request.*;
 import com.example.UniLabPass.dto.response.EventGuestRespond;
 import com.example.UniLabPass.dto.response.EventLogRespond;
 import com.example.UniLabPass.dto.response.LabEventRespond;
+import com.example.UniLabPass.dto.response.LogRespond;
 import com.example.UniLabPass.entity.*;
 import com.example.UniLabPass.enums.LogStatus;
 import com.example.UniLabPass.enums.RecordType;
@@ -27,6 +28,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 
 @Service
@@ -241,6 +243,7 @@ public class LabEventService {
             eventLogRespond.setGuestName(guest.getName());
             result.add(eventLogRespond);
         }
+        result.sort(Comparator.comparing(EventLogRespond::getRecordTime).reversed());
         return result;
     }
 

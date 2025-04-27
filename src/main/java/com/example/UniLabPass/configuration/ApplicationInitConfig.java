@@ -12,6 +12,7 @@ import org.springframework.boot.ApplicationRunner;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.web.client.RestTemplate;
 
 import java.util.Date;
 import java.util.HashSet;
@@ -55,5 +56,9 @@ public class ApplicationInitConfig {
                 log.warn("admin@email.com user has been created with default password: admin123, please change it");
             }
         };
+    }
+    @Bean
+    public RestTemplate restTemplate() {
+        return new RestTemplate();
     }
 }
