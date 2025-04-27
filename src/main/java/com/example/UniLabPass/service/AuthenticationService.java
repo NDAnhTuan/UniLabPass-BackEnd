@@ -219,7 +219,7 @@ public class AuthenticationService {
                 () -> new AppException(ErrorCode.UNAUTHENTICATED)
         );
 
-        if (!myUser.getExpoPushToken().equals(expoPushToken))
+        if (myUser.getExpoPushToken() != null && !myUser.getExpoPushToken().equals(expoPushToken))
             throw new AppException(ErrorCode.DEVICE_HAS_CHANGED);
 
         Date expiryTime = isRefresh

@@ -215,7 +215,7 @@ public class LogService {
         //Notify task
         var managers = labMemberRepository.findAllByLabMemberId_LabIdAndRole(LabId, Role.MANAGER);
         for (LabMember manager: managers) {
-            if (manager.getMyUser().getExpoPushToken().isEmpty()) continue;
+            if (manager.getMyUser().getExpoPushToken() == null) continue;
             expoPushService.sendPushNotification(
                     manager.getMyUser().getExpoPushToken(),
                     "Unauthorized access",
