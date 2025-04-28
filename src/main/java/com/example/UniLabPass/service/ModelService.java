@@ -80,6 +80,8 @@ public class ModelService {
             LabMember labMember = labMemberRepository.findById(new LabMemberKey(labId,userId)).orElseThrow(
                     () -> new AppException(ErrorCode.MEMBER_NOT_EXISTED)
             );
+            if (labMember.getRole().getName().equals("PREMANAGER"))
+                throw new AppException(ErrorCode.PREMANAGER_ERROR);
             if (samePerson) {
                 labMember.setRemainVerify(RemainVerify);
                 labMember.setExpiryRemain(LocalDateTime.now());

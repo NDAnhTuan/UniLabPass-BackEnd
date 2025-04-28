@@ -8,6 +8,7 @@ import com.example.UniLabPass.dto.request.MyUserCreationRequest;
 import com.example.UniLabPass.dto.response.LabMemberInfoRespond;
 import com.example.UniLabPass.dto.response.LabMemberResponse;
 import com.example.UniLabPass.entity.*;
+import com.example.UniLabPass.enums.MemberStatus;
 import com.example.UniLabPass.enums.NotifyType;
 import com.example.UniLabPass.enums.Role;
 import com.example.UniLabPass.exception.AppException;
@@ -129,6 +130,14 @@ public class LabMemberService {
         Lab lab = labRepository.findById(request.getLabId()).orElseThrow(
                 () -> new AppException(ErrorCode.LAB_NOT_EXISTED)
         );
+        labMemberRepository.save(LabMember.builder()
+                        .labMemberId(new LabMemberKey(lab.getId(), myUser.getId()))
+                        .myUser(myUser)
+                        .lab(lab)
+                        .role(roleRepository.findById("PREMANAGER").orElseThrow(
+                                () -> new AppException(ErrorCode.ROLE_NOT_EXISTED)
+                        ))
+                .build());
         expoPushService.sendPushNotification(
                 myUser.getExpoPushToken(),
                 "Invite to become lab manager of " + lab.getName(),
@@ -143,6 +152,26 @@ public class LabMemberService {
                 .createdAt(new Date())
                 .build());
         return "Invite successfully";
+    }
+
+    public LabMemberResponse acceptInvite(String labId) {
+        String currEmail = SecurityContextHolder.getContext().getAuthentication().getName();
+        MyUser myUser = myUserRepository.findByEmail(currEmail).orElseThrow(
+                () -> new AppException(ErrorCode.USER_NOT_EXISTED)
+        );
+        LabMember labMember = labMemberRepository.findById(new LabMemberKey(labId,myUser.getId())).orElseThrow(
+                () -> new AppException(ErrorCode.MEMBER_NOT_EXISTED)
+        );
+        if (!labMember.getRole().getName().equals("PREMANAGER"))
+            throw new AppException(ErrorCode.NOT_PREMANAGER);
+        labMember.setMemberStatus(MemberStatus.ACTIVE);
+        labMember.setRole(roleRepository.findById("MANAGER").orElseThrow(
+                () -> new AppException(ErrorCode.ROLE_NOT_EXISTED)
+        ));
+        labMember.setRemainVerify(RemainVerify);
+        labMember.setExpiryRemain(LocalDateTime.now());
+        labMember = labMemberRepository.save(labMember);
+        return labMemberMapper.toLabMemberResponse(labMember);
     }
     public List<LabMemberResponse> getLabMembers(String labId) {
         globalUtils.checkAuthorizeManager(labId);

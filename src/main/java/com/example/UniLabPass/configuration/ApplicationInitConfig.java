@@ -36,6 +36,7 @@ public class ApplicationInitConfig {
                 roleRepository.save(new Role("ADMIN", ""));
                 roleRepository.save(new Role("GUEST", "Guests do not need to check their faces when checking in or checking out"));
                 roleRepository.save(new Role("MANAGER", "The Manager has the right to control access to the laboratory"));
+                roleRepository.save(new Role("PREMANAGER", "This user will become an administrator if he accepts the invitation."));
                 roleRepository.save(new Role("MEMBER", "When checking in and checking out, members need to check their faces"));
                 log.warn("Role Table has been create");
             }

@@ -1,11 +1,13 @@
 package com.example.UniLabPass.service;
 
+import com.example.UniLabPass.compositekey.LabMemberKey;
 import com.example.UniLabPass.dto.response.NotificationResponse;
 import com.example.UniLabPass.entity.MyUser;
 import com.example.UniLabPass.entity.Notification;
 import com.example.UniLabPass.exception.AppException;
 import com.example.UniLabPass.exception.ErrorCode;
 import com.example.UniLabPass.mapper.NotificationMapper;
+import com.example.UniLabPass.repository.LabMemberRepository;
 import com.example.UniLabPass.repository.MyUserRepository;
 import com.example.UniLabPass.repository.NotificationRepository;
 import lombok.AccessLevel;
@@ -21,9 +23,9 @@ import java.util.List;
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class NotificationService {
     NotificationRepository notificationRepository;
-    NotificationMapper notificationMapper;
     MyUserRepository myUserRepository;
-
+    LabMemberRepository labMemberRepository;
+    NotificationMapper notificationMapper;
     public List<NotificationResponse> getMyNotifications() {
         String userEmail = SecurityContextHolder.getContext().getAuthentication().getName();
         MyUser myUser = myUserRepository.findByEmail(userEmail)
@@ -43,6 +45,9 @@ public class NotificationService {
         );
         if (!myUser.getEmail().equals(SecurityContextHolder.getContext().getAuthentication().getName()))
             throw new AppException(ErrorCode.UNAUTHORIZED);
+        if (notification.getLabId() != null) {
+            labMemberRepository.deleteById(new LabMemberKey(notification.getLabId(), myUser.getId()));
+        }
         notificationRepository.delete(notification);
     }
 }

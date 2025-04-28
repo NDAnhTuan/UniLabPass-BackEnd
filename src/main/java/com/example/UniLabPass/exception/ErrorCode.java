@@ -41,7 +41,9 @@ public enum ErrorCode {
     DUPLICATE_CHECK_OUT(1028,"User/Member hasn’t CHECKIN yet", HttpStatus.BAD_REQUEST),
     UPLOAD_FAILED(1029, "Upload image failed", HttpStatus.INTERNAL_SERVER_ERROR),
     DEVICE_HAS_CHANGED(1030, "Device has changed", HttpStatus.UNAUTHORIZED),
-    NOTIFICATION_NOT_EXIST(1031,"There is no notification with this ID", HttpStatus.NOT_FOUND)
+    NOTIFICATION_NOT_EXIST(1031,"There is no notification with this ID", HttpStatus.NOT_FOUND),
+    PREMANAGER_ERROR(1032,"You have not accepted the invitation to become an administrator, please accept before continuing this action.", HttpStatus.BAD_REQUEST),
+    NOT_PREMANAGER(1033, "You are not premanager of this lab", HttpStatus.FORBIDDEN)
     ;
 
     int code;

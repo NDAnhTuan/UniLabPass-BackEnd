@@ -58,6 +58,14 @@ public class LabMemberController {
                 .build();
     }
 
+    @PostMapping("/acceptInvite")
+    @Operation(summary = "accept Invite manager into lab", security = {@SecurityRequirement(name = "BearerAuthentication")})
+    CustomApiResponse<LabMemberResponse> acceptInvite(@RequestBody String labId) {
+        return CustomApiResponse.<LabMemberResponse>builder()
+                .result(labMemberService.acceptInvite(labId))
+                .build();
+    }
+
     @GetMapping("/labs/{labId}")
     @Operation(summary = "Get all members of lab", security = {@SecurityRequirement(name = "BearerAuthentication")})
     @ApiResponses(value = {
