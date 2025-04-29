@@ -31,6 +31,4 @@ public class MyUserUpdateRequest {
     @Schema(example = "2003-11-30")
     LocalDate dob;
 
-    @Schema(type = "array", example = "[\"MANAGER\"]")
-    List<String> roles;
 }
