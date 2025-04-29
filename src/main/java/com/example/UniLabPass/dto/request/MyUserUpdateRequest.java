@@ -16,9 +16,6 @@ import java.util.List;
 @Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class MyUserUpdateRequest {
-    @Size(min = 6, message = "INVALID_PASSWORD")
-    @Schema(example = "12345678")
-    String password;
 
     @Schema(example = "Tuan")
     String firstName;

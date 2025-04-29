@@ -96,11 +96,11 @@ public class MyUserService {
     public MyUserResponse updateMyUser(String userId,MyUserUpdateRequest request, MultipartFile file) throws IOException {
         MyUser myUser = myUserRepository.findById(userId).orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
         myUserMapper.updateMyUser(myUser, request);
-        if (request.getPassword() != null && !request.getPassword().isEmpty())
-            myUser.setPassword(passwordEncoder.encode(request.getPassword()));
-        var roles = request.getRoles() != null ?
-                roleRepository.findAllById(request.getRoles()) : new ArrayList<com.example.UniLabPass.entity.Role>();
-        myUser.setRoles(new HashSet<>(roles));
+//        if (request.getPassword() != null && !request.getPassword().isEmpty())
+//            myUser.setPassword(passwordEncoder.encode(request.getPassword()));
+//        var roles = request.getRoles() != null ?
+//                roleRepository.findAllById(request.getRoles()) : new ArrayList<com.example.UniLabPass.entity.Role>();
+//        myUser.setRoles(new HashSet<>(roles));
         // set photoURL
         try {
             myUser = uploadImage(myUser, file);
