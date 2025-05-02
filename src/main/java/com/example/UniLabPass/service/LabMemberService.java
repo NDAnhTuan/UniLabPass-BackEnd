@@ -215,7 +215,7 @@ public class LabMemberService {
 
         // Check if this member is only in this lab, then delete it
         if (labMemberRepository.findAllByLabMemberId_MyUserId(userId).isEmpty()
-                && myUser.getRoles().stream().anyMatch(role -> "USER".equals(role.getName()))) {
+                && !myUser.getRoles().stream().anyMatch(role -> "USER".equals(role.getName()))) {
             myUserService.deleteMyUser(userId);
         }
 
