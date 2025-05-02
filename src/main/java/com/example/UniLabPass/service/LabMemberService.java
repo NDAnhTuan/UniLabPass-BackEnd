@@ -88,20 +88,10 @@ public class LabMemberService {
         }
         else { // Else if member is already exist, then check if the info is as the same with request's data
             MyUser userCheck = myUserRepository.findById(request.getUserId()).orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
-            if (userCheck.getId().equals(request.getUserId())) {
                 // Check email
-                if (userCheck.getEmail().equals(request.getEmail())) {
-                    // Check other info
-                    if (! (userCheck.getFirstName().equals(request.getFirstName())
-                        && userCheck.getLastName().equals(request.getLastName())
-                        && userCheck.getDob().equals(request.getDob())
-                        && userCheck.getGender().equals(request.getGender())) ) {
-                        throw new AppException(ErrorCode.FALSE_USER_DATA);
-                    }
-                }
-                else {
-                    throw new AppException(ErrorCode.USER_ID_EXISTED);
-                }
+            if (!userCheck.getEmail().equals(request.getEmail())) {
+                // Check other info
+                throw new AppException(ErrorCode.USER_ID_EXISTED);
             }
         }
         MyUser myUser = myUserRepository.findById(request.getUserId()).orElseThrow(
@@ -215,14 +205,17 @@ public class LabMemberService {
     public void deleteLabMember(String labId, String userId) throws IOException {
         globalUtils.checkAuthorizeManager(labId);
         LabMemberKey labMemberKey = new LabMemberKey(labId, userId);
-        if (!labMemberRepository.existsById(labMemberKey)) {throw new AppException(ErrorCode.NO_RELATION);}
+        var myUser = labMemberRepository.findById(labMemberKey).orElseThrow(
+                () -> new AppException(ErrorCode.NO_RELATION)
+        ).getMyUser();
         labMemberRepository.deleteById(labMemberKey);
 
         // Delete all record involve with this user
         logService.deleteLog(labId, userId);
 
         // Check if this member is only in this lab, then delete it
-        if (labMemberRepository.findAllByLabMemberId_MyUserId(userId).isEmpty()) {
+        if (labMemberRepository.findAllByLabMemberId_MyUserId(userId).isEmpty()
+                && myUser.getRoles().stream().anyMatch(role -> "USER".equals(role.getName()))) {
             myUserService.deleteMyUser(userId);
         }
 
