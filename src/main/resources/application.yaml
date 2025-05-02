@@ -5,7 +5,7 @@ server:
 
 app:
   services:
-    model: "https://unilabpass-faceverification.onrender.com"
+    model: "https://unilabpass.hpcc.vn"
   Global:
     VNHour: 7
     RemainVerify: 3
