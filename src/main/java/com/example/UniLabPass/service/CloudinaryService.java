@@ -68,7 +68,7 @@ public class CloudinaryService {
                     ObjectUtils.asMap("public_id", log.getId(), "overwrite", true));
 
             // Lưu photoURL vào MyUser
-            log.setPhotoURL(imageObj.get("url").toString());
+                log.setPhotoURL(imageObj.get("secure_url").toString());
             eventLogRepository.save(log);
 
             // Trả về thông tin upload thành công

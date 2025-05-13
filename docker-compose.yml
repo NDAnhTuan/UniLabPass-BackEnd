@@ -1,9 +1,8 @@
-
 services:
   spring-app:
-    image: nguyenducanhtuan0602/unilabpass-backend:v2
+    image: nguyenducanhtuan0602/unilabpass-bt:v3
     ports:
-      - "8080:8080"
+      - "3000:8080"
     env_file:
       - .env
     environment:
@@ -28,6 +27,12 @@ services:
       - "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
+    restart: always
+
+  model:
+    image: banmaniac/face-verification-app:latest
+    ports:
+      - "3001:8000"
     restart: always
 
 volumes:
