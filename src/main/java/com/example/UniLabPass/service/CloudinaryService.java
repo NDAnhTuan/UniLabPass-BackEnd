@@ -51,7 +51,7 @@ public class CloudinaryService {
             // Trả về thông tin upload thành công
             return CloudinaryResponse.builder()
                     .id(imageObj.get("public_id").toString())
-                    .url(imageObj.get("url").toString())
+                    .url(imageObj.get("secure_url").toString())
                     .build();
         } catch (RuntimeException e) {
             log.info(e.getMessage());
@@ -94,7 +94,7 @@ public class CloudinaryService {
                     ObjectUtils.asMap("public_id", log.getId(), "overwrite", true));
 
             // Lưu photoURL vào MyUser
-            log.setPhotoURL(imageObj.get("url").toString());
+            log.setPhotoURL(imageObj.get("secure_url").toString());
             logRepository.save(log);
 
             // Trả về thông tin upload thành công
