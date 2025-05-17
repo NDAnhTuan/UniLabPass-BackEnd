@@ -4,6 +4,7 @@ import com.example.UniLabPass.dto.request.MyUserCreationRequest;
 import com.example.UniLabPass.dto.response.CustomApiResponse;
 import com.example.UniLabPass.dto.response.ErrorApiResponse;
 import com.example.UniLabPass.dto.response.MyUserResponse;
+import com.example.UniLabPass.enums.RecordType;
 import com.example.UniLabPass.enums.Role;
 import com.example.UniLabPass.service.ModelService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -38,9 +39,10 @@ public class ModelController {
     @PostMapping(value = "/verify", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     CustomApiResponse<Object> verify(@RequestPart("image1") MultipartFile image1,
                                      @RequestPart("userId") String userId,
-                                     @RequestPart("labId") String labId) throws IOException {
+                                     @RequestPart("labId") String labId,
+                                     @RequestPart("recordType") RecordType recordType) throws IOException {
         return CustomApiResponse.<Object>builder()
-                .result(modelService.verify(image1,userId, labId))
+                .result(modelService.verify(image1,userId, labId, recordType))
                 .build();
     }
 

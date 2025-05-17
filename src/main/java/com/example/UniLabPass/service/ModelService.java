@@ -1,8 +1,11 @@
 package com.example.UniLabPass.service;
 
 import com.example.UniLabPass.compositekey.LabMemberKey;
+import com.example.UniLabPass.dto.request.LogCreationRequest;
 import com.example.UniLabPass.entity.LabMember;
 import com.example.UniLabPass.entity.MyUser;
+import com.example.UniLabPass.enums.LogType;
+import com.example.UniLabPass.enums.RecordType;
 import com.example.UniLabPass.exception.AppException;
 import com.example.UniLabPass.exception.ErrorCode;
 import com.example.UniLabPass.repository.LabMemberRepository;
@@ -38,11 +41,13 @@ public class ModelService {
     MyUserRepository myUserRepository;
     LabMemberRepository labMemberRepository;
 
+    LogService logService;
+
     @NonFinal
     @Value("${app.Global.RemainVerify}")
     int RemainVerify;
 
-    public Object verify(MultipartFile image1, String userId, String labId) throws IOException {
+    public Object verify(MultipartFile image1, String userId, String labId, RecordType recordType) throws IOException {
         MyUser myUser = myUserRepository.findById(userId).orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
         // Lấy dữ liệu từ URL và chuyển thành byte array
         URL url = new URL(myUser.getPhotoURL());
@@ -105,6 +110,13 @@ public class ModelService {
                 }
             }
             labMemberRepository.save(labMember);
+            LogCreationRequest logCreationRequest = LogCreationRequest.builder()
+                    .labId(labId)
+                    .userId(userId)
+                    .recordType(recordType)
+                    .logType(isIllegal ? LogType.LEGAL : LogType.ILLEGAL)
+                    .build();
+            logService.addNewLog(logCreationRequest, image1);
         }
 
 
