@@ -30,8 +30,6 @@ import java.io.IOException;
 public class CloudinaryService {
 
     Cloudinary cloudinary;
-    MyUserRepository myUserRepository;
-    LabMemberRepository labMemberRepository;
     LogRepository logRepository;
     EventLogRepository eventLogRepository;
 

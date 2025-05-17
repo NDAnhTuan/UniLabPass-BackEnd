@@ -11,8 +11,11 @@ import lombok.experimental.FieldDefaults;
 @AllArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class EventGuestCreationRequest {
-    @Schema(example = "2112843")
+    @Schema(example = "2115177")
     String guestId;
+
+    @Schema(example = "nguyenducanhtuan0602@gmail.com")
+    String email;
 
     @Schema(example = "Bùi Phước Ban")
     String name;

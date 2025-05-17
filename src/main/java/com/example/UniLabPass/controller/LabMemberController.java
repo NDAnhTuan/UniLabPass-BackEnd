@@ -43,7 +43,7 @@ public class LabMemberController {
             @ApiResponse(responseCode = "403", description = "Accessing the resource you were trying to reach is forbidden" , content = @Content(schema = @Schema(implementation = ErrorApiResponse.class))),
     })
     CustomApiResponse<String> addLabMember(@RequestPart LabMemberCreationRequest request,
-                                           @RequestPart MultipartFile file) throws IOException {
+                                           @RequestPart MultipartFile file) throws Exception {
         labMemberService.addLabMember(request, file);
         return CustomApiResponse.<String>builder()
                 .result("New member is successfully added to lab")
@@ -86,7 +86,7 @@ public class LabMemberController {
             @ApiResponse(responseCode = "401", description = "You are not authorized to view the resource", content = @Content(schema = @Schema(implementation = ErrorApiResponse.class))),
             @ApiResponse(responseCode = "403", description = "Accessing the resource you were trying to reach is forbidden" , content = @Content(schema = @Schema(implementation = ErrorApiResponse.class))),
     })
-    CustomApiResponse<LabMemberInfoRespond> getLabMemberDetailInfo(@PathVariable("labId") String labId, @PathVariable("memberId") String memberId) {
+    CustomApiResponse<LabMemberInfoRespond> getLabMemberDetailInfo(@PathVariable("labId") String labId, @PathVariable("memberId") String memberId) throws Exception {
         return CustomApiResponse.<LabMemberInfoRespond>builder()
                 .result(labMemberService.getLabMemberInfo(labId, memberId))
                 .build();

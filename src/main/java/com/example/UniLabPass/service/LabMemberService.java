@@ -16,6 +16,7 @@ import com.example.UniLabPass.exception.ErrorCode;
 import com.example.UniLabPass.mapper.LabMemberMapper;
 import com.example.UniLabPass.mapper.MyUserMapper;
 import com.example.UniLabPass.repository.*;
+import com.example.UniLabPass.utils.AESEncryptionUtil;
 import com.example.UniLabPass.utils.GlobalUtils;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
@@ -45,6 +46,8 @@ public class LabMemberService {
     MyUserService myUserService;
     LogService logService;
     ExpoPushService expoPushService;
+    EmailService emailService;
+    QrCodeService qrCodeService;
 
     LabMemberRepository labMemberRepository;
     MyUserRepository myUserRepository;
@@ -57,12 +60,13 @@ public class LabMemberService {
     LogRepository logRepository;
 
     GlobalUtils globalUtils;
+    AESEncryptionUtil aesEncryptionUtil;
     @NonFinal
     @Value("${app.Global.RemainVerify}")
     int RemainVerify;
 
 
-    public void addLabMember(LabMemberCreationRequest request, MultipartFile file) throws IOException {
+    public void addLabMember(LabMemberCreationRequest request, MultipartFile file) throws Exception {
         globalUtils.checkAuthorizeManager(request.getLabId());
 
         // If member is already in this fking lab, throw error
@@ -85,6 +89,11 @@ public class LabMemberService {
                     .gender(request.getGender())
                     .build();
             myUserService.createMyUser(myUserCreationRequest, Role.MEMBER, file);
+
+            // Send Qr Code
+            String encodedUserId = aesEncryptionUtil.encrypt(request.getUserId());
+            byte[] qr = qrCodeService.generateQRCode(encodedUserId, 250, 250);
+            emailService.sendQRCode(request.getEmail(),qr);
         }
         else { // Else if member is already exist, then check if the info is as the same with request's data
             MyUser userCheck = myUserRepository.findById(request.getUserId()).orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
@@ -192,8 +201,9 @@ public class LabMemberService {
         return labMemberResponses;
     }
 
-    public LabMemberInfoRespond getLabMemberInfo(String labId, String memberId) {
+    public LabMemberInfoRespond getLabMemberInfo(String labId, String qrCode) throws Exception {
         globalUtils.checkAuthorizeManager(labId);
+        var memberId = aesEncryptionUtil.decrypt(qrCode);
         LabMemberKey labMemberKey = new LabMemberKey(labId, memberId);
         LabMember labMember = labMemberRepository.findById(labMemberKey).orElseThrow(() -> new AppException(ErrorCode.NO_RELATION));
         return LabMemberInfoRespond.builder()

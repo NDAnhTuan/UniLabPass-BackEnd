@@ -17,4 +17,5 @@ public class EventGuest {
     @EmbeddedId
     EventGuestKey eventGuestKey;
     String name;
+    String email;
 }

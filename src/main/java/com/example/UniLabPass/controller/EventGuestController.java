@@ -33,7 +33,7 @@ public class EventGuestController {
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "All event guests added"),
     })
-    CustomApiResponse<String> addListEventGuests(@PathVariable String eventId, @RequestBody List<EventGuestCreationRequest> guests) {
+    CustomApiResponse<String> addListEventGuests(@PathVariable String eventId, @RequestBody List<EventGuestCreationRequest> guests) throws Exception {
         return CustomApiResponse.<String>builder()
                 .result(labEventService.addListEventGuests(eventId, guests))
                 .build();
@@ -56,10 +56,9 @@ public class EventGuestController {
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "All guests retrieved"),
     })
-    CustomApiResponse<EventGuestRespond> getListEventGuests(@PathVariable String eventId, @PathVariable String guestId) {
-        EventGuestKey key = new EventGuestKey(eventId, guestId);
+    CustomApiResponse<EventGuestRespond> getListEventGuests(@PathVariable String eventId, @PathVariable String guestId) throws Exception {
         return CustomApiResponse.<EventGuestRespond>builder()
-                .result(labEventService.getGuestInfo(key))
+                .result(labEventService.getGuestInfo(eventId,guestId))
                 .build();
     }
 

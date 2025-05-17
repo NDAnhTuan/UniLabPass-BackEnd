@@ -15,6 +15,7 @@ import com.example.UniLabPass.mapper.EventGuestMapper;
 import com.example.UniLabPass.mapper.EventLogMapper;
 import com.example.UniLabPass.mapper.EventMapper;
 import com.example.UniLabPass.repository.*;
+import com.example.UniLabPass.utils.AESEncryptionUtil;
 import com.example.UniLabPass.utils.GlobalUtils;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
@@ -23,6 +24,7 @@ import lombok.experimental.NonFinal;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
@@ -42,10 +44,14 @@ public class LabEventService {
     EventLogRepository eventLogRepository;
 
     CloudinaryService cloudinaryService;
+    EmailService emailService;
+    QrCodeService qrCodeService;
 
     EventMapper eventMapper;
     EventGuestMapper eventGuestMapper;
     EventLogMapper eventLogMapper;
+
+    AESEncryptionUtil aesEncryptionUtil;
 
     @NonFinal
     @Value("${app.Global.VNHour}")
@@ -113,7 +119,7 @@ public class LabEventService {
     }
 
     // Add list event guest (include guest name and id)
-    public String addListEventGuests(String eventId, List<EventGuestCreationRequest> eventGuests) {
+    public String addListEventGuests(String eventId, List<EventGuestCreationRequest> eventGuests) throws Exception {
         checkEventExists(eventId);
 
         List<String> newGuestIds = eventGuests.stream().map(EventGuestCreationRequest::getGuestId).toList();
@@ -135,6 +141,9 @@ public class LabEventService {
                             .eventGuestKey(new EventGuestKey(eventId, guest.getGuestId()))
                             .name(guest.getName())
                             .build());
+            String encodedUserId = aesEncryptionUtil.encrypt(guest.getGuestId());
+            byte[] qr = qrCodeService.generateQRCode(encodedUserId, 250, 250);
+            emailService.sendQRCode(guest.getEmail(),qr);
         }
         return "All event guests added";
     }
@@ -152,8 +161,10 @@ public class LabEventService {
     }
 
     // Get single guest info
-    public EventGuestRespond getGuestInfo(EventGuestKey key) {
-        checkEventExists(key.getEventId());
+    public EventGuestRespond getGuestInfo(String eventId, String qrCode) throws Exception {
+        checkEventExists(eventId);
+        var guestId = aesEncryptionUtil.decrypt(qrCode);
+        EventGuestKey key = new EventGuestKey(eventId, guestId);
         return eventGuestMapper.toGuestRespond(eventGuestRepository.findByEventGuestKey(key).orElseThrow(
                 () -> new AppException(ErrorCode.GUEST_NOT_EXIST)
         ));

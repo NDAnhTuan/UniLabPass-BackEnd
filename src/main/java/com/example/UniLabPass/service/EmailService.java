@@ -7,13 +7,18 @@ import com.example.UniLabPass.entity.MyUser;
 import com.example.UniLabPass.exception.AppException;
 import com.example.UniLabPass.exception.ErrorCode;
 import com.example.UniLabPass.repository.MyUserRepository;
+import com.example.UniLabPass.utils.AESEncryptionUtil;
 import com.example.UniLabPass.utils.GlobalUtils;
+import jakarta.mail.internet.MimeMessage;
+import jakarta.mail.util.ByteArrayDataSource;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.mail.javamail.MimeMessageHelper;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -29,10 +34,12 @@ public class EmailService {
     JavaMailSender mailSender;
     MyUserRepository myUserRepository;
     PasswordEncoder passwordEncoder;
+    QrCodeService qrCodeService;
 
+    AESEncryptionUtil aesEncryptionUtil;
     GlobalUtils globalUtils;
 
-
+    @Async
     public void sendVerificationEmail(String toEmail, String verificationCode) {
         SimpleMailMessage message = new SimpleMailMessage();
         message.setTo(toEmail);
@@ -41,7 +48,7 @@ public class EmailService {
                 + "\n Your verification code only lasts for 5 minutes, please enter it quickly");
         mailSender.send(message);
     }
-
+    @Async
     public void sendResetPassword(String email) {
         String newPass = globalUtils.generateVerificationCode() + globalUtils.generateVerificationCode();
         MyUser myUser = myUserRepository.findByEmail(email).orElseThrow(
@@ -55,6 +62,19 @@ public class EmailService {
         message.setSubject("Reset Password");
         message.setText("Your Reset Password is: " + newPass
                 + "\n This is a your new password");
+        mailSender.send(message);
+    }
+    @Async
+    public void sendQRCode(String email,byte[] qrCode) throws Exception {
+
+        MimeMessage message = mailSender.createMimeMessage();
+        MimeMessageHelper helper = new MimeMessageHelper(message, true);
+        helper.setTo(email);
+        helper.setSubject("Send qrcode to access labs");
+        helper.setText("This is the qr code used for checkin/checkout at the labs, please do not send it to anyone.");
+        // Đính kèm ảnh QR (PNG)
+        helper.addAttachment("qrCode.png", new ByteArrayDataSource(qrCode, "image/png"));
+
         mailSender.send(message);
     }
     // Hàm verify email

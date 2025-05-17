@@ -9,6 +9,7 @@ app:
   Global:
     VNHour: 7
     RemainVerify: 3
+  qrcode-encrypt-key: ${QRCODE_ENCRYPT_KEY}
 
 spring:
   datasource:

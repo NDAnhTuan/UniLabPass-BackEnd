@@ -11,4 +11,5 @@ import lombok.experimental.FieldDefaults;
 public class EventGuestRespond {
     String guestId;
     String guestName;
+    String guestEmail;
 }

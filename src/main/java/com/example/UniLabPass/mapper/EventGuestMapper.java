@@ -13,6 +13,7 @@ public interface EventGuestMapper {
         return EventGuestRespond.builder()
                 .guestId(guest.getEventGuestKey().getGuestId())
                 .guestName(guest.getName())
+                .guestEmail(guest.getEmail())
                 .build();
     }
 
