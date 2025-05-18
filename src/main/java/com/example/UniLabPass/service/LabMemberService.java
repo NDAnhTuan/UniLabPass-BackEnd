@@ -201,9 +201,9 @@ public class LabMemberService {
         return labMemberResponses;
     }
 
-    public LabMemberInfoRespond getLabMemberInfo(String labId, String qrCode) throws Exception {
+    public LabMemberInfoRespond getLabMemberInfo(String labId, String qrCode, boolean isQrCode) throws Exception {
         globalUtils.checkAuthorizeManager(labId);
-        var memberId = aesEncryptionUtil.decrypt(qrCode);
+        var memberId = isQrCode ? aesEncryptionUtil.decrypt(qrCode) : qrCode;
         LabMemberKey labMemberKey = new LabMemberKey(labId, memberId);
         LabMember labMember = labMemberRepository.findById(labMemberKey).orElseThrow(() -> new AppException(ErrorCode.NO_RELATION));
         return LabMemberInfoRespond.builder()
