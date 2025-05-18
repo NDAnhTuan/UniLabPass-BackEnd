@@ -114,7 +114,7 @@ public class ModelService {
                     .labId(labId)
                     .userId(userId)
                     .recordType(recordType.equals(RecordType.CHECKIN) ? RecordType.CHECKIN : RecordType.CHECKOUT)
-                    .logType(isIllegal ? LogType.LEGAL : LogType.ILLEGAL)
+                    .logType(isIllegal ? LogType.ILLEGAL : LogType.LEGAL)
                     .build();
             logService.addNewLog(logCreationRequest, image1);
         }
