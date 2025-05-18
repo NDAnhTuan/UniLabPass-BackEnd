@@ -107,9 +107,10 @@ public class ModelService {
                         isIllegal = true;
                         labMember.setRemainVerify(RemainVerify);
                         labMember.setExpiryRemain(LocalDateTime.now().plusMinutes(5));
+                        logCreationRequest.setLogType(LogType.ILLEGAL);
+                        logService.addNewLog(logCreationRequest, image1);
                     }
-                    logCreationRequest.setLogType(LogType.ILLEGAL);
-                    logService.addNewLog(logCreationRequest, image1);
+
                 }
                 // Đã hết hạn (nghĩa là đây là lần đầu)
                 else {
