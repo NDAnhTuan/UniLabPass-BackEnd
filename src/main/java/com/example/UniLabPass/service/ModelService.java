@@ -82,6 +82,11 @@ public class ModelService {
         boolean isIllegal = false;
 
         if (error.equals("")) {
+            LogCreationRequest logCreationRequest = LogCreationRequest.builder()
+                    .labId(labId)
+                    .userId(userId)
+                    .recordType(recordType.equals("CHECKIN") ? RecordType.CHECKIN : RecordType.CHECKOUT)
+                    .build();
             LabMember labMember = labMemberRepository.findById(new LabMemberKey(labId,userId)).orElseThrow(
                     () -> new AppException(ErrorCode.MEMBER_NOT_EXISTED)
             );
@@ -90,6 +95,8 @@ public class ModelService {
             if (samePerson) {
                 labMember.setRemainVerify(RemainVerify);
                 labMember.setExpiryRemain(LocalDateTime.now());
+                logCreationRequest.setLogType(LogType.LEGAL);
+                logService.addNewLog(logCreationRequest, image1);
             }
             //Trường hợp mặt không giống
             else {
@@ -101,6 +108,8 @@ public class ModelService {
                         labMember.setRemainVerify(RemainVerify);
                         labMember.setExpiryRemain(LocalDateTime.now().plusMinutes(5));
                     }
+                    logCreationRequest.setLogType(LogType.ILLEGAL);
+                    logService.addNewLog(logCreationRequest, image1);
                 }
                 // Đã hết hạn (nghĩa là đây là lần đầu)
                 else {
@@ -110,13 +119,6 @@ public class ModelService {
                 }
             }
             labMemberRepository.save(labMember);
-            LogCreationRequest logCreationRequest = LogCreationRequest.builder()
-                    .labId(labId)
-                    .userId(userId)
-                    .recordType(recordType.equals("CHECKIN") ? RecordType.CHECKIN : RecordType.CHECKOUT)
-                    .logType(isIllegal ? LogType.ILLEGAL : LogType.LEGAL)
-                    .build();
-            logService.addNewLog(logCreationRequest, image1);
         }
 
 
