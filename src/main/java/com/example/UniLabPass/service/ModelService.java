@@ -113,7 +113,7 @@ public class ModelService {
             LogCreationRequest logCreationRequest = LogCreationRequest.builder()
                     .labId(labId)
                     .userId(userId)
-                    .recordType(recordType.equals(RecordType.CHECKIN) ? RecordType.CHECKIN : RecordType.CHECKOUT)
+                    .recordType(recordType.equals("CHECKIN") ? RecordType.CHECKIN : RecordType.CHECKOUT)
                     .logType(isIllegal ? LogType.ILLEGAL : LogType.LEGAL)
                     .build();
             logService.addNewLog(logCreationRequest, image1);
