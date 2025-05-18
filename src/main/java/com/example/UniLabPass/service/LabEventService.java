@@ -196,13 +196,15 @@ public class LabEventService {
     }
 
     // Add event log
-    public EventLogRespond addEventLog(EventLogCreationRequest request, MultipartFile file) throws IOException {
+    public EventLogRespond addEventLog(EventLogCreationRequest request, MultipartFile file) throws Exception {
         if (request.getEventId() == null
         || request.getGuestId() == null
         || request.getRecordType() == null) {
             throw new AppException(ErrorCode.LOG_CREATE_ERROR);
         }
         checkEventExists(request.getEventId());
+        String decodeGuestId = aesEncryptionUtil.decrypt(request.getGuestId());
+        request.setGuestId(decodeGuestId);
         LocalDateTime currentTime = LocalDateTime.now().plusHours(VNHour);
         EventLog newLog = eventLogMapper.toEventLog(request);
         newLog.setRecordTime(currentTime);
