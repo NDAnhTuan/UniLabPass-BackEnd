@@ -47,7 +47,7 @@ public class ModelService {
     @Value("${app.Global.RemainVerify}")
     int RemainVerify;
 
-    public Object verify(MultipartFile image1, String userId, String labId, RecordType recordType) throws IOException {
+    public Object verify(MultipartFile image1, String userId, String labId, String recordType) throws IOException {
         MyUser myUser = myUserRepository.findById(userId).orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
         // Lấy dữ liệu từ URL và chuyển thành byte array
         URL url = new URL(myUser.getPhotoURL());
@@ -113,7 +113,7 @@ public class ModelService {
             LogCreationRequest logCreationRequest = LogCreationRequest.builder()
                     .labId(labId)
                     .userId(userId)
-                    .recordType(recordType)
+                    .recordType(recordType.equals(RecordType.CHECKIN) ? RecordType.CHECKIN : RecordType.CHECKOUT)
                     .logType(isIllegal ? LogType.LEGAL : LogType.ILLEGAL)
                     .build();
             logService.addNewLog(logCreationRequest, image1);

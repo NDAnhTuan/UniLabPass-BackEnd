@@ -40,7 +40,7 @@ public class ModelController {
     CustomApiResponse<Object> verify(@RequestPart("image1") MultipartFile image1,
                                      @RequestPart("userId") String userId,
                                      @RequestPart("labId") String labId,
-                                     @RequestPart("recordType") RecordType recordType) throws IOException {
+                                     @RequestPart("recordType") String recordType) throws IOException {
         return CustomApiResponse.<Object>builder()
                 .result(modelService.verify(image1,userId, labId, recordType))
                 .build();
