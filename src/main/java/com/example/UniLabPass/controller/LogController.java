@@ -3,10 +3,16 @@ package com.example.UniLabPass.controller;
 import com.example.UniLabPass.dto.request.LogCreationRequest;
 import com.example.UniLabPass.dto.response.*;
 import com.example.UniLabPass.service.LogService;
+import com.opencsv.CSVWriter;
+import com.opencsv.bean.StatefulBeanToCsv;
+import com.opencsv.bean.StatefulBeanToCsvBuilder;
+import com.opencsv.exceptions.CsvDataTypeMismatchException;
+import com.opencsv.exceptions.CsvRequiredFieldEmptyException;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
@@ -17,6 +23,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.util.List;
 
 @RestController
@@ -74,5 +81,20 @@ public class LogController {
         return CustomApiResponse.<WeeklyReportResponse>builder()
                 .result(logService.getWeeklyReport(labId))
                 .build();
+    }
+    @Operation(summary = "Get log's csv file", security = {@SecurityRequirement(name = "BearerAuthentication")})
+    @GetMapping(value = "/{labId}/export-csv", produces = "text/csv")
+    public void exportCSV(@PathVariable String labId,HttpServletResponse response) throws IOException, CsvRequiredFieldEmptyException, CsvDataTypeMismatchException {
+        List<LogRespond> logs = logService.getLogs(labId);
+
+        response.setContentType("text/csv");
+        response.setHeader("Content-Disposition", "attachment; filename=\"logs-" +labId+ ".csv\"");
+
+        StatefulBeanToCsv<LogRespond> writer = new StatefulBeanToCsvBuilder<LogRespond>(response.getWriter())
+                .withQuotechar(CSVWriter.NO_QUOTE_CHARACTER)
+                .withSeparator(',')
+                .withOrderedResults(true)
+                .build();
+        writer.write(logs);
     }
 }
