@@ -65,8 +65,8 @@ public class LogService {
         newRecord.setRecordTime(now);
 
         LaboratoryLog recentLog = logRepository
-                .findFirstByUserIdAndLabIdAndStatusOrderByRecordTimeDesc(
-                        newRecord.getUserId(), newRecord.getLabId(), LogStatus.SUCCESS)
+                .findFirstByUserIdAndLabIdAndStatusNotOrderByRecordTimeDesc(
+                        newRecord.getUserId(), newRecord.getLabId(), LogStatus.ILLEGAL)
                 .orElse(null);
         LabMember member = labMemberRepository.findById(new LabMemberKey(newRecord.getLabId(), newRecord.getUserId()))
                 .orElseThrow(() -> new AppException(ErrorCode.NO_RELATION));

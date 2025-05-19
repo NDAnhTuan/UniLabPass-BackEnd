@@ -19,7 +19,7 @@ public interface LogRepository extends JpaRepository<LaboratoryLog, String> {
 
     List<LaboratoryLog> findByLabIdAndUserId(String labId, String userId);
 
-    Optional<LaboratoryLog> findFirstByUserIdAndLabIdAndStatusOrderByRecordTimeDesc(String userId, String labId, LogStatus status);
+    Optional<LaboratoryLog> findFirstByUserIdAndLabIdAndStatusNotOrderByRecordTimeDesc(String userId, String labId, LogStatus status);
 
     @Query(value = """
         SELECT *
