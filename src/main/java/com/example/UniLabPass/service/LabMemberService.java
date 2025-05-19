@@ -91,9 +91,9 @@ public class LabMemberService {
             myUserService.createMyUser(myUserCreationRequest, Role.MEMBER, file);
 
             // Send Qr Code
-            String encodedUserId = aesEncryptionUtil.encrypt(request.getUserId());
-            byte[] qr = qrCodeService.generateQRCode(encodedUserId, 250, 250);
-            emailService.sendQRCode(request.getEmail(),qr);
+//            String encodedUserId = aesEncryptionUtil.encrypt(request.getUserId());
+//            byte[] qr = qrCodeService.generateQRCode(encodedUserId, 250, 250);
+//            emailService.sendQRCode(request.getEmail(),qr);
         }
         else { // Else if member is already exist, then check if the info is as the same with request's data
             MyUser userCheck = myUserRepository.findById(request.getUserId()).orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
@@ -203,7 +203,8 @@ public class LabMemberService {
 
     public LabMemberInfoRespond getLabMemberInfo(String labId, String qrCode, boolean isQrCode) throws Exception {
         globalUtils.checkAuthorizeManager(labId);
-        var memberId = isQrCode ? aesEncryptionUtil.decrypt(qrCode) : qrCode;
+//        var memberId = isQrCode ? aesEncryptionUtil.decrypt(qrCode) : qrCode;
+        var memberId = qrCode;
         LabMemberKey labMemberKey = new LabMemberKey(labId, memberId);
         LabMember labMember = labMemberRepository.findById(labMemberKey).orElseThrow(() -> new AppException(ErrorCode.NO_RELATION));
         return LabMemberInfoRespond.builder()

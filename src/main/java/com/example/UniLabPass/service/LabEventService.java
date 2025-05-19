@@ -51,7 +51,7 @@ public class LabEventService {
     EventGuestMapper eventGuestMapper;
     EventLogMapper eventLogMapper;
 
-    AESEncryptionUtil aesEncryptionUtil;
+//    AESEncryptionUtil aesEncryptionUtil;
 
     @NonFinal
     @Value("${app.Global.VNHour}")
@@ -141,9 +141,9 @@ public class LabEventService {
                             .eventGuestKey(new EventGuestKey(eventId, guest.getGuestId()))
                             .name(guest.getName())
                             .build());
-            String encodedUserId = aesEncryptionUtil.encrypt(guest.getGuestId());
-            byte[] qr = qrCodeService.generateQRCode(encodedUserId, 250, 250);
-            emailService.sendQRCode(guest.getEmail(),qr);
+//            String encodedUserId = aesEncryptionUtil.encrypt(guest.getGuestId());
+//            byte[] qr = qrCodeService.generateQRCode(encodedUserId, 250, 250);
+//            emailService.sendQRCode(guest.getEmail(),qr);
         }
         return "All event guests added";
     }
@@ -161,9 +161,9 @@ public class LabEventService {
     }
 
     // Get single guest info
-    public EventGuestRespond getGuestInfo(String eventId, String qrCode) throws Exception {
+    public EventGuestRespond getGuestInfo(String eventId, String guestId) throws Exception {
         checkEventExists(eventId);
-        var guestId = aesEncryptionUtil.decrypt(qrCode);
+//        var guestId = aesEncryptionUtil.decrypt(qrCode);
         EventGuestKey key = new EventGuestKey(eventId, guestId);
         return eventGuestMapper.toGuestRespond(eventGuestRepository.findByEventGuestKey(key).orElseThrow(
                 () -> new AppException(ErrorCode.GUEST_NOT_EXIST)
@@ -203,8 +203,8 @@ public class LabEventService {
             throw new AppException(ErrorCode.LOG_CREATE_ERROR);
         }
         checkEventExists(request.getEventId());
-        String decodeGuestId = aesEncryptionUtil.decrypt(request.getGuestId());
-        request.setGuestId(decodeGuestId);
+//        String decodeGuestId = aesEncryptionUtil.decrypt(request.getGuestId());
+//        request.setGuestId(decodeGuestId);
         LocalDateTime currentTime = LocalDateTime.now().plusHours(VNHour);
         EventLog newLog = eventLogMapper.toEventLog(request);
         newLog.setRecordTime(currentTime);
