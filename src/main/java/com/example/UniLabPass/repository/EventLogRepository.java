@@ -28,8 +28,8 @@ public interface EventLogRepository extends JpaRepository<EventLog, String> {
           AND NOT EXISTS (
               SELECT 1
               FROM event_log l2
-              WHERE l2.user_id = l.user_id
-                AND l2.lab_id = l.lab_id
+              WHERE l2.guest_id = l.guest_id
+                AND l2.event_id = l.event_id
                 AND l2.record_type = 1
                 AND l2.record_time > l.record_time
           )
