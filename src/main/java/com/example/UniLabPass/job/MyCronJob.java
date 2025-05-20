@@ -44,7 +44,7 @@ public class MyCronJob {
                     .recordType(RecordType.CHECKOUT)
                     .recordTime(now)
                     .status(LogStatus.AUTO)
-                    .photoURL(log.getPhotoURL())
+                    .photoURL("")
                     .build();
             logRepository.save(request);
         }
@@ -56,7 +56,7 @@ public class MyCronJob {
                     .recordType(RecordType.CHECKOUT)
                     .recordTime(now)
                     .status(LogStatus.AUTO)
-                    .photoURL(eventLog.getPhotoURL())
+                    .photoURL("")
                     .build();
             eventLogRepository.save(request);
         }
