@@ -29,7 +29,7 @@ public class MyCronJob {
     @Value("${app.Global.VNHour}")
     int VNHour;
     // Chạy vào 2:30 sáng mỗi ngày
-    @Scheduled(cron = "0 * * * * *")
+    @Scheduled(cron = "0 0 0 * * *")
     public void autoCheckout() throws IOException {
         System.out.println("Cron job running at 2:00 AM...");
         LocalDateTime now = LocalDateTime.now().plusHours(VNHour);
