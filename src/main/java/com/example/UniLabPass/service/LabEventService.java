@@ -221,7 +221,11 @@ public class LabEventService {
             else if (file == null) throw new AppException(ErrorCode.LOG_CREATE_ERROR);
         }
 
-        if (newLog.getRecordType() == RecordType.CHECKOUT && recentLog!= null && recentLog.getRecordType() == RecordType.CHECKOUT) {
+        if (newLog.getRecordType() == RecordType.CHECKOUT && recentLog == null) {
+            throw new AppException(ErrorCode.FIRST_LOG);
+        }
+
+        if (newLog.getRecordType() == RecordType.CHECKOUT && recentLog != null && recentLog.getRecordType() == RecordType.CHECKOUT) {
             throw new AppException(ErrorCode.DUPLICATE_CHECK_OUT);
         }
 

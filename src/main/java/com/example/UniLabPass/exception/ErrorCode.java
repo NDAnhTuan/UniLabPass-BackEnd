@@ -43,7 +43,8 @@ public enum ErrorCode {
     DEVICE_HAS_CHANGED(1030, "Device has changed", HttpStatus.UNAUTHORIZED),
     NOTIFICATION_NOT_EXIST(1031,"There is no notification with this ID", HttpStatus.NOT_FOUND),
     PREMANAGER_ERROR(1032,"You have not accepted the invitation to become an administrator, please accept before continuing this action.", HttpStatus.BAD_REQUEST),
-    NOT_PREMANAGER(1033, "You are not premanager of this lab", HttpStatus.FORBIDDEN)
+    NOT_PREMANAGER(1033, "You are not premanager of this lab", HttpStatus.FORBIDDEN),
+    FIRST_LOG(1034, "First log has to be CHECKIN", HttpStatus.BAD_REQUEST)
     ;
 
     int code;

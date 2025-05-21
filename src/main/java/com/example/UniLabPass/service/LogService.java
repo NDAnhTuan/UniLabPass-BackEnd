@@ -83,6 +83,9 @@ public class LogService {
             if (newRecord.getRecordType() == RecordType.CHECKIN) {
                 if (recentLog!= null && recentLog.getRecordType() == RecordType.CHECKIN) throw new AppException(ErrorCode.DUPLICATE_CHECK_IN);
             }
+            if (newRecord.getRecordType() == RecordType.CHECKOUT) {
+                if (recentLog == null) throw new AppException(ErrorCode.FIRST_LOG);
+            }
             if (newRecord.getRecordType() == RecordType.CHECKOUT && recentLog!= null && recentLog.getRecordType() == RecordType.CHECKOUT) {
                 throw new AppException(ErrorCode.DUPLICATE_CHECK_OUT);
             }
